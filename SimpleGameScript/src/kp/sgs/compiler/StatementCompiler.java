@@ -12,13 +12,16 @@ import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
 import kp.sgs.compiler.opcode.OpcodeList.OpcodeLocation;
 import kp.sgs.compiler.opcode.Opcodes;
+import kp.sgs.compiler.parser.Arguments;
 import kp.sgs.compiler.parser.DataType;
+import kp.sgs.compiler.parser.Identifier;
 import kp.sgs.compiler.parser.Literal;
 import kp.sgs.compiler.parser.Mutable;
 import kp.sgs.compiler.parser.Mutable.MutableEntry;
 import kp.sgs.compiler.parser.Operation;
 import kp.sgs.compiler.parser.Operator;
 import kp.sgs.compiler.parser.Statement;
+import kp.sgs.data.SGSImmutableValue;
 
 /**
  *
@@ -37,7 +40,7 @@ public final class StatementCompiler
             case IDENTIFIER: resultType = compileIdentifier(scope, opcodes, statement); break;
             case LITERAL: resultType = compileLiteral(scope, opcodes, statement); break;
             case MUTABLE: resultType = compileMutable(scope, opcodes, statement); break;
-            case OPERATION: resultType = compileOperation(scope, opcodes, statement); break;
+            case OPERATION: resultType = compileOperation(scope, opcodes, statement, pop); break;
         }
         if(pop)
             opcodes.append(Opcodes.POP);
@@ -110,13 +113,16 @@ public final class StatementCompiler
         }
     }
     
-    public static final DataType compileOperation(NamespaceScope scope, OpcodeList opcodes, Statement operation) throws CompilerError
+    public static final DataType compileOperation(NamespaceScope scope, OpcodeList opcodes, Statement operation, boolean pop) throws CompilerError
     {
         Operation op = (Operation) operation;
         switch(op.getOperator().getOperatorType())
         {
             case UNARY: return compileUnary(scope, opcodes, op.getOperator(), op.getOperand(0));
             case BINARY: return compileBinary(scope, opcodes, op.getOperator(), op.getOperand(0), op.getOperand(1));
+            case ARRAY_GET: return compileArrayGet(scope, opcodes, op.getOperand(0), op.getOperand(1));
+            case PROPERTY_GET: return compilePropertyGet(scope, opcodes, op.getOperand(0), op.getOperand(1));
+            case CALL: return compileCall(scope, opcodes, op.getOperand(0), op.getOperand(1), pop);
         }
     }
     
@@ -299,6 +305,60 @@ public final class StatementCompiler
         if(tleft == DataType.INTEGER && tright == DataType.FLOAT)
             return DataType.FLOAT;
         throw new CompilerError("Cannot cast " + tleft + " to " + tright);
+    }
+    
+    private static DataType compileArrayGet(NamespaceScope scope, OpcodeList opcodes, Statement arrayOp, Statement indexOp) throws CompilerError
+    {
+        compile(scope, opcodes, indexOp, false);
+        if(indexOp.isLiteral())
+        {
+            SGSImmutableValue value = ((Literal) indexOp).getSGSValue();
+            if(value.isInteger() && value.toInt() >= 0 && value.toInt() <= 0xff)
+                opcodes.append(Opcodes.arrayIntGet(value.toInt()));
+            else
+            {
+                compileLiteral(scope, opcodes, indexOp);
+                opcodes.append(Opcodes.ARRAY_GET);
+            }
+        }
+        else
+        {
+            compile(scope, opcodes, indexOp, false);
+            opcodes.append(Opcodes.ARRAY_GET);
+        }
+        return DataType.ANY;
+    }
+    
+    private static DataType compilePropertyGet(NamespaceScope scope, OpcodeList opcodes, Statement objectOp, Identifier identifier) throws CompilerError
+    {
+        compile(scope, opcodes, objectOp, false);
+        opcodes.append(Opcodes.objPGet(scope.registerIdentifier(identifier.toString())));
+        return DataType.ANY;
+    }
+    
+    private static DataType compileCall(NamespaceScope scope, OpcodeList opcodes, Statement funcOp, Arguments args, boolean popReturn) throws CompilerError
+    {
+        if(funcOp.isIdentifier())
+        {
+            NamespaceIdentifier id = scope.getIdentifier(funcOp.toString());
+            if(id.isFunction())
+            {
+                int count = compileArguments(scope, opcodes, args);
+                opcodes.append(Opcodes.localCall(id.getIndex(), count, popReturn));
+                return id.getReturnType();
+            }
+        }
+        compile(scope, opcodes, funcOp, false);
+        int count = compileArguments(scope, opcodes, args);
+        opcodes.append(Opcodes.call(count, popReturn));
+        return DataType.ANY;
+    }
+    
+    private static int compileArguments(NamespaceScope scope, OpcodeList opcodes, Arguments args) throws CompilerError
+    {
+        for(Statement arg : args)
+            compile(scope, opcodes, arg, false);
+        return args.getArgumentCount();
     }
     
     private static DataType compileAssignment(NamespaceScope scope, OpcodeList opcodes, Operator operator, Statement dest, Statement source)

@@ -3,17 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/compiler/opcode/OpcodeList.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/data/SGSReference.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/SGSScript.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/compiler/opcode/Opcode.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/compiler/opcode/Opcodes.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/Main.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/data/SGSValue.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/compiler/BytecodeBuilder.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/data/utils/SGSHeapReference.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/compiler/ScriptBuilder.java</file>
-            <file>file:/H:/My%20files/Pokemon%20project/SimpleGameScript/src/kp/sgs/compiler/RuntimeStack.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/Compiler.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/StatementCompiler.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/Main.java</file>
         </group>
     </open-files>
 </project-private>
