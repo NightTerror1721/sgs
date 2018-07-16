@@ -20,6 +20,7 @@ import kp.sgs.compiler.parser.Mutable;
 import kp.sgs.compiler.parser.Mutable.MutableEntry;
 import kp.sgs.compiler.parser.Operation;
 import kp.sgs.compiler.parser.Operator;
+import kp.sgs.compiler.parser.Scope;
 import kp.sgs.compiler.parser.Statement;
 import kp.sgs.data.SGSImmutableValue;
 
@@ -66,6 +67,9 @@ public final class StatementCompiler
                 break;
             case FUNCTION:
                 opcodes.append(Opcodes.loadFunction(id.getIndex()));
+                break;
+            case LIBRARY_ELEMENT:
+                opcodes.append(Opcodes.libeLoad(id.getIndex()));
                 break;
             default: throw new IllegalStateException();
         }
@@ -123,6 +127,8 @@ public final class StatementCompiler
             case ARRAY_GET: return compileArrayGet(scope, opcodes, op.getOperand(0), op.getOperand(1));
             case PROPERTY_GET: return compilePropertyGet(scope, opcodes, op.getOperand(0), op.getOperand(1));
             case CALL: return compileCall(scope, opcodes, op.getOperand(0), op.getOperand(1), pop);
+            case INVOKE: return compileInvoke(scope, opcodes, op.getOperand(0), op.getOperand(1), op.getOperand(2), pop);
+            case TERNARY_CONDITIONAL: return compileTernaryCondition(scope, opcodes, op.getOperand(0), op.getOperand(1), op.getOperand(2), pop);
         }
     }
     
@@ -137,6 +143,21 @@ public final class StatementCompiler
                 throw new CompilerError("Expected valid local variable to \"&\" operator.");
             opcodes.append(Opcodes.refLocal(id.getIndex()));
             return DataType.ANY;
+        }
+        if(operator == Operator.INDIRECTION)
+        {
+            NamespaceIdentifier id;
+            if(op.isIdentifier() && (id = scope.getIdentifier(op.toString())).isLibraryElement())
+            {
+                opcodes.append(Opcodes.libeRefGet(id.getIndex()));
+                return DataType.ANY;
+            }
+            else
+            {
+                DataType type = compile(scope, opcodes, op, false);
+                opcodes.append(Opcodes.REF_GET);
+                return type;
+            }
         }
         DataType type = compile(scope, opcodes, op, false);
         switch(operator.getSymbol())
@@ -167,9 +188,6 @@ public final class StatementCompiler
                 return type;
             case BITWISE_NOT:
                 opcodes.append(Opcodes.BW_NOT);
-                return type;
-            case INDIRECTION:
-                opcodes.append(Opcodes.REF_GET);
                 return type;
             case CAST_INT:
                 opcodes.append(Opcodes.CAST_INT);
@@ -309,30 +327,48 @@ public final class StatementCompiler
     
     private static DataType compileArrayGet(NamespaceScope scope, OpcodeList opcodes, Statement arrayOp, Statement indexOp) throws CompilerError
     {
-        compile(scope, opcodes, indexOp, false);
+        NamespaceIdentifier id;
+        if(arrayOp.isIdentifier() && (id = scope.getIdentifier(arrayOp.toString())).isLibraryElement());
+        else
+        {
+            id = null;
+            compile(scope, opcodes, arrayOp, false);
+        }
         if(indexOp.isLiteral())
         {
             SGSImmutableValue value = ((Literal) indexOp).getSGSValue();
             if(value.isInteger() && value.toInt() >= 0 && value.toInt() <= 0xff)
-                opcodes.append(Opcodes.arrayIntGet(value.toInt()));
+                if(id != null)
+                    opcodes.append(Opcodes.libeArrayIntGet(id.getIndex(), value.toInt()));
+                else opcodes.append(Opcodes.arrayIntGet(value.toInt()));
             else
             {
                 compileLiteral(scope, opcodes, indexOp);
-                opcodes.append(Opcodes.ARRAY_GET);
+                if(id != null)
+                    opcodes.append(Opcodes.libeArrayGet(id.getIndex()));
+                else opcodes.append(Opcodes.ARRAY_GET);
             }
         }
         else
         {
             compile(scope, opcodes, indexOp, false);
-            opcodes.append(Opcodes.ARRAY_GET);
+            if(id != null)
+                opcodes.append(Opcodes.libeArrayGet(id.getIndex()));
+            else opcodes.append(Opcodes.ARRAY_GET);
         }
         return DataType.ANY;
     }
     
     private static DataType compilePropertyGet(NamespaceScope scope, OpcodeList opcodes, Statement objectOp, Identifier identifier) throws CompilerError
     {
-        compile(scope, opcodes, objectOp, false);
-        opcodes.append(Opcodes.objPGet(scope.registerIdentifier(identifier.toString())));
+        NamespaceIdentifier id;
+        if(objectOp.isIdentifier() && (id = scope.getIdentifier(objectOp.toString())).isLibraryElement())
+            opcodes.append(Opcodes.libePGet(id.getIndex(), scope.registerIdentifier(identifier.toString())));
+        else
+        {
+            compile(scope, opcodes, objectOp, false);
+            opcodes.append(Opcodes.objPGet(scope.registerIdentifier(identifier.toString())));
+        }
         return DataType.ANY;
     }
     
@@ -341,10 +377,16 @@ public final class StatementCompiler
         if(funcOp.isIdentifier())
         {
             NamespaceIdentifier id = scope.getIdentifier(funcOp.toString());
-            if(id.isFunction())
+            if(id.isFunction() || id.isLibraryElement())
             {
                 int count = compileArguments(scope, opcodes, args);
                 opcodes.append(Opcodes.localCall(id.getIndex(), count, popReturn));
+                return id.getReturnType();
+            }
+            else if(id.isLibraryElement())
+            {
+                int count = compileArguments(scope, opcodes, args);
+                opcodes.append(Opcodes.libeCall(id.getIndex(), count, popReturn));
                 return id.getReturnType();
             }
         }
@@ -354,11 +396,46 @@ public final class StatementCompiler
         return DataType.ANY;
     }
     
+    private static DataType compileInvoke(NamespaceScope scope, OpcodeList opcodes, Statement objOp, Identifier property, Arguments args, boolean popReturn) throws CompilerError
+    {
+        compile(scope, opcodes, objOp, false);
+        int count = compileArguments(scope, opcodes, args);
+        NamespaceIdentifier id = scope.getIdentifier(property.toString());
+        opcodes.append(Opcodes.invoke(id.getIndex(), count, popReturn));
+        return DataType.ANY;
+    }
+    
     private static int compileArguments(NamespaceScope scope, OpcodeList opcodes, Arguments args) throws CompilerError
     {
         for(Statement arg : args)
             compile(scope, opcodes, arg, false);
         return args.getArgumentCount();
+    }
+    
+    private static DataType compileTernaryCondition(NamespaceScope scope, OpcodeList opcodes, Statement condOp, Statement trueOp, Statement falseOp, boolean pop) throws CompilerError
+    {
+        OpcodeLocation falseJump = compileDefaultIf(scope, opcodes, falseOp);
+        DataType trueType = compile(scope, opcodes, trueOp, pop);
+        OpcodeLocation endJump = opcodes.append(Opcodes.goTo());
+        opcodes.setJumpOpcodeLocationToBottom(falseJump);
+        DataType falseType = compile(scope, opcodes, trueOp, pop);
+        opcodes.setJumpOpcodeLocationToBottom(endJump);
+        if(!pop)
+            scope.getRuntimeStack().pop();
+        return DataType.canUseImplicitCast(trueType, falseType)
+                ? trueType : DataType.canUseImplicitCast(falseType, trueType)
+                ? falseType : DataType.ANY;
+    }
+    
+    private static DataType compileNewFunction(NamespaceScope scope, OpcodeList opcodes, Operation op, boolean pop) throws CompilerError
+    {
+        if(op.getOperandCount() == 2)
+            return compileNewFunction(scope, opcodes, null, op.getOperand(0), op.getOperand(1), pop);
+        return compileNewFunction(scope, opcodes, op.getOperand(0), op.getOperand(1), op.getOperand(2), pop);
+    }
+    public static final DataType compileNewFunction(NamespaceScope scope, OpcodeList opcodes, Identifier name, Arguments pars, Scope funcScope, boolean pop) throws CompilerError
+    {
+        
     }
     
     private static DataType compileAssignment(NamespaceScope scope, OpcodeList opcodes, Operator operator, Statement dest, Statement source)

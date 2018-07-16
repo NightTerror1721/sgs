@@ -6,12 +6,13 @@
 package kp.sgs.lib;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  *
  * @author Asus
  */
-public final class SGSLibraryRepository
+public final class SGSLibraryRepository implements Iterable<SGSLibrary>
 {
     private final HashMap<String, SGSLibrary> libs = new HashMap<>();
     
@@ -33,4 +34,7 @@ public final class SGSLibraryRepository
     {
         return libs.remove(name);
     }
+
+    @Override
+    public final Iterator<SGSLibrary> iterator() { return libs.values().iterator(); }
 }

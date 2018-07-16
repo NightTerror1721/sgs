@@ -27,6 +27,9 @@ import kp.sgs.data.SGSObject;
 import kp.sgs.data.SGSString;
 import kp.sgs.data.SGSValue;
 import kp.sgs.data.SGSValue.Type.ImmutableType;
+import kp.sgs.lib.SGSLibrary;
+import kp.sgs.lib.SGSLibraryElement;
+import kp.sgs.lib.SGSLibraryRepository;
 
 /**
  *
@@ -58,6 +61,14 @@ public final class SGSScriptIO
             dos.writeInt(f.length);
             dos.write(f);
         }
+        
+        /* Library elements */
+        dos.writeInt(script.libelements.length);
+        for(SGSLibraryElement e : script.libelements)
+        {
+            dos.writeUTF(e.getLibrary().getLibraryName());
+            dos.writeUTF(e.getElementName());
+        }
     }
     public static final void write(SGSScript script, File file) throws IOException
     {
@@ -68,7 +79,7 @@ public final class SGSScriptIO
     }
     
     
-    public static final SGSScript read(InputStream in) throws IOException
+    public static final SGSScript read(InputStream in, SGSLibraryRepository libs) throws IOException
     {
         DataInputStream dis = new DataInputStream(new BufferedInputStream(in, 65536));
         if(dis.readInt() != SGSConstants.MAGIC_NUMBER)
@@ -92,13 +103,27 @@ public final class SGSScriptIO
             dis.read(functions[i]);
         }
         
-        return new SGSScript(constants, identifiers, functions);
+        /* Library elements */
+        SGSLibraryElement[] libelements = new SGSLibraryElement[dis.readInt()];
+        for(int i=0;i<libelements.length;i++)
+        {
+            String libname = dis.readUTF();
+            SGSLibrary lib = libs.getLibrary(libname);
+            if(lib == null)
+                throw new IOException("Library " + libname + " not found.");
+            String elementName = dis.readUTF();
+            if(!lib.hasLibraryElement(elementName))
+                throw new IOException("Cannot found " + elementName + " element in " + libname + " library.");
+            libelements[i] = lib.getLibraryElement(elementName);
+        }
+        
+        return new SGSScript(constants, identifiers, functions, libelements);
     }
-    public static final SGSScript read(File file) throws IOException
+    public static final SGSScript read(File file, SGSLibraryRepository libs) throws IOException
     {
         try(FileInputStream fis = new FileInputStream(file))
         {
-            return read(fis);
+            return read(fis, libs);
         }
     }
     

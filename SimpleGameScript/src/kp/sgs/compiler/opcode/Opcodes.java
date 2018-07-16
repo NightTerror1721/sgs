@@ -21,6 +21,9 @@ public final class Opcodes
     private static Opcode opcode(int opcode, int stackPush, int stackPop, byte idx0) { return new MonoOpcode(opcode, stackPush, stackPop, idx0); }
     private static Opcode opcode(int opcode, int stackPush, int stackPop, byte idx0, byte idx1) { return new BiOpcode(opcode, stackPush, stackPop, idx0, idx1); }
     private static Opcode opcode(int opcode, int stackPush, int stackPop, byte idx0, byte idx1, byte idx2) { return new TriOpcode(opcode, stackPush, stackPop, idx0, idx1, idx2); }
+    private static Opcode opcode(int opcode, int stackPush, int stackPop, byte idx0, byte idx1, byte idx2, byte idx3) {
+       return new TetraOpcode(opcode, stackPush, stackPop, idx0, idx1, idx2, idx3);
+    }
     
     public static final Opcode NOP = opcode(Instruction.NOP, 0, 0); 
     
@@ -29,7 +32,7 @@ public final class Opcodes
         if(index > 0xffff)
             throw new CompilerError("constant index overflow");
         if(index > 0xff)
-            return opcode(Instruction.LOAD_CONST16, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+            return opcode(Instruction.LOAD_CONST16, 1, 0, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
         return opcode(Instruction.LOAD_CONST, 1, 0, (byte) (index & 0xff));
     }
     public static final Opcode loadVar(int index) throws CompilerError
@@ -121,16 +124,16 @@ public final class Opcodes
         if(index > 0xffff)
             throw new CompilerError("identifier index overflow");
         if(index > 0xff)
-            return opcode(Instruction.OBJ_PGET16, 1, 2, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
-        return opcode(Instruction.OBJ_PGET, 1, 2, (byte) (index & 0xff));
+            return opcode(Instruction.OBJ_PGET16, 1, 1, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+        return opcode(Instruction.OBJ_PGET, 1, 1, (byte) (index & 0xff));
     }
     public static final Opcode objPSet(int index) throws CompilerError
     {
         if(index > 0xffff)
             throw new CompilerError("identifier index overflow");
         if(index > 0xff)
-            return opcode(Instruction.OBJ_PSET16, 1, 3, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
-        return opcode(Instruction.OBJ_PSET, 1, 3, (byte) (index & 0xff));
+            return opcode(Instruction.OBJ_PSET16, 1, 2, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+        return opcode(Instruction.OBJ_PSET, 1, 2, (byte) (index & 0xff));
     }
     
     public static final Opcode REF_HEAP = opcode(Instruction.REF_HEAP, 1, 0);
@@ -312,6 +315,82 @@ public final class Opcodes
         }
     }
     
+    public static final Opcode libeLoad(int index) throws CompilerError
+    {
+        if(index > 0xffff)
+            throw new CompilerError("Library Element index overflow");
+        if(index > 0xff)
+            return opcode(Instruction.LIBE_LOAD16, 1, 0, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+        return opcode(Instruction.LIBE_LOAD, 1, 0, (byte) (index & 0xff));
+    }
+    
+    public static final Opcode libeArrayGet(int elementIndex) throws CompilerError
+    {
+        if(elementIndex > 0xffff)
+            throw new CompilerError("Library Element index overflow");
+        if(elementIndex > 0xff)
+            return opcode(Instruction.LIBE_A_GET16, 1, 1, (byte) (elementIndex & 0xff), (byte) ((elementIndex >>> 8) & 0xff));
+        return opcode(Instruction.LIBE_A_GET, 1, 1, (byte) (elementIndex & 0xff));
+    }
+    
+    public static final Opcode libeArrayIntGet(int elementIndex, int arrayIntIndex) throws CompilerError
+    {
+        if(elementIndex > 0xffff)
+            throw new CompilerError("Library Element index overflow");
+        if(arrayIntIndex > 0xff)
+            throw new CompilerError("array int index overflow");
+        if(elementIndex > 0xff)
+            return opcode(Instruction.LIBE_AINT_GET16, 1, 0, (byte) (elementIndex & 0xff), (byte) ((elementIndex >>> 8) & 0xff), (byte) (arrayIntIndex & 0xff));
+        return opcode(Instruction.LIBE_AINT_GET, 1, 0, (byte) (elementIndex & 0xff), (byte) (arrayIntIndex & 0xff));
+    }
+    
+    public static final Opcode libePGet(int elementIndex, int identifierIndex) throws CompilerError
+    {
+        if(elementIndex > 0xffff)
+            throw new CompilerError("Library Element index overflow");
+        if(identifierIndex > 0xffff)
+            throw new CompilerError("identifier index overflow");
+        if(elementIndex > 0xff)
+            if(identifierIndex > 0xff)
+                return opcode(Instruction.LIBE_P16_GET16, 1, 0,
+                        (byte) (elementIndex & 0xff), (byte) ((elementIndex >>> 8) & 0xff), (byte) (identifierIndex & 0xff), (byte) ((identifierIndex >>> 8) & 0xff));
+            else return opcode(Instruction.LIBE_P_GET16, 1, 0, (byte) (elementIndex & 0xff), (byte) ((elementIndex >>> 8) & 0xff), (byte) (identifierIndex & 0xff));
+        else if(identifierIndex > 0xff)
+            return opcode(Instruction.LIBE_P16_GET, 1, 0, (byte) (elementIndex & 0xff), (byte) (identifierIndex & 0xff), (byte) ((identifierIndex >>> 8) & 0xff));
+        else return opcode(Instruction.LIBE_P_GET, 1, 0, (byte) (elementIndex & 0xff), (byte) (identifierIndex & 0xff));
+    }
+    
+    public static final Opcode libeRefGet(int index) throws CompilerError
+    {
+        if(index > 0xffff)
+            throw new CompilerError("Library Element index overflow");
+        if(index > 0xff)
+            return opcode(Instruction.LIBE_REF_GET16, 1, 0, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+        return opcode(Instruction.LIBE_REF_GET, 1, 0, (byte) (index & 0xff));
+    }
+    
+    public static final Opcode libeCall(int index, int argumentCount, boolean popReturn) throws CompilerError
+    {
+        if(index > 0xffff)
+            throw new CompilerError("identifier index overflow");
+        if(argumentCount > 0xff)
+            throw new CompilerError("argument count overflow");
+        switch((index > 0xff ? 0x1 : 0x0) | (argumentCount > 0 ? 0x2 : 0x0) | (popReturn ? 0x4 : 0x0))
+        {
+            default: throw new IllegalStateException();
+            case 0x0: return opcode(Instruction.LIBE_VCALL_NA, 0, 0, (byte) (index & 0xff));
+            case 0x1: return opcode(Instruction.LIBE_VCALL_NA16, 0, 0, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+            case 0x2: return opcode(Instruction.LIBE_VCALL, 0, argumentCount, (byte) argumentCount, (byte) (index & 0xff));
+            case 0x4: return opcode(Instruction.LIBE_CALL_NA, 1, 0, (byte) (index & 0xff));
+            case 0x1 | 0x2: return opcode(Instruction.LIBE_VCALL16, 0, argumentCount, (byte) argumentCount, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+            case 0x1 | 0x4: return opcode(Instruction.LIBE_CALL_NA16, 1, 0, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+            case 0x2 | 0x4: return opcode(Instruction.LIBE_CALL, 1, argumentCount, (byte) argumentCount, (byte) (index & 0xff));
+            case 0x1 | 0x2 | 0x4: return opcode(Instruction.LIBE_CALL16, 1, argumentCount, (byte) argumentCount, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+        }
+    }
+    
+    
+    
     
     
     
@@ -378,6 +457,33 @@ public final class Opcodes
             bytecode[offset + 1] = idx0;
             bytecode[offset + 2] = idx1;
             bytecode[offset + 3] = idx2;
+        }
+    }
+    
+    private static final class TetraOpcode extends Opcode
+    {
+        private final byte idx0;
+        private final byte idx1;
+        private final byte idx2;
+        private final byte idx3;
+        
+        private TetraOpcode(int opcode, int stackPush, int stackPop, byte idx0, byte idx1, byte idx2, byte idx3)
+        {
+            super(opcode, 4, stackPush, stackPop);
+            this.idx0 = idx0;
+            this.idx1 = idx1;
+            this.idx2 = idx2;
+            this.idx3 = idx3;
+        }
+        
+        @Override
+        public final void build(byte[] bytecode, int offset)
+        {
+            super.build(bytecode, offset);
+            bytecode[offset + 1] = idx0;
+            bytecode[offset + 2] = idx1;
+            bytecode[offset + 3] = idx2;
+            bytecode[offset + 4] = idx3;
         }
     }
 }

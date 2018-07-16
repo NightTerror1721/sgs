@@ -39,6 +39,8 @@ public final class Operation extends Statement
         }
         return false;
     }
+    
+    public final int getOperandCount() { return operands.length; }
 
     public final Operator getOperator() { return operator; }
 
@@ -139,12 +141,14 @@ public final class Operation extends Statement
     
     public static final Operation newFunction(CodeFragment identifier, CodeFragment arguments, CodeFragment scope) throws CompilerError
     {
-        if(!identifier.isIdentifier())
+        if(identifier != null && !identifier.isIdentifier())
             throw new CompilerError("Expected a valid identifier in new function \"def <identifier?>(<arguments...>)\". But found: " + identifier);
         if(!arguments.isArguments())
             throw new CompilerError("Expected a valid arguments list in new function. But found: " + arguments);
         if(!scope.isScope())
             throw new CompilerError("Expected a valid scope in new function. But found: " + scope);
+        if(identifier == null)
+            return new Operation(Operator.NEW_FUNCTION, (Arguments) arguments, (Scope) scope);
         return new Operation(Operator.NEW_FUNCTION, (Identifier) identifier, (Arguments) arguments, (Scope) scope);
     }
     

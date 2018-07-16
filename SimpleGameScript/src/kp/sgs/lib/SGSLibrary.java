@@ -5,8 +5,6 @@
  */
 package kp.sgs.lib;
 
-import kp.sgs.data.SGSValue;
-
 /**
  *
  * @author Asus
@@ -14,6 +12,20 @@ import kp.sgs.data.SGSValue;
 public interface SGSLibrary
 {
     String getLibraryName();
-    SGSValue getLibraryElement(String name);
+    SGSLibraryElement getLibraryElement(String name);
     boolean hasLibraryElement(String name);
+    
+    static void linkElementToLibrary(SGSLibraryElement e, SGSLibrary lib)
+    {
+        if(e.lib != null)
+            throw new IllegalArgumentException("Element is already linked with other library.");
+        e.lib = lib;
+    }
+    
+    static void unlinkElementToLibrary(SGSLibraryElement e)
+    {
+        if(e.lib == null)
+            throw new IllegalArgumentException("Element not linked with any library.");
+        e.lib = null;
+    }
 }

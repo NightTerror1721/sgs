@@ -3,9 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/Compiler.java</file>
-            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/StatementCompiler.java</file>
-            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/Main.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/SGSScript.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/Operation.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/Operator.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/OperatorSymbol.java</file>
         </group>
     </open-files>
 </project-private>

@@ -16,6 +16,9 @@ import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.parser.DataType;
 import kp.sgs.compiler.parser.Literal;
 import kp.sgs.data.SGSImmutableValue;
+import kp.sgs.lib.SGSLibrary;
+import kp.sgs.lib.SGSLibraryElement;
+import kp.sgs.lib.SGSLibraryRepository;
 
 /**
  *
@@ -24,18 +27,22 @@ import kp.sgs.data.SGSImmutableValue;
 public final class ScriptBuilder
 {
     private final HashMap<SGSImmutableValue, Constant> literals = new HashMap<>();
+    private final HashMap<String, LibraryElement> usedLibElements = new HashMap<>();
     private final HashMap<String, Integer> identifiers = new HashMap<>();
     private final LinkedList<Constant> constants = new LinkedList<>();
     private final LinkedList<Function> functions = new LinkedList<>();
+    private final LinkedList<LibraryElement> libelements = new LinkedList<>();
     private final NamespaceScope rootNamespace;
     private final RuntimeStack stack;
     private final String mainFunctionName;
+    private final SGSLibraryRepository libs;
     
     public ScriptBuilder(CompilerProperties props)
     {
         this.rootNamespace = new NamespaceScope(null, false);
         this.stack = new RuntimeStack();
         this.mainFunctionName = props.getFunctionName();
+        this.libs = props.getLibraryRepository();
         
         functions.add(new Function(mainFunctionName, 0)); //main function
     }
@@ -51,6 +58,8 @@ public final class ScriptBuilder
     public final List<Constant> getConstants() { return Collections.unmodifiableList(constants); }
     
     public final List<Function> getFunctions() { return Collections.unmodifiableList(functions); }
+    
+    public final List<LibraryElement> getLibraryElements() { return Collections.unmodifiableList(libelements); }
     
     private Constant createConstant(String name, Literal literal)
     {
@@ -85,6 +94,26 @@ public final class ScriptBuilder
         return index;
     }
     
+    public final LibraryElement findLibraryElement(String name)
+    {
+        LibraryElement e = usedLibElements.getOrDefault(name, null);
+        if(e != null || libs == null)
+            return e;
+        for(SGSLibrary lib : libs)
+            if(lib.hasLibraryElement(name))
+            {
+                SGSLibraryElement libe = lib.getLibraryElement(name);
+                if(libe != null)
+                {
+                    e = new LibraryElement(name, libelements.size(), libe);
+                    libelements.add(e);
+                    usedLibElements.put(name, e);
+                    return e;
+                }
+            }
+        return null;
+    }
+    
     public final SGSScript buildScript()
     {
         SGSImmutableValue[] cnsts = new SGSImmutableValue[constants.size()];
@@ -99,7 +128,11 @@ public final class ScriptBuilder
         for(Function f : functions)
             funcs[f.getIndex()] = f.bytecode;
         
-        return new SGSScript(cnsts, ids, funcs);
+        SGSLibraryElement[] libels = new SGSLibraryElement[libelements.size()];
+        for(LibraryElement e : libelements)
+            libels[e.getIndex()] = e.element;
+        
+        return new SGSScript(cnsts, ids, funcs, libels);
     }
     
     
@@ -162,7 +195,9 @@ public final class ScriptBuilder
                     ids.put(id.getName(), id);
                     return id;
                 }
-                else return parent.getIdentifier(name);
+                if((id = findLibraryElement(name)) != null)
+                    return id;
+                return parent.getIdentifier(name);
             }
             return new GlobalVariable(name);
         }
@@ -225,6 +260,7 @@ public final class ScriptBuilder
         public final boolean isFunction() { return getIdentifierType() == IdentifierType.FUNCTION; }
         public final boolean isConstant() { return getIdentifierType() == IdentifierType.CONSTANT; }
         public final boolean isArgument() { return getIdentifierType() == IdentifierType.ARGUMENT; }
+        public final boolean isLibraryElement() { return getIdentifierType() == IdentifierType.LIBRARY_ELEMENT; }
         
         public final String getName() { return name; }
         public final int getIndex() { return index; }
@@ -232,6 +268,7 @@ public final class ScriptBuilder
         public DataType getReturnType() { return null; }
         public boolean isReassignable() { return true; }
         public boolean needInherition() { return false; }
+        public SGSLibraryElement getLibraryElement() { return null; }
     }
     
     public class LocalVariable extends NamespaceIdentifier
@@ -305,16 +342,35 @@ public final class ScriptBuilder
         
         @Override public final IdentifierType getIdentifierType() { return IdentifierType.FUNCTION; }
         
-        @Override public final DataType getReturnType() { return null; }
+        @Override public final DataType getReturnType() { return returnType; }
         @Override public final boolean isReassignable() { return false; }
         
         public final void setReturnType(DataType type) { this.returnType = Objects.requireNonNull(type); }
         public final void setBytecode(byte[] bytecode) { this.bytecode = Objects.requireNonNull(bytecode); }
     }
     
+    public final class LibraryElement extends NamespaceIdentifier
+    {
+        private final SGSLibraryElement element;
+
+        public LibraryElement(String name, int index, SGSLibraryElement element)
+        {
+            super(name, index);
+            this.element = Objects.requireNonNull(element);
+        }
+        
+        @Override
+        public final IdentifierType getIdentifierType() { return IdentifierType.LIBRARY_ELEMENT; }
+        
+        @Override public DataType getType() { DataType t; return (t = element.getValueType()) == null ? DataType.ANY : t; }
+        @Override public DataType getReturnType() { DataType t; return (t = element.getReturnType()) == null ? DataType.ANY : t; }
+        @Override public final boolean isReassignable() { return false; }
+        @Override public SGSLibraryElement getLibraryElement() { return null; }
+    }
+    
     
     public static enum IdentifierType
     {
-        LOCAL_VARIABLE, GLOBAL_VARIABLE, CONSTANT, ARGUMENT, FUNCTION
+        LOCAL_VARIABLE, GLOBAL_VARIABLE, CONSTANT, ARGUMENT, FUNCTION, LIBRARY_ELEMENT
     }
 }

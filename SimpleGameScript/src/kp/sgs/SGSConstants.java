@@ -165,5 +165,27 @@ public interface SGSConstants
         int VINVOKE16       = 0x72; // <args_len> <instruction_idx|0-7> <instruction_idx|8-15>
         int VINVOKE_NA      = 0x73; // <identifier_idx>
         int VINVOKE_NA16    = 0x74; // <instruction_idx|0-7> <instruction_idx|8-15>
+        
+        int LIBE_LOAD       = 0x75; // <libelement_idx>
+        int LIBE_LOAD16     = 0x76; // <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_A_GET      = 0x77; // <libelement_idx>
+        int LIBE_A_GET16    = 0x78; // <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_AINT_GET   = 0x79; // <libelement_idx> <local_value>
+        int LIBE_AINT_GET16 = 0x7A; // <libelement_idx|0-7> <libelement_idx|8-15> <local_value>
+        int LIBE_P_GET      = 0x7B; // <libelement_idx> <identifier_idx>
+        int LIBE_P16_GET    = 0x7C; // <libelement_idx> <identifier_idx|0-7> <identifier_idx|8-15>
+        int LIBE_P_GET16    = 0x7D; // <libelement_idx|0-7> <libelement_idx|8-15> <identifier_idx>
+        int LIBE_P16_GET16  = 0x7E; // <libelement_idx|0-7> <libelement_idx|8-15> <identifier_idx|0-7> <identifier_idx|8-15>
+        int LIBE_REF_GET    = 0x7F; // <libelement_idx>
+        int LIBE_REF_GET16  = 0x80; // <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_CALL       = 0x81; // <args_len> <libelement_idx>
+        int LIBE_CALL16     = 0x82; // <args_len> <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_CALL_NA    = 0x83; // <libelement_idx>
+        int LIBE_CALL_NA16  = 0x84; // <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_VCALL      = 0x85; // <args_len> <libelement_idx>
+        int LIBE_VCALL16    = 0x86; // <args_len> <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_VCALL_NA   = 0x87; // <libelement_idx>
+        int LIBE_VCALL_NA16 = 0x88; // <libelement_idx|0-7> <libelement_idx|8-15>
+        
     }
 }
