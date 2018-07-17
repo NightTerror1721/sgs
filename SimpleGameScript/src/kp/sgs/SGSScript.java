@@ -5,18 +5,27 @@
  */
 package kp.sgs;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import static kp.sgs.SGSConstants.Instruction.*;
+import kp.sgs.data.SGSArray;
 import kp.sgs.data.SGSFloat;
 import kp.sgs.data.SGSFunction;
 import kp.sgs.data.SGSImmutableValue;
 import kp.sgs.data.SGSInteger;
 import kp.sgs.data.SGSMutableArray;
 import kp.sgs.data.SGSMutableObject;
+import kp.sgs.data.SGSObject;
 import kp.sgs.data.SGSReference;
 import kp.sgs.data.SGSString;
+import kp.sgs.data.SGSUserdata;
 import kp.sgs.data.SGSValue;
+import static kp.sgs.data.SGSValue.FALSE;
+import static kp.sgs.data.SGSValue.TRUE;
 import kp.sgs.data.utils.SGSHeapReference;
+import kp.sgs.data.utils.SGSIterator;
 import kp.sgs.lib.SGSLibraryElement;
 
 /**
@@ -63,7 +72,7 @@ public final class SGSScript
                 case LOAD_CONST: stack[sit++] = constants[code[inst++] & 0xff]; break;
                 case LOAD_CONST16: stack[sit++] = constants[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)]; break;
                 case LOAD_VAR: stack[sit++] = stack[code[inst++] & 0xff]; break;
-                case LOAD_ARG: stack[sit++] = args[code[inst++] & 0xff]; break;
+                case LOAD_ARG: stack[sit++] = (code[inst++] & 0xff) >= args.length ? SGSValue.UNDEFINED : args[code[inst - 1] & 0xff]; break;
                 case LOAD_FUNCTION: stack[sit++] = loadFunctionFromCache(code[inst++ & 0xff]); break;
                 case LOAD_FUNCTION16: stack[sit++] = loadFunctionFromCache((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); break;
                 case LOAD_CLOSURE: {
@@ -294,6 +303,7 @@ public final class SGSScript
                 } break;
                 case LIBE_VCALL_NA: libelements[code[inst++] & 0xff].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
                 case LIBE_VCALL_NA16: libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
+                case ARGS_TO_ARRAY: stack[code[inst++] & 0xff] = new Varargs(args, code[inst++] & 0xff); break;
             }
         }
     }
@@ -375,5 +385,88 @@ public final class SGSScript
             stack[varIdx] = value;
             return value == null ? UNDEFINED : value;
         }
+    }
+    
+    private static final class Varargs extends SGSUserdata
+    {
+        private final SGSValue[] args;
+        private final int offset;
+        
+        private Varargs(SGSValue[] args, int offset)
+        {
+            this.args = args;
+            this.offset = offset;
+        }
+        
+        @Override public final int getDataType() { return Type.ARRAY; }
+        @Override public final int toInt() { return args.length - offset; }
+        @Override public final long toLong() { return args.length - offset; }
+        @Override public final float toFloat() { return args.length - offset; }
+        @Override public final double toDouble() { return args.length - offset; }
+        @Override public final boolean toBoolean() { return args.length - offset > 0; }
+        @Override public final String toString() { return Arrays.toString(Arrays.copyOf(args, args.length - offset)); }
+        @Override public final SGSArray toArray() { return SGSArray.of(false, Arrays.copyOf(args, args.length - offset)); }
+        @Override public final SGSObject toObject() { return SGSObject.of(false, Arrays.copyOf(args, args.length - offset)); }
+
+
+        /* Comparison operators */
+        @Override public final SGSValue operatorEquals(SGSValue value) { return Arrays.equals(args, value.toArray().array()) ? TRUE : FALSE; }
+        @Override public final SGSValue operatorNotEquals(SGSValue value) { return Arrays.equals(args, value.toArray().array()) ? FALSE : TRUE; }
+        @Override public final SGSValue operatorNegate() { return args.length - offset <= 0 ?  TRUE : FALSE; }
+        @Override public final SGSValue operatorConcat(SGSValue value) { return new SGSString(toString().concat(value.toString())); }
+        @Override public final int      operatorLength() { return args.length - offset; }
+
+
+        /* Math operators */
+        @Override public final SGSValue operatorPlus(SGSValue value)
+        {
+            SGSValue[] result;
+            if(value.isArray())
+            {
+                SGSValue[] other = value.toArray().array();
+                result = new SGSValue[args.length - offset + other.length];
+                System.arraycopy(args, offset, result, 0, args.length - offset);
+                System.arraycopy(other, 0, result, args.length - offset, other.length);
+            }
+            else
+            {
+                result = new SGSValue[args.length - offset + 1];
+                result[args.length - offset] = value;
+                System.arraycopy(args, offset, result, 0, args.length - offset);
+            }
+            return new SGSMutableArray(result);
+        }
+        @Override public final SGSValue operatorMinus(SGSValue value)
+        {
+            List<SGSValue> other = Arrays.asList(value.toArray().array());
+            return new SGSMutableArray(Arrays.stream(args, offset, args.length).filter(e -> other.contains(e)).toArray(size -> new SGSValue[size]));
+        }
+        
+        @Override public final SGSValue operatorGet(SGSValue index) { return args[offset + index.toInt()]; }
+        @Override public final SGSValue operatorSet(SGSValue index, SGSValue value) { return args[offset + index.toInt()] = value; }
+        @Override public final SGSValue operatorGet(int index) { return args[offset + index]; }
+        @Override public final SGSValue operatorSet(int index, SGSValue value) { return args[offset + index] = value; }
+        
+        @Override public final SGSValue operatorIterator()
+        {
+            return new SGSIterator(new Iterator<SGSValue>()
+            {
+                private int it = offset;
+                @Override public final boolean hasNext() { return it < args.length; }
+                @Override public final SGSValue next() { return args[it++]; }
+            });
+        }
+        
+        @Override public boolean equals(Object o)
+        {
+            return o instanceof Varargs && Arrays.equals(args, ((Varargs) o).args);
+        }
+
+        @Override public final int hashCode()
+        {
+            int hash = 7;
+            hash = 67 * hash + Arrays.deepHashCode(this.args);
+            return hash;
+        }                 
     }
 }

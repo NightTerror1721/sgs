@@ -77,6 +77,7 @@ public final class OpcodeList implements Iterable<OpcodeList.OpcodeLocation>
         last.next = bottom;
         bottom.previous = last;
         stack.modify(e);
+        size++;
         return last;
     }
     
@@ -111,6 +112,7 @@ public final class OpcodeList implements Iterable<OpcodeList.OpcodeLocation>
         newloc.previous.next = newloc;
         loc.previous = newloc;
         stack.modify(element);
+        size++;
         return newloc;
     }
     public final OpcodeLocation insertBefore(OpcodeLocation loc, Opcode element) throws CompilerError { return insert(loc.previous, element); }
@@ -160,6 +162,7 @@ public final class OpcodeList implements Iterable<OpcodeList.OpcodeLocation>
         bottom = new OpcodeLocation();
         top.next = bottom;
         bottom.previous = top;
+        size = 0;
     }
 
     public final Opcode get(OpcodeLocation loc)

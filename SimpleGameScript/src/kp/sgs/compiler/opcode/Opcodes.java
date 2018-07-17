@@ -389,6 +389,15 @@ public final class Opcodes
         }
     }
     
+    public static final Opcode argsToArray(int varIndex, int offsetIndex) throws CompilerError
+    {
+        if(varIndex > 0xff)
+            throw new CompilerError("variable index overflow");
+        if(offsetIndex > 0xff)
+            throw new CompilerError("args offset index overflow");
+        return opcode(Instruction.ARGS_TO_ARRAY, 0, 0, (byte) (varIndex & 0xff), (byte) (offsetIndex & 0xff));
+    }
+    
     
     
     

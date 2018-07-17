@@ -6,6 +6,7 @@
 package kp.sgs.compiler;
 
 import kp.sgs.compiler.ScriptBuilder.Constant;
+import kp.sgs.compiler.ScriptBuilder.Function;
 import kp.sgs.compiler.ScriptBuilder.NamespaceIdentifier;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
 import kp.sgs.compiler.exception.CompilerError;
@@ -22,6 +23,7 @@ import kp.sgs.compiler.parser.Operation;
 import kp.sgs.compiler.parser.Operator;
 import kp.sgs.compiler.parser.Scope;
 import kp.sgs.compiler.parser.Statement;
+import kp.sgs.compiler.parser.Varargs;
 import kp.sgs.data.SGSImmutableValue;
 
 /**
@@ -129,6 +131,9 @@ public final class StatementCompiler
             case CALL: return compileCall(scope, opcodes, op.getOperand(0), op.getOperand(1), pop);
             case INVOKE: return compileInvoke(scope, opcodes, op.getOperand(0), op.getOperand(1), op.getOperand(2), pop);
             case TERNARY_CONDITIONAL: return compileTernaryCondition(scope, opcodes, op.getOperand(0), op.getOperand(1), op.getOperand(2), pop);
+            case NEW_FUNCTION: return compileNewFunction(scope, opcodes, op, pop);
+            case ASSIGNMENT: return compileAssignment(scope, opcodes, op.getOperator().getInnerOperator(), op.getOperand(0), op.getOperand(1));
+            default: throw new IllegalStateException();
         }
     }
     
@@ -163,20 +168,16 @@ public final class StatementCompiler
         switch(operator.getSymbol())
         {
             case SUFIX_INCREMENT:
-                opcodes.append(Opcodes.INC, Opcodes.DUP);
-                store(scope, opcodes, op, type);
+                store(scope, opcodes, (s, o) -> o.append(Opcodes.INC, Opcodes.DUP), type);
                 return type;
             case SUFIX_DECREMENT:
-                opcodes.append(Opcodes.DEC, Opcodes.DUP);
-                store(scope, opcodes, op, type);
+                store(scope, opcodes, (s, o) -> o.append(Opcodes.DEC, Opcodes.DUP), type);
                 return type;
             case PREFIX_INCREMENT:
-                opcodes.append(Opcodes.DUP, Opcodes.INC);
-                store(scope, opcodes, op, type);
+                store(scope, opcodes, (s, o) -> o.append(Opcodes.DUP, Opcodes.INC), type);
                 return type;
             case PREFIX_DECREMENT:
-                opcodes.append(Opcodes.DUP, Opcodes.DEC);
-                store(scope, opcodes, op, type);
+                store(scope, opcodes, (s, o) -> o.append(Opcodes.DUP, Opcodes.DEC), type);
                 return type;
             case UNARY_PLUS:
                 return type;
@@ -435,7 +436,23 @@ public final class StatementCompiler
     }
     public static final DataType compileNewFunction(NamespaceScope scope, OpcodeList opcodes, Identifier name, Arguments pars, Scope funcScope, boolean pop) throws CompilerError
     {
-        
+        Function func = scope.createFunction(name == null ? null : name.toString());
+        NamespaceScope child = scope.createChildScope(true);
+        compileNewFunctionParameters(child, pars);
+        FunctionCompiler.compile(func, scope, funcScope);
+        return DataType.ANY;
+    }
+    
+    public static final void compileNewFunctionParameters(NamespaceScope scope, Arguments pars) throws CompilerError
+    {
+        for(Statement par : pars)
+        {
+            if(par.isIdentifier())
+                scope.createArgument(par.toString(), DataType.ANY);
+            else if(par.isVarargs())
+                scope.createVarArgument(((Varargs) par).getName().toString());
+            else throw new CompilerError("Expected valid identifier for parameter name or varargs. But found: " + par);
+        }
     }
     
     private static DataType compileAssignment(NamespaceScope scope, OpcodeList opcodes, Operator operator, Statement dest, Statement source)
@@ -443,9 +460,79 @@ public final class StatementCompiler
         
     }
     
-    private static void store(NamespaceScope scope, OpcodeList opcodes, Statement dest, DataType sourceType)
+    private static void store(NamespaceScope scope, OpcodeList opcodes, Statement dest, StoreSource source) throws CompilerError
     {
-        
+        DataType sourceType, destType;
+        if(dest.isIdentifier())
+        {
+            sourceType = source.compile(scope, opcodes);
+            NamespaceIdentifier id = scope.getIdentifier(dest.toString());
+            switch(id.getIdentifierType())
+            {
+                case LOCAL_VARIABLE: opcodes.append(Opcodes.storeVar(id.getIndex())); break;
+                case ARGUMENT: opcodes.append(Opcodes.storeArg(id.getIndex())); break;
+                case GLOBAL_VARIABLE: opcodes.append(Opcodes.storeGlobal(id.getIndex())); break;
+                default: throw new CompilerError("Cannot store value into " + id.getIdentifierType());
+            }
+        }
+        else if(dest.isOperation())
+        {
+            Operation op = (Operation) dest;
+            if(op.isArrayGet())
+            {
+                
+            }
+        }
+        else throw new CompilerError("Cannot store into :" + dest);
+        if(!DataType.canUseImplicitCast(destType, sourceType))
+            throw new CompilerError("Cannot assign " + sourceType + " to " + destType);
+    }
+    
+    private static DataType compileArraySet(NamespaceScope scope, OpcodeList opcodes, Statement arrayOp, Statement indexOp) throws CompilerError
+    {
+        NamespaceIdentifier id;
+        if(arrayOp.isIdentifier() && (id = scope.getIdentifier(arrayOp.toString())).isLibraryElement());
+        else
+        {
+            id = null;
+            compile(scope, opcodes, arrayOp, false);
+        }
+        if(indexOp.isLiteral())
+        {
+            SGSImmutableValue value = ((Literal) indexOp).getSGSValue();
+            if(value.isInteger() && value.toInt() >= 0 && value.toInt() <= 0xff)
+                if(id != null)
+                    opcodes.append(Opcodes.libeArrayIntGet(id.getIndex(), value.toInt()));
+                else opcodes.append(Opcodes.arrayIntGet(value.toInt()));
+            else
+            {
+                compileLiteral(scope, opcodes, indexOp);
+                if(id != null)
+                    opcodes.append(Opcodes.libeArrayGet(id.getIndex()));
+                else opcodes.append(Opcodes.ARRAY_GET);
+            }
+        }
+        else
+        {
+            compile(scope, opcodes, indexOp, false);
+            if(id != null)
+                opcodes.append(Opcodes.libeArrayGet(id.getIndex()));
+            else opcodes.append(Opcodes.ARRAY_GET);
+        }
+        return DataType.ANY;
+    }
+    
+    private static DataType compilePropertyGet(NamespaceScope scope, OpcodeList opcodes, Statement objectOp, Identifier identifier) throws CompilerError
+    {
+        NamespaceIdentifier id;
+        if(objectOp.isIdentifier() && (id = scope.getIdentifier(objectOp.toString())).isLibraryElement())
+            opcodes.append(Opcodes.libePGet(id.getIndex(), scope.registerIdentifier(identifier.toString())));
+        else
+        {
+            compile(scope, opcodes, objectOp, false);
+            opcodes.append(Opcodes.objPGet(scope.registerIdentifier(identifier.toString())));
+        }
+        return DataType.ANY;
     }
     
     public static final OpcodeLocation compileCondition(NamespaceScope scope, OpcodeList opcodes, Statement statement) throws CompilerError
@@ -511,5 +598,11 @@ public final class StatementCompiler
         OpcodeLocation locJump = opcodes.append(Opcodes.goTo());
         opcodes.setJumpOpcodeLocationToBottom(loc);
         return locJump;
+    }
+    
+    @FunctionalInterface
+    private static interface StoreSource
+    {
+        DataType compile(NamespaceScope scope, OpcodeList opcodes) throws CompilerError;
     }
 }

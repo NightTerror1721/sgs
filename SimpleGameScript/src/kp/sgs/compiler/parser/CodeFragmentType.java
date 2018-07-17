@@ -18,6 +18,7 @@ public enum CodeFragmentType
     OPERATION,
     STOPCHAR,
     ARGUMENTS,
+    VARARGS,
     SCOPE,
     DATA_TYPE,
     COMMAND_ARGUMENTS,

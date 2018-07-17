@@ -6,6 +6,7 @@
 package kp.sgs.compiler;
 
 import kp.sgs.SGSConstants;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
 import kp.sgs.compiler.opcode.OpcodeList;
 import kp.sgs.compiler.parser.DataType;
 
@@ -36,5 +37,9 @@ public final class BytecodeBuilder
         opcodes.buildBytecodes(bytecode, SGSConstants.CODE_INIT);
         
         return bytecode;
+    }
+    public static final byte[] buildFunction(NamespaceScope scope, DataType returnType, OpcodeList opcodes)
+    {
+        return buildFunction(scope.getRuntimeStack().getMaxStackLength(), scope.getRuntimeStack().getVariableCount(), returnType, opcodes);
     }
 }

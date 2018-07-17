@@ -42,12 +42,16 @@ public class InstructionDeclaration extends Instruction
         Operation[] assignments = new Operation[parts.length];
         for(int i=0;i<parts.length;i++)
         {
-            Statement part = StatementParser.parse(list);
-            if(!part.isOperator())
-                throw new CompilerError("Expected valid declaration but found: " + part);
-            Operation op = (Operation) part;
+            Operation op = StatementParser.tryParseAssignmentNewFunction(list);
+            if(op == null)
+            {
+                Statement part = StatementParser.parse(list);
+                if(!part.isOperation())
+                    throw new CompilerError("Expected valid declaration but found: " + part);
+                op = (Operation) part;
+            }
             if(!op.isAssignment() && !op.isNewFunction())
-                throw new CompilerError("Expected valid declaration but found: " + part);
+                throw new CompilerError("Expected valid declaration but found: " + op);
             assignments[i] = op;
         }
         

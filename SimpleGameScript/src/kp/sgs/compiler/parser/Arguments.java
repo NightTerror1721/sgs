@@ -53,7 +53,14 @@ public class Arguments extends Statement implements Iterable<Statement>
         CodeFragmentList[] uargs = argsList.split(Stopchar.COMMA);
         Statement[] args = new Statement[uargs.length];
         for(int i = 0; i < args.length; i++)
-            args[i] = StatementParser.parse(uargs[i]);
+            args[i] = parseArgument(uargs[i]);
         return new Arguments(args);
+    }
+    
+    private static Statement parseArgument(CodeFragmentList list) throws CompilerError
+    {
+        if(list.length() == 2 && list.get(0).isIdentifier() && list.get(1) == Stopchar.THREE_POINTS)
+            return new Varargs(list.get(0));
+        return StatementParser.parse(list);
     }
 }

@@ -72,7 +72,7 @@ public final class ScriptBuilder
     private Function createFunction(String name)
     {
         int index = functions.size();
-        Function func = new Function(name, index);
+        Function func = new Function(name == null ? "" : name, index);
         functions.add(func);
         return func;
     }
@@ -142,6 +142,7 @@ public final class ScriptBuilder
         private final HashMap<String, NamespaceIdentifier> ids = new HashMap<>();
         private final LinkedList<LocalVariable> inherithedIds;
         private int argCount = 0;
+        private LocalVariable varargs = null;
         
         private NamespaceScope(NamespaceScope parent, boolean functionScope)
         {
@@ -161,6 +162,9 @@ public final class ScriptBuilder
         {
             return new NamespaceScope(this, functionScope);
         }
+        
+        public final boolean hasVarargs() { return varargs != null; }
+        public final LocalVariable getVarargs() { return varargs; }
         
         public final void clear()
         {
@@ -216,8 +220,10 @@ public final class ScriptBuilder
         {
             if(hasIdentifierInCurrentScope(name))
                 throw new CompilerError("Identifier \"" + name + "\" already exists.");
-            return ScriptBuilder.this.createConstant(name, literal);
-            
+            Constant c = ScriptBuilder.this.createConstant(name, literal);
+            if(c != null)
+                ids.put(name, c);
+            return c;
         }
         
         public final Constant registerLiteral(Literal literal) { return ScriptBuilder.this.registerLiteral(literal); }
@@ -226,16 +232,28 @@ public final class ScriptBuilder
         {
             if(hasIdentifierInCurrentScope(name))
                 throw new CompilerError("Identifier \"" + name + "\" already exists.");
+            if(varargs != null)
+                throw new CompilerError("Cannot be arguments after varargs.");
             Argument arg = new Argument(name, argCount++, type);
             ids.put(arg.getName(), arg);
             return arg;
+        }
+        
+        public final LocalVariable createVarArgument(String name) throws CompilerError
+        {
+            if(varargs != null)
+                throw new CompilerError("Cannot be more than one varargs.");
+            return varargs = createLocalVariable(name, DataType.ANY);
         }
         
         public final Function createFunction(String name) throws CompilerError
         {
             if(hasIdentifierInCurrentScope(name))
                 throw new CompilerError("Identifier \"" + name + "\" already exists.");
-            return ScriptBuilder.this.createFunction(name);
+            Function f = ScriptBuilder.this.createFunction(name);
+            if(name != null)
+                ids.put(name, f);
+            return f;
         }
         
         public final int registerIdentifier(String identifier) { return ScriptBuilder.this.registerIdentifier(identifier); }

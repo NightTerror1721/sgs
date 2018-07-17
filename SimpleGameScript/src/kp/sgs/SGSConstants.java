@@ -187,5 +187,7 @@ public interface SGSConstants
         int LIBE_VCALL_NA   = 0x87; // <libelement_idx>
         int LIBE_VCALL_NA16 = 0x88; // <libelement_idx|0-7> <libelement_idx|8-15>
         
+        int ARGS_TO_ARRAY   = 0x89; // <var_idx> <offset_idx>
+        
     }
 }

@@ -42,6 +42,7 @@ public abstract class CodeFragment
     public final boolean isOperation() { return getFragmentType() == CodeFragmentType.OPERATION; }
     public final boolean isStopchar() { return getFragmentType() == CodeFragmentType.STOPCHAR; }
     public final boolean isArguments() { return getFragmentType() == CodeFragmentType.ARGUMENTS; }
+    public final boolean isVarargs() { return getFragmentType() == CodeFragmentType.VARARGS; }
     public final boolean isScope() { return getFragmentType() == CodeFragmentType.SCOPE; }
     public final boolean isDataType() { return getFragmentType() == CodeFragmentType.DATA_TYPE; }
     public final boolean isCommandArguments() { return getFragmentType() == CodeFragmentType.COMMAND_ARGUMENTS; }

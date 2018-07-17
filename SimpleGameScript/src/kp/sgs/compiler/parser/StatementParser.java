@@ -57,22 +57,22 @@ public final class StatementParser
             if(identifier.isIdentifier())
             {
                 if(it.end() || it.listValue() != Operator.CALL)
-                    throw new CompilerError("Expected a valid arguments list in call operator.");
+                    throw new CompilerError("Expected a valid arguments list in new function.");
                 it.increase();
             }
             else
             {
                 if(identifier != Operator.CALL)
-                    throw new CompilerError("Expected a valid arguments list in call operator.");
+                    throw new CompilerError("Expected a valid arguments list in new function.");
                 it.increase();
                 identifier = null;
             }
             if(it.end())
-                throw new CompilerError("Expected a valid arguments list in call operator.");
+                throw new CompilerError("Expected a valid arguments list in new function.");
             CodeFragment args = it.listValue();
             it.increase();
             if(it.end())
-                throw new CompilerError("Expected a valid arguments list in call operator.");
+                throw new CompilerError("Expected a valid arguments list in new function.");
             CodeFragment scope = it.listValue();
             it.increase();
             return Operation.newFunction(identifier, args, scope);
@@ -230,5 +230,30 @@ public final class StatementParser
                 !operand2.is(CodeFragmentType.IDENTIFIER))
             throw new CompilerError("Expected a valid identifier in PropertyAccess operator: " + operand2);
         return operand2;
+    }
+    
+    public static final Operation tryParseAssignmentNewFunction(CodeFragmentList list) throws CompilerError
+    {
+        Pointer it = list.counter();
+        if(it.end())
+            return null;
+        CodeFragment identifier = it.listValue();
+        it.increase();
+        if(identifier.isIdentifier())
+        {
+            if(it.end() || it.listValue() != Operator.CALL)
+                return null;
+            it.increase();
+        }
+        else return null;
+        if(it.end())
+            throw new CompilerError("Expected a valid arguments list in function declaration.");
+        CodeFragment args = it.listValue();
+        it.increase();
+        if(it.end())
+            throw new CompilerError("Expected a valid arguments list in function declaration.");
+        CodeFragment scope = it.listValue();
+        it.increase();
+        return Operation.newFunction(identifier, args, scope);
     }
 }
