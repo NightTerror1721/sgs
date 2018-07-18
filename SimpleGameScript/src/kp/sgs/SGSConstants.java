@@ -158,13 +158,13 @@ public interface SGSConstants
         int VCALL_NA        = 0x6C; //
         
         int INVOKE          = 0x6D; // <args_len> <identifier_idx>
-        int INVOKE16        = 0x6E; // <args_len> <instruction_idx|0-7> <instruction_idx|8-15>
+        int INVOKE16        = 0x6E; // <args_len> <identifier_idx|0-7> <identifier_idx|8-15>
         int INVOKE_NA       = 0x6F; // <identifier_idx>
-        int INVOKE_NA16     = 0x70; // <instruction_idx|0-7> <instruction_idx|8-15>
+        int INVOKE_NA16     = 0x70; // <identifier_idx|0-7> <identifier_idx|8-15>
         int VINVOKE         = 0x71; // <args_len> <identifier_idx>
-        int VINVOKE16       = 0x72; // <args_len> <instruction_idx|0-7> <instruction_idx|8-15>
+        int VINVOKE16       = 0x72; // <args_len> <identifier_idx|0-7> <identifier_idx|8-15>
         int VINVOKE_NA      = 0x73; // <identifier_idx>
-        int VINVOKE_NA16    = 0x74; // <instruction_idx|0-7> <instruction_idx|8-15>
+        int VINVOKE_NA16    = 0x74; // <identifier_idx|0-7> <identifier_idx|8-15>
         
         int LIBE_LOAD       = 0x75; // <libelement_idx>
         int LIBE_LOAD16     = 0x76; // <libelement_idx|0-7> <libelement_idx|8-15>

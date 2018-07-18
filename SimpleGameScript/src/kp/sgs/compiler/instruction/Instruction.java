@@ -5,8 +5,11 @@
  */
 package kp.sgs.compiler.instruction;
 
+import java.util.List;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
+import kp.sgs.compiler.parser.Operation;
 
 /**
  *
@@ -16,6 +19,6 @@ public abstract class Instruction
 {
     public abstract InstructionId getInstructionId();
     
-    public abstract void compileConstantPart(NamespaceScope scope, OpcodeList opcodes);
-    public abstract void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes);
+    public abstract void compileConstantPart(NamespaceScope scope, List<Operation> functions) throws CompilerError;
+    public abstract void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError;
 }

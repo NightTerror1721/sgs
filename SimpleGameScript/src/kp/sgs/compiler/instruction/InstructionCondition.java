@@ -5,11 +5,15 @@
  */
 package kp.sgs.compiler.instruction;
 
+import java.util.List;
 import java.util.Objects;
+import kp.sgs.compiler.ScriptBuilder;
 import kp.sgs.compiler.exception.CompilerError;
+import kp.sgs.compiler.opcode.OpcodeList;
 import kp.sgs.compiler.parser.CodeFragment;
 import kp.sgs.compiler.parser.CodeFragmentList;
 import kp.sgs.compiler.parser.CommandArguments;
+import kp.sgs.compiler.parser.Operation;
 import kp.sgs.compiler.parser.Scope;
 import kp.sgs.compiler.parser.Statement;
 import kp.sgs.compiler.parser.StatementParser;
@@ -62,5 +66,17 @@ public final class InstructionCondition extends Instruction
         action = frag.isScope() ? (Scope) frag : StatementParser.parse(list.subList(1));
         
         return new InstructionCondition(condition, action);
+    }
+
+    @Override
+    public final void compileConstantPart(ScriptBuilder.NamespaceScope scope, List<Operation> functions) throws CompilerError
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+    }
+
+    @Override
+    public final void compileFunctionPart(ScriptBuilder.NamespaceScope scope, OpcodeList opcodes) throws CompilerError
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

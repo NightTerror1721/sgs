@@ -5,9 +5,13 @@
  */
 package kp.sgs.compiler.instruction;
 
+import java.util.List;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
 import kp.sgs.compiler.exception.CompilerError;
+import kp.sgs.compiler.opcode.OpcodeList;
 import kp.sgs.compiler.parser.CodeFragmentList;
 import kp.sgs.compiler.parser.Mutable;
+import kp.sgs.compiler.parser.Operation;
 import kp.sgs.compiler.parser.Statement;
 import kp.sgs.compiler.parser.StatementParser;
 import kp.sgs.compiler.parser.Stopchar;
@@ -39,5 +43,17 @@ public final class InstructionReturn extends Instruction
             return new InstructionReturn(StatementParser.parse(parts[0]));
         
         return new InstructionReturn(Mutable.array(parts));
+    }
+    
+    @Override
+    public final void compileConstantPart(NamespaceScope scope, List<Operation> functions) throws CompilerError
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+    }
+
+    @Override
+    public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -5,8 +5,11 @@
  */
 package kp.sgs.compiler.instruction;
 
+import java.util.List;
 import java.util.Objects;
+import kp.sgs.compiler.ScriptBuilder;
 import kp.sgs.compiler.exception.CompilerError;
+import kp.sgs.compiler.opcode.OpcodeList;
 import kp.sgs.compiler.parser.CodeFragment;
 import kp.sgs.compiler.parser.CodeFragmentList;
 import kp.sgs.compiler.parser.CommandArguments;
@@ -174,6 +177,18 @@ public abstract class InstructionLoopFor extends Instruction
             this.condition = condition;
             this.ends = ends == null ? new Statement[0] : ends;
         }
+        
+        @Override
+        public final void compileConstantPart(ScriptBuilder.NamespaceScope scope, List<Operation> functions) throws CompilerError
+        {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+        }
+
+        @Override
+        public final void compileFunctionPart(ScriptBuilder.NamespaceScope scope, OpcodeList opcodes) throws CompilerError
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
     }
     
     
@@ -188,6 +203,18 @@ public abstract class InstructionLoopFor extends Instruction
             super(type, action);
             this.varname = Objects.requireNonNull(varname);
             this.iteratorGetter = Objects.requireNonNull(iteratorGetter);
+        }
+        
+        @Override
+        public final void compileConstantPart(ScriptBuilder.NamespaceScope scope, List<Operation> functions) throws CompilerError
+        {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+        }
+
+        @Override
+        public final void compileFunctionPart(ScriptBuilder.NamespaceScope scope, OpcodeList opcodes) throws CompilerError
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
 }

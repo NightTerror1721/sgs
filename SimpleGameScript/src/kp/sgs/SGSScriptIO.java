@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import kp.sgs.data.SGSArray;
 import kp.sgs.data.SGSFloat;
 import kp.sgs.data.SGSImmutableArray;
@@ -198,5 +199,86 @@ public final class SGSScriptIO
             map.put(name, value);
         }
         return new SGSImmutableObject(map);
+    }
+    
+    
+    public static final int getConstantCount(SGSScript script) { return script.constants.length; }
+    public static final int getIdentifierCount(SGSScript script) { return script.identifiers.length; }
+    public static final int getFunctionCount(SGSScript script) { return script.functions.length; }
+    public static final int getLibraryElementCount(SGSScript script) { return script.libelements.length; }
+    
+    public static final void forEachConstant(SGSScript script, Consumer<SGSImmutableValue> consumer)
+    {
+        for(SGSImmutableValue value : script.constants)
+            consumer.accept(value);
+    }
+    public static final void forEachIdentifier(SGSScript script, Consumer<String> consumer)
+    {
+        for(String value : script.identifiers)
+            consumer.accept(value);
+    }
+    public static final void forEachFunction(SGSScript script, Consumer<byte[]> consumer)
+    {
+        for(byte[] value : script.functions)
+            consumer.accept(value);
+    }
+    public static final void forEachLibraryElement(SGSScript script, Consumer<SGSLibraryElement> consumer)
+    {
+        for(SGSLibraryElement value : script.libelements)
+            consumer.accept(value);
+    }
+    
+    public static final void forEachConstant(SGSScript script, IntBiConsumer<SGSImmutableValue> consumer)
+    {
+        for(int i=0;i<script.constants.length;i++)
+            consumer.accept(script.constants[i], i);
+    }
+    public static final void forEachIdentifier(SGSScript script, IntBiConsumer<String> consumer)
+    {
+        for(int i=0;i<script.identifiers.length;i++)
+            consumer.accept(script.identifiers[i], i);
+    }
+    public static final void forEachFunction(SGSScript script, IntBiConsumer<byte[]> consumer)
+    {
+        for(int i=0;i<script.functions.length;i++)
+            consumer.accept(script.functions[i], i);
+    }
+    public static final void forEachLibraryElement(SGSScript script, IntBiConsumer<SGSLibraryElement> consumer)
+    {
+        for(int i=0;i<script.libelements.length;i++)
+            consumer.accept(script.libelements[i], i);
+    }
+    
+    public static final void forEachConstantExcept(SGSScript script, ConsumerWithException<SGSImmutableValue> consumer) throws Throwable
+    {
+        for(int i=0;i<script.constants.length;i++)
+            consumer.accept(script.constants[i], i);
+    }
+    public static final void forEachIdentifierExcept(SGSScript script, ConsumerWithException<String> consumer) throws Throwable
+    {
+        for(int i=0;i<script.identifiers.length;i++)
+            consumer.accept(script.identifiers[i], i);
+    }
+    public static final void forEachFunctionExcept(SGSScript script, ConsumerWithException<byte[]> consumer) throws Throwable
+    {
+        for(int i=0;i<script.functions.length;i++)
+            consumer.accept(script.functions[i], i);
+    }
+    public static final void forEachLibraryElementExcept(SGSScript script, ConsumerWithException<SGSLibraryElement> consumer) throws Throwable
+    {
+        for(int i=0;i<script.libelements.length;i++)
+            consumer.accept(script.libelements[i], i);
+    }
+    
+    @FunctionalInterface
+    public static interface IntBiConsumer<E>
+    {
+        void accept(E element, int index);
+    }
+    
+    @FunctionalInterface
+    public static interface ConsumerWithException<E>
+    {
+        void accept(E element, int index) throws Throwable;
     }
 }

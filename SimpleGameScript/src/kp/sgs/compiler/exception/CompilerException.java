@@ -44,4 +44,11 @@ public final class CompilerException extends Exception implements Iterable<Error
         }
         return sb.toString();
     }
+    
+    public static final CompilerException single(CompilerError error)
+    {
+        ErrorList list = new ErrorList();
+        list.addError(0, 0, error);
+        return new CompilerException(list);
+    }
 }

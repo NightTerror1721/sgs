@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Arrays;
 
 /**
@@ -42,9 +43,9 @@ public final class CodeReader
     private int index, size, start;
     private Line lcur;
     
-    public CodeReader(InputStream is)
+    public CodeReader(Reader reader)
     {
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        BufferedReader br = new BufferedReader(reader);
         index = 1;
         size = 0;
         source = br.lines().map(bline -> {
@@ -56,6 +57,7 @@ public final class CodeReader
         start = 0;
         lcur = null;
     }
+    public CodeReader(InputStream is) { this(new InputStreamReader(is)); }
     public CodeReader(String scode)
     {
         String[] lines = scode.replace("\r","").split("\n");

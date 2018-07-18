@@ -185,6 +185,12 @@ public final class ScriptBuilder
             return parent != null ? parent.hasIdentifier(name) : false;
         }
         
+        public final boolean hasInheritedIds() { return inherithedIds != null && !inherithedIds.isEmpty(); }
+        
+        public final int getInheritedIdCount() { return inherithedIds == null ? 0 : inherithedIds.size(); }
+        
+        public final Iterable<LocalVariable> getInheritedIds() { return inherithedIds; }
+        
         public final NamespaceIdentifier getIdentifier(String name)
         {
             NamespaceIdentifier id = ids.getOrDefault(name, null);
@@ -248,12 +254,25 @@ public final class ScriptBuilder
         
         public final Function createFunction(String name) throws CompilerError
         {
-            if(hasIdentifierInCurrentScope(name))
-                throw new CompilerError("Identifier \"" + name + "\" already exists.");
-            Function f = ScriptBuilder.this.createFunction(name);
-            if(name != null)
-                ids.put(name, f);
-            return f;
+            return ScriptBuilder.this.createFunction(name);
+        }
+        
+        public final void registerFunction(Function function) throws CompilerError
+        {
+            if(function.getName().isEmpty())
+                throw new IllegalStateException();
+            if(hasIdentifierInCurrentScope(function.getName()))
+                throw new CompilerError("Identifier \"" + function.getName() + "\" already exists.");
+            ids.put(function.getName(), function);
+        }
+        
+        public final NamespaceIdentifier registerClosure(Function function) throws CompilerError
+        {
+            if(function.getName().isEmpty())
+                throw new IllegalStateException();
+            return !hasIdentifierInCurrentScope(function.getName())
+                    ? createLocalVariable(function.getName(), DataType.ANY)
+                    : getIdentifier(function.getName());
         }
         
         public final int registerIdentifier(String identifier) { return ScriptBuilder.this.registerIdentifier(identifier); }
