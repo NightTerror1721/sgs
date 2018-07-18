@@ -39,4 +39,16 @@ public final class Scope extends Statement implements Iterable<Instruction>
 
     @Override
     public final Iterator<Instruction> iterator() { return instructions.iterator(); }
+
+    @Override
+    public final String toString()
+    {
+        if(instructions.isEmpty())
+            return "{}";
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        for(Instruction inst : instructions)
+            sb.append(inst.getInstructionId()).append('\n');
+        return sb.append('}').toString();
+    }
 }

@@ -14,6 +14,9 @@ public abstract class CodeFragment
     public abstract CodeFragmentType getFragmentType();
     public abstract boolean isValidOperand();
     
+    @Override
+    public abstract String toString();
+    
     public final boolean is(CodeFragmentType type0, CodeFragmentType type1)
     {
         CodeFragmentType c = getFragmentType();

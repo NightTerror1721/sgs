@@ -31,9 +31,9 @@ import kp.sgs.compiler.parser.Scope;
  *
  * @author Asus
  */
-public final class Compiler
+public final class SGSCompiler
 {
-    private Compiler() {}
+    private SGSCompiler() {}
     
     public static final SGSScript compile(InputStream input, CompilerProperties props) throws CompilerException
     {

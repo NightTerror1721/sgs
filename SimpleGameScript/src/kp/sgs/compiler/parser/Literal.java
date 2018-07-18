@@ -371,6 +371,9 @@ public class Literal extends Statement
     {
         return valueOf(Double.parseDouble(str));
     }
+
+    @Override
+    public final String toString() { return value.toString(); }
     
     
     public enum LiteralType

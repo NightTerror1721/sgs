@@ -63,4 +63,16 @@ public class Arguments extends Statement implements Iterable<Statement>
             return new Varargs(list.get(0));
         return StatementParser.parse(list);
     }
+
+    @Override
+    public final String toString()
+    {
+        if(arguments.length < 1)
+            return "()";
+        StringBuilder sb = new StringBuilder();
+        for(Statement arg : arguments)
+            sb.append(arg).append(", ");
+        sb.delete(sb.length() - 2, sb.length()).append(")");
+        return sb.toString();
+    }
 }

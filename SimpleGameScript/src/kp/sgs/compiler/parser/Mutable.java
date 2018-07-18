@@ -113,6 +113,35 @@ public final class Mutable extends Statement
         
         return new Mutable(entries, false, literal);
     }
+
+    @Override
+    public final String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        if(isArray)
+        {
+            if(entries.length > 0)
+            {
+                sb.append("[");
+                for(MutableEntry e : entries)
+                    sb.append(e.value).append(", ");
+                sb.delete(sb.length() - 2, sb.length()).append("]");
+            }
+            else sb.append("[]");
+        }
+        else
+        {
+             if(entries.length > 0)
+            {
+                sb.append("{");
+                for(MutableEntry e : entries)
+                    sb.append('\t').append(e.key).append(": ").append(e.value).append('\n');
+                sb.append("}");
+            }
+            else sb.append("{}");
+        }
+        return sb.toString();
+    }
     
     
     

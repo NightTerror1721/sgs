@@ -37,5 +37,8 @@ public final class Command extends CodeFragment
             FOR = new Command(CommandId.FOR),
             WHILE = new Command(CommandId.WHILE),
             RETURN = new Command(CommandId.RETURN);
+
+    @Override
+    public final String toString() { return id.toString(); }
     
 }

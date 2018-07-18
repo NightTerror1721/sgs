@@ -21,5 +21,8 @@ public final class Varargs extends Statement
     
     @Override
     public final CodeFragmentType getFragmentType() { return CodeFragmentType.VARARGS; }
+
+    @Override
+    public final String toString() { return name + "..."; }
     
 }

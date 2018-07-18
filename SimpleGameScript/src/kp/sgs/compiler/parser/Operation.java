@@ -61,6 +61,9 @@ public final class Operation extends Statement
     @Override
     public final CodeFragmentType getFragmentType() { return CodeFragmentType.OPERATION; }
     
+    @Override
+    public final String toString() { return operator.toString(); }
+    
     
     public static final Statement unary(Operator operator, Statement op)
     {

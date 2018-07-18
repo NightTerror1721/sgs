@@ -1,0 +1,10 @@
+
+def text_to_print = "hello world";
+
+def main() {
+	int it = 0;
+	it + 5;
+	printf(text_to_print);
+}
+
+

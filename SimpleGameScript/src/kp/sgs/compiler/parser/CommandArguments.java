@@ -44,6 +44,18 @@ public class CommandArguments extends CodeFragment implements Iterable<CodeFragm
     @Override
     public final boolean isValidOperand() { return false; }
     
+    @Override
+    public final String toString()
+    {
+        if(arguments.length < 1)
+            return "()";
+        StringBuilder sb = new StringBuilder();
+        for(CodeFragmentList arg : arguments)
+            sb.append(arg).append(", ");
+        sb.delete(sb.length() - 2, sb.length()).append(")");
+        return sb.toString();
+    }
+    
     
     private static final CommandArguments EMPTY = new CommandArguments(new CodeFragmentList[0]);
     

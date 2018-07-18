@@ -32,12 +32,14 @@ public final class InstructionScope extends Instruction
     @Override
     public final void compileConstantPart(NamespaceScope scope, List<Operation> functions) throws CompilerError
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+        for(Instruction inst : this.scope)
+            inst.compileConstantPart(scope, functions);
     }
 
     @Override
     public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for(Instruction inst : this.scope)
+            inst.compileFunctionPart(scope, opcodes);
     }
 }

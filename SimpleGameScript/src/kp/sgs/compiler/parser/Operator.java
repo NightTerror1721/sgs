@@ -48,6 +48,9 @@ public abstract class Operator extends CodeFragment
     @Override
     public final CodeFragmentType getFragmentType() { return CodeFragmentType.OPERATOR; }
     
+    @Override
+    public final String toString() { return symbol.toString(); }
+    
     
     
     public static final Operator

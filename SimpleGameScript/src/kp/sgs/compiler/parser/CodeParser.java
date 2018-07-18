@@ -8,12 +8,9 @@ package kp.sgs.compiler.parser;
 import java.io.EOFException;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.exception.ErrorList;
-import kp.sgs.compiler.instruction.Instruction;
-import kp.sgs.compiler.instruction.InstructionParser;
 
 /**
  *
@@ -21,9 +18,12 @@ import kp.sgs.compiler.instruction.InstructionParser;
  */
 public final class CodeParser
 {
-    private final CodeQueue accumulated = new CodeQueue();
+    /*public final CodeFragment parseFragment(CodeReader source, CodeQueue last, boolean isFinishValid, ErrorList errors) throws CompilerError
+    {
+        
+    }*/
     
-    public final CodeFragment parseFragment(CodeReader source, CodeFragment last, boolean isFinishValid, ErrorList errors) throws CompilerError
+    private CodeFragment parseFragment(CodeReader source, CodeQueue accumulated, boolean isFinishValid, ErrorList errors) throws CompilerError
     {
         if(!accumulated.isEmpty())
             return accumulated.dequeue();
@@ -40,6 +40,7 @@ public final class CodeParser
                 {
                     case '\t':
                     case '\r':
+                    case '\n':
                     case ' ': {
                         if(builder.flush())
                             return accumulated.dequeue();
@@ -54,13 +55,13 @@ public final class CodeParser
                         builder.flush();
                         CodeReader scopeSource = extractScope(source, '(', ')');
                         CodeFragmentList list = parseSubStatement(scopeSource, errors);
-                        if(last == null || (!last.isValidOperand() && last != Command.DEF)) //Parenthesis
+                        if(!accumulated.hasLast() || (!accumulated.last().isValidOperand() && accumulated.last() != Command.DEF)) //Parenthesis
                         {
                             if(list.length() == 1 && list.get(0).isDataType())
                                 return accumulated.enqret(list.<DataType>get(0).getCastOperator());
                             return accumulated.enqret(StatementParser.parse(list));
                         }
-                        else if(last.isCommand() && last != Command.DEF) //Command arguments
+                        else if(accumulated.last().isCommand() && accumulated.last() != Command.DEF) //Command arguments
                             return accumulated.enqret(CommandArguments.valueOf(list));
                         else return accumulated.enqret(Arguments.valueOf(list)); //Arguments
                     }
@@ -71,7 +72,7 @@ public final class CodeParser
                         builder.flush();
                         CodeReader scopeSource = extractScope(source, '[', ']');
                         CodeFragmentList list = parseSubStatement(scopeSource, errors);
-                        if(last == null || !last.isValidOperand()) //Literal Array
+                        if(!accumulated.hasLast()|| !accumulated.last().isValidOperand()) //Literal Array
                             return accumulated.enqret(Mutable.array(list));
                         else return accumulated.enqueue(Operator.ARRAY_GET).enqret(StatementParser.parse(list));
                     }
@@ -81,7 +82,7 @@ public final class CodeParser
                     case '{': {
                         builder.flush();
                         CodeReader scopeSource = extractScope(source, '{', '}');
-                        if(last == null || !last.isValidOperand()) // Object
+                        if(!accumulated.hasLast()|| !accumulated.last().isValidOperand()) // Object
                         {
                             CodeFragmentList list = parseSubStatement(scopeSource, errors);
                             return accumulated.enqret(Mutable.object(list));
@@ -190,7 +191,7 @@ public final class CodeParser
                         switch(c)
                         {
                             default: {
-                                if(last != null && last.isValidOperand())
+                                if(accumulated.hasLast() && accumulated.last().isValidOperand())
                                     accumulated.enqueue(Operator.ADDRESS_OF);
                                 else accumulated.enqueue(Operator.BITWISE_AND);
                                 source.move(-1);
@@ -257,7 +258,7 @@ public final class CodeParser
                                         source.move(-1);
                                     } break;
                                     case '.': {
-                                        if(last == null || !last.isIdentifier())
+                                        if(!accumulated.hasLast()|| !accumulated.last().isIdentifier())
                                             throw new CompilerError("Expected a valid identifier before '...'");
                                         accumulated.enqueue(Stopchar.THREE_POINTS);
                                     } break;
@@ -390,21 +391,21 @@ public final class CodeParser
                         {
                             default: {
                                 source.move(-1);
-                                if(last != null && last.isValidOperand())
+                                if(accumulated.hasLast() && accumulated.last().isValidOperand())
                                 {
                                     if(Character.isDigit(c))
                                     {
                                         builder.append('-');
                                         break main_switch;
                                     }
-                                    accumulated.enqueue(Operator.UNARY_MINUS);
+                                    accumulated.enqueue(Operator.SUBTRACTION);
                                 }
-                                else accumulated.enqueue(Operator.SUBTRACTION);
+                                else accumulated.enqueue(Operator.UNARY_MINUS);
                             } break;
                             case '-': {
                                 if(!source.canPeek(1))
                                     throw new CompilerError("Unexpected character: -");
-                                if(last == null || !last.isValidOperand())
+                                if(!accumulated.hasLast() || !accumulated.last().isValidOperand())
                                     accumulated.enqueue(Operator.PREFIX_DECREMENT);
                                 else accumulated.enqueue(Operator.SUFIX_DECREMENT);
                             } break;
@@ -426,18 +427,18 @@ public final class CodeParser
                         {
                             default: {
                                 source.move(-1);
-                                if(last != null && last.isValidOperand())
+                                if(accumulated.hasLast() && accumulated.last().isValidOperand())
                                 {
                                     if(Character.isDigit(c))
                                         break main_switch;
-                                    accumulated.enqueue(Operator.UNARY_PLUS);
+                                    accumulated.enqueue(Operator.ADDITION);
                                 }
-                                else accumulated.enqueue(Operator.ADDITION);
+                                else accumulated.enqueue(Operator.UNARY_PLUS);
                             } break;
                             case '+': {
                                 if(!source.canPeek(1))
                                     throw new CompilerError("Unexpected character: +");
-                                if(last == null || !last.isValidOperand())
+                                if(!accumulated.hasLast() || !accumulated.last().isValidOperand())
                                     accumulated.enqueue(Operator.PREFIX_INCREMENT);
                                 else accumulated.enqueue(Operator.SUFIX_INCREMENT);
                             } break;
@@ -498,7 +499,7 @@ public final class CodeParser
                         switch(c)
                         {
                             default: {
-                                if(last != null && (last.isValidOperand() || last == Operator.INDIRECTION))
+                                if(accumulated.hasLast() && (accumulated.last().isValidOperand() || accumulated.last() == Operator.INDIRECTION))
                                     accumulated.enqret(Operator.INDIRECTION);
                                 else accumulated.enqueue(Operator.MULTIPLICATION);
                                 source.move(-1);
@@ -561,7 +562,8 @@ public final class CodeParser
         LinkedList<CodeFragment> frags = new LinkedList<>();
         CodeFragment frag;
         int firstLine = source.getCurrentLine();
-        while((frag = parseFragment(source, frags.isEmpty() ? last : frags.getLast(), true, errors)) != null)
+        CodeQueue queue = new CodeQueue(frags.isEmpty() ? last : frags.getLast());
+        while((frag = parseFragment(source, queue, true, errors)) != null)
         {
             if(frag == Stopchar.SEMICOLON)
                 break;
@@ -577,7 +579,8 @@ public final class CodeParser
         LinkedList<CodeFragment> frags = new LinkedList<>();
         CodeFragment frag;
         int firstLine = source.getCurrentLine();
-        while((frag = parseFragment(source, frags.isEmpty() ? last : frags.getLast(), true, errors)) != null)
+        CodeQueue queue = new CodeQueue(frags.isEmpty() ? last : frags.getLast());
+        while((frag = parseFragment(source, queue, true, errors)) != null)
         {
             frags.add(frag);
             if(frag.isScope())
@@ -611,8 +614,10 @@ public final class CodeParser
         LinkedList<CodeFragment> frags = new LinkedList<>();
         CodeFragment frag;
         int firstLine = source.getCurrentLine();
+        accumulated.createNewLevel();
         while((frag = parseFragment(source, frags.isEmpty() ? null : frags.getLast(), true, errors)) != null)
             frags.add(frag);
+        accumulated.destroyNewLevel();
         return frags.isEmpty()
                 ? CodeFragmentList.empty(firstLine)
                 : new CodeFragmentList(firstLine, frags);
@@ -752,8 +757,8 @@ public final class CodeParser
             }
             CodeFragment frag = Literal.decodeNumber(str);
             if(frag != null)
-                throw new CompilerError("Invalid token: " + str);
-            return frag;
+                return frag;
+            return Identifier.valueOf(str);
         }
         
         @Override
@@ -762,20 +767,38 @@ public final class CodeParser
     
     private static final class CodeQueue
     {
-        private final LinkedList<CodeFragment> accumulated = new LinkedList<>();
+        private final CodeFragment last;
+        private LinkedList<CodeFragment> list = new LinkedList<>();
         
-        public final CodeQueue enqueue(CodeFragment frag) { accumulated.add(frag); return this; }
+        private CodeQueue(CodeFragment last) { this.last = last; }
         
-        public final CodeFragment dequeue() { return accumulated.removeFirst(); }
+        public final CodeQueue enqueue(CodeFragment frag) { list.add(frag); return this; }
         
-        public final boolean isEmpty() { return accumulated.isEmpty(); }
+        public final CodeFragment dequeue() { return list.removeFirst(); }
+        
+        public final boolean hasLast() { return last == null && list.isEmpty(); }
+        public final CodeFragment last() { return last == null ? list.isEmpty() ? null : list.getLast() : last; }
+        
+        public final boolean isEmpty() { return list.isEmpty(); }
+        
+        public final void createNewLevel()
+        {
+            stored.push(list);
+            list = new LinkedList<>();
+        }
+        public final void destroyNewLevel() throws CompilerError
+        {
+            if(!list.isEmpty())
+                throw new CompilerError("Unexpected " + list.peek());
+            list = stored.pop();
+        }
         
         public final CodeFragment enqret(CodeFragment frag)
         {
-            if(accumulated.isEmpty())
+            if(list.isEmpty())
                 return frag;
-            CodeFragment first = accumulated.removeFirst();
-            accumulated.add(frag);
+            CodeFragment first = list.removeFirst();
+            list.add(frag);
             return first;
         }
     }
