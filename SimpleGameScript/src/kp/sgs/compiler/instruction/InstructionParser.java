@@ -26,11 +26,12 @@ public final class InstructionParser
 {
     private InstructionParser() {}
     
-    public static final List<Instruction> parse(CodeReader source, CodeParser codeParser, ErrorList errors)
+    public static final List<Instruction> parse(CodeReader source, ErrorList errors)
     {
         if(!source.hasNext())
             return Collections.emptyList();
         
+        CodeParser codeParser = new CodeParser(null);
         LinkedList<Instruction> instructions = new LinkedList<>();
         Instruction last = null;
         while(source.hasNext())
@@ -48,7 +49,8 @@ public final class InstructionParser
         int startLine = source.getCurrentLine();
         try
         {
-            CodeFragment first = code.parseFragment(source, null, true, errors);
+            code.setLast(null);
+            CodeFragment first = code.parseFragment(source, true, errors);
             if(first == null)
                 return null;
 
@@ -57,8 +59,9 @@ public final class InstructionParser
                 switch(((Command) first).getCommandId())
                 {
                     default: throw new IllegalStateException();
-                    case DEF: return InstructionDeclaration.create(code.parseInlineInstructionAsList(source, Command.DEF, errors), DataType.ANY);
+                    case DEF: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY);
                     case INCLUDE: return InstructionInclusion.create(code.parseInlineInstructionAsList(source, Command.INCLUDE, errors));
+                    case IMPORT: return InstructionImportation.create(code.parseInlineInstructionAsList(source, Command.IMPORT, errors));
                     case IF: return InstructionCondition.create(code.parseUntilScopeOrInlineAsList(source, Command.IF, errors));
                     case ELSE: {
                         if(last == null || last.getInstructionId() != InstructionId.CONDITION)
@@ -79,7 +82,7 @@ public final class InstructionParser
             else if(first.isDataType()) // <type> <identifier>
             {
                 DataType type = (DataType) first;
-                return InstructionDeclaration.create(code.parseInlineInstructionAsList(source, Command.DEF, errors), type);
+                return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), type);
             }
             else // Statement
             {

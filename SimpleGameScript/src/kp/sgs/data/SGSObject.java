@@ -8,12 +8,13 @@ package kp.sgs.data;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import kp.sgs.SGSGlobals;
 
 /**
  *
  * @author Asus
  */
-public interface SGSObject extends Iterable<Map.Entry<String, SGSValue>>
+public interface SGSObject extends Iterable<Map.Entry<String, SGSValue>>, SGSGlobals
 {
     boolean isMutable();
     

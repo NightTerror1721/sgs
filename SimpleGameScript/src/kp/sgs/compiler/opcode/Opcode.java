@@ -42,4 +42,7 @@ public class Opcode
     {
         bytecode[offset] = (byte) (opcode & 0xff);
     }
+    
+    @Override
+    public final String toString() { return OpcodeParser.opcodeToString(this); }
 }

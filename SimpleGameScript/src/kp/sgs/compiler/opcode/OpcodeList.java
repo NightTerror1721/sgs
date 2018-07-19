@@ -50,7 +50,7 @@ public final class OpcodeList implements Iterable<OpcodeList.OpcodeLocation>
         {
             private OpcodeLocation it = top;
             
-            @Override public final boolean hasNext() { return it == bottom; }
+            @Override public final boolean hasNext() { return it.next != bottom; }
             @Override public final OpcodeLocation next() { return it = it.next(); }
         };
     }
@@ -188,23 +188,23 @@ public final class OpcodeList implements Iterable<OpcodeList.OpcodeLocation>
         return loc;
     }
     
-    public final int buildBytePositions()
+    public final int buildBytePositions(int offset)
     {
-        int count = 0;
+        int count = offset;
         for(OpcodeLocation loc : this)
         {
             loc.firstByte = count;
             count += loc.opcode.getByteCount();
         }
-        return count;
+        return count - offset;
     }
     
-    public final void buildBytecodes(byte[] bytecode, int offset)
+    public final void buildBytecodes(byte[] bytecode)
     {
         for(OpcodeLocation loc : this)
         {
-            loc.opcode.build(bytecode, offset);
-            offset += loc.firstByte;
+            loc.opcode.build(bytecode, loc.firstByte);
+            
         }
     }
     

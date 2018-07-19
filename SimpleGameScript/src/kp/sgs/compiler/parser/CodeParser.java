@@ -8,9 +8,12 @@ package kp.sgs.compiler.parser;
 import java.io.EOFException;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.exception.ErrorList;
+import kp.sgs.compiler.instruction.Instruction;
+import kp.sgs.compiler.instruction.InstructionParser;
 
 /**
  *
@@ -18,12 +21,14 @@ import kp.sgs.compiler.exception.ErrorList;
  */
 public final class CodeParser
 {
-    /*public final CodeFragment parseFragment(CodeReader source, CodeQueue last, boolean isFinishValid, ErrorList errors) throws CompilerError
-    {
-        
-    }*/
+    private final CodeQueue accumulated;
     
-    private CodeFragment parseFragment(CodeReader source, CodeQueue accumulated, boolean isFinishValid, ErrorList errors) throws CompilerError
+    public CodeParser(CodeFragment last)
+    {
+        accumulated = new CodeQueue(last);
+    }
+    
+    public final CodeFragment parseFragment(CodeReader source, boolean isFinishValid, ErrorList errors) throws CompilerError
     {
         if(!accumulated.isEmpty())
             return accumulated.dequeue();
@@ -63,7 +68,11 @@ public final class CodeParser
                         }
                         else if(accumulated.last().isCommand() && accumulated.last() != Command.DEF) //Command arguments
                             return accumulated.enqret(CommandArguments.valueOf(list));
-                        else return accumulated.enqret(Arguments.valueOf(list)); //Arguments
+                        else //Arguments
+                        {
+                            accumulated.enqueue(Operator.CALL);
+                            return accumulated.enqret(Arguments.valueOf(list));
+                        } 
                     }
                     
                     case ')': throw new CompilerError("Unexpected end of parenthesis ')'");
@@ -538,15 +547,20 @@ public final class CodeParser
         }
     }
     
+    public final void setLast(CodeFragment last) { accumulated.setLast(last); }
+    
     public final Statement parseInlineInstruction(CodeReader source, ErrorList errors, CodeFragment... preFragments) throws CompilerError
     {
         LinkedList<CodeFragment> frags = new LinkedList<>();
         if(preFragments != null && preFragments.length > 0)
             frags.addAll(Arrays.asList(preFragments));
+        accumulated.setLast(frags.isEmpty() ? null : frags.getLast());
         CodeFragment frag;
         int firstLine = source.getCurrentLine();
-        while((frag = parseFragment(source, frags.isEmpty() ? null : frags.getLast(), true, errors)) != null)
+        while((frag = parseFragment(source, true, errors)) != null)
         {
+            if(frag != null)
+                accumulated.setLast(frag);
             if(frag == Stopchar.SEMICOLON)
                 break;
             frags.add(frag);
@@ -562,9 +576,11 @@ public final class CodeParser
         LinkedList<CodeFragment> frags = new LinkedList<>();
         CodeFragment frag;
         int firstLine = source.getCurrentLine();
-        CodeQueue queue = new CodeQueue(frags.isEmpty() ? last : frags.getLast());
-        while((frag = parseFragment(source, queue, true, errors)) != null)
+        accumulated.setLast(frags.isEmpty() ? last : frags.getLast());
+        while((frag = parseFragment(source, true, errors)) != null)
         {
+            if(frag != null)
+                accumulated.setLast(frag);
             if(frag == Stopchar.SEMICOLON)
                 break;
             frags.add(frag);
@@ -579,9 +595,11 @@ public final class CodeParser
         LinkedList<CodeFragment> frags = new LinkedList<>();
         CodeFragment frag;
         int firstLine = source.getCurrentLine();
-        CodeQueue queue = new CodeQueue(frags.isEmpty() ? last : frags.getLast());
-        while((frag = parseFragment(source, queue, true, errors)) != null)
+        accumulated.setLast(frags.isEmpty() ? last : frags.getLast());
+        while((frag = parseFragment(source, true, errors)) != null)
         {
+            if(frag != null)
+                accumulated.setLast(frag);
             frags.add(frag);
             if(frag.isScope())
                 break;
@@ -596,8 +614,11 @@ public final class CodeParser
         LinkedList<CodeFragment> frags = new LinkedList<>();
         CodeFragment frag;
         int firstLine = source.getCurrentLine();
-        while((frag = parseFragment(source, frags.isEmpty() ? last : frags.getLast(), true, errors)) != null)
+        accumulated.setLast(frags.isEmpty() ? last : frags.getLast());
+        while((frag = parseFragment(source, true, errors)) != null)
         {
+            if(frag != null)
+                accumulated.setLast(frag);
             if(frag == Stopchar.SEMICOLON)
                 break;
             frags.add(frag);
@@ -614,10 +635,13 @@ public final class CodeParser
         LinkedList<CodeFragment> frags = new LinkedList<>();
         CodeFragment frag;
         int firstLine = source.getCurrentLine();
-        accumulated.createNewLevel();
-        while((frag = parseFragment(source, frags.isEmpty() ? null : frags.getLast(), true, errors)) != null)
+        CodeParser parser = new CodeParser(null);
+        while((frag = parser.parseFragment(source, true, errors)) != null)
+        {
+            if(frag != null)
+                parser.accumulated.setLast(frag);
             frags.add(frag);
-        accumulated.destroyNewLevel();
+        }
         return frags.isEmpty()
                 ? CodeFragmentList.empty(firstLine)
                 : new CodeFragmentList(firstLine, frags);
@@ -625,7 +649,7 @@ public final class CodeParser
     
     private Scope parseScope(CodeReader source, ErrorList errors) throws CompilerError
     {
-        List<Instruction> instrs = InstructionParser.parse(source, this, errors);
+        List<Instruction> instrs = InstructionParser.parse(source, errors);
         return new Scope(instrs);
     }
     
@@ -749,6 +773,7 @@ public final class CodeParser
                 case "iterator": return Operator.ITERATOR;
                 case "def": return Command.DEF;
                 case "include": return Command.INCLUDE;
+                case "import": return Command.IMPORT;
                 case "if": return Command.IF;
                 case "else": return Command.ELSE;
                 case "for": return Command.FOR;
@@ -767,31 +792,21 @@ public final class CodeParser
     
     private static final class CodeQueue
     {
-        private final CodeFragment last;
+        private CodeFragment last;
         private LinkedList<CodeFragment> list = new LinkedList<>();
         
         private CodeQueue(CodeFragment last) { this.last = last; }
+        
+        public final void setLast(CodeFragment last) { this.last = last; }
         
         public final CodeQueue enqueue(CodeFragment frag) { list.add(frag); return this; }
         
         public final CodeFragment dequeue() { return list.removeFirst(); }
         
-        public final boolean hasLast() { return last == null && list.isEmpty(); }
-        public final CodeFragment last() { return last == null ? list.isEmpty() ? null : list.getLast() : last; }
+        public final boolean hasLast() { return last != null || !list.isEmpty(); }
+        public final CodeFragment last() { return list.isEmpty() ? last : list.getLast(); }
         
         public final boolean isEmpty() { return list.isEmpty(); }
-        
-        public final void createNewLevel()
-        {
-            stored.push(list);
-            list = new LinkedList<>();
-        }
-        public final void destroyNewLevel() throws CompilerError
-        {
-            if(!list.isEmpty())
-                throw new CompilerError("Unexpected " + list.peek());
-            list = stored.pop();
-        }
         
         public final CodeFragment enqret(CodeFragment frag)
         {

@@ -271,7 +271,7 @@ public abstract class SGSValue
         int FLOAT           = 0x2;
         int STRING          = 0x3;
         int FUNCTION        = 0x4;
-        int REFERENCE         = 0x5;
+        int REFERENCE       = 0x5;
         int ARRAY           = 0x6;
         int OBJECT          = 0x7;
         int CONST_ARRAY     = 0x8;
@@ -295,6 +295,26 @@ public abstract class SGSValue
             int FUNCTION        = Type.FUNCTION;
             int CONST_ARRAY     = Type.CONST_ARRAY;
             int CONST_OBJECT    = Type.CONST_OBJECT;
+        }
+        
+        static String toString(int typeid)
+        {
+            switch(typeid)
+            {
+                case UNDEFINED: return "undefined";
+                case INTEGER: return "int";
+                case FLOAT: return "float";
+                case STRING: return "string";
+                case FUNCTION: return "function";
+                case REFERENCE: return "ref";
+                case ARRAY: return "array";
+                case OBJECT: return "object";
+                case CONST_ARRAY: return "const array";
+                case CONST_OBJECT: return "const object";
+                case USERDATA:
+                default:
+                    return "userdata";
+            }
         }
     }
     

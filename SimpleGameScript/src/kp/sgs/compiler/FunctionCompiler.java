@@ -50,4 +50,11 @@ public final class FunctionCompiler
         function.setBytecode(bytecode);
         function.setReturnType(DataType.ANY);
     }
+    
+    static final void createEmptyFunction(Function function)
+    {
+        byte[] bytecode =  BytecodeBuilder.buildEmptyFunction();
+        function.setBytecode(bytecode);
+        function.setReturnType(DataType.ANY);
+    }
 }

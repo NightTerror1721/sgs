@@ -21,7 +21,6 @@ import kp.sgs.compiler.exception.ErrorList;
 import kp.sgs.compiler.instruction.Instruction;
 import kp.sgs.compiler.instruction.InstructionParser;
 import kp.sgs.compiler.parser.Arguments;
-import kp.sgs.compiler.parser.CodeParser;
 import kp.sgs.compiler.parser.CodeReader;
 import kp.sgs.compiler.parser.Identifier;
 import kp.sgs.compiler.parser.Operation;
@@ -53,9 +52,8 @@ public final class SGSCompiler
     private static SGSScript compile(CodeReader source, CompilerProperties props) throws CompilerException
     {
         ScriptBuilder builder = new ScriptBuilder(props);
-        CodeParser codeParser = new CodeParser();
         ErrorList errors = new ErrorList();
-        List<Instruction> insts = InstructionParser.parse(source, codeParser, errors);
+        List<Instruction> insts = InstructionParser.parse(source, errors);
         if(errors.hasErrors())
             throw new CompilerException(errors);
         
@@ -79,9 +77,9 @@ public final class SGSCompiler
         if(name == null)
             throw new CompilerError("Expected valid identifier name for static function");
         Arguments pars = op.getOperand(1);
-        StatementCompiler.compileNewFunctionParameters(scope, pars);
-        Scope funcScope = op.getOperand(2);
         NamespaceScope child = scope.createChildScope(true);
+        StatementCompiler.compileNewFunctionParameters(child, pars);
+        Scope funcScope = op.getOperand(2);
         Function func = scope.createFunction(name.toString());
         
         FunctionCompiler.compile(func, child, funcScope);

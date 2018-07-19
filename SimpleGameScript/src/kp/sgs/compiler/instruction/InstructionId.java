@@ -15,6 +15,7 @@ public enum InstructionId
     SCOPE,
     DECLARATION,
     INCLUSION,
+    IMPORTATION,
     CONDITION,
     LOOP_WHILE,
     LOOP_FOR,

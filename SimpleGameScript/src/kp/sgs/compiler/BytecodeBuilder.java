@@ -8,6 +8,7 @@ package kp.sgs.compiler;
 import kp.sgs.SGSConstants;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
 import kp.sgs.compiler.opcode.OpcodeList;
+import kp.sgs.compiler.opcode.Opcodes;
 import kp.sgs.compiler.parser.DataType;
 
 /**
@@ -29,17 +30,27 @@ public final class BytecodeBuilder
         if(opcodes == null)
             throw new NullPointerException();
         
-        int opcodeLen = opcodes.buildBytePositions();
+        int opcodeLen = opcodes.buildBytePositions(SGSConstants.CODE_INIT);
         byte[] bytecode = new byte[SGSConstants.CODE_INIT + opcodeLen];
         bytecode[SGSConstants.CODE_STACK_LEN] = (byte) (stackSize & 0xff);
         bytecode[SGSConstants.CODE_VARS_LEN] = (byte) (varsCount & 0xff);
         bytecode[SGSConstants.CODE_RETURN_TYPE] = (byte) (returnType.getTypeId() & 0xff);
-        opcodes.buildBytecodes(bytecode, SGSConstants.CODE_INIT);
+        opcodes.buildBytecodes(bytecode);
         
         return bytecode;
     }
     public static final byte[] buildFunction(NamespaceScope scope, DataType returnType, OpcodeList opcodes)
     {
         return buildFunction(scope.getRuntimeStack().getMaxStackLength(), scope.getRuntimeStack().getVariableCount(), returnType, opcodes);
+    }
+    
+    static final byte[] buildEmptyFunction()
+    {
+        byte[] bytecode = new byte[SGSConstants.CODE_INIT + 1];
+        bytecode[SGSConstants.CODE_STACK_LEN] = (byte) 0;
+        bytecode[SGSConstants.CODE_VARS_LEN] = (byte) 0;
+        bytecode[SGSConstants.CODE_RETURN_TYPE] = (byte) (DataType.ANY.getTypeId() & 0xff);
+        bytecode[SGSConstants.CODE_INIT] = (byte) (Opcodes.RETURN_NONE.getOpcode() & 0xff);
+        return bytecode;
     }
 }

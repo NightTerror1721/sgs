@@ -41,12 +41,6 @@ public final class Opcodes
             throw new CompilerError("variable index overflow");
         return opcode(Instruction.LOAD_VAR, 1, 0, (byte) (index & 0xff));
     }
-    public static final Opcode loadArg(int index) throws CompilerError
-    {
-        if(index > 0xff)
-            throw new CompilerError("argument index overflow");
-        return opcode(Instruction.LOAD_ARG, 1, 0, (byte) (index & 0xff));
-    }
     public static final Opcode loadFunction(int index) throws CompilerError
     {
         if(index > 0xffff)
@@ -80,12 +74,6 @@ public final class Opcodes
         if(index > 0xff)
             throw new CompilerError("variable index overflow");
         return opcode(Instruction.STORE_VAR, 0, 1, (byte) (index & 0xff));
-    }
-    public static final Opcode storeArg(int index) throws CompilerError
-    {
-        if(index > 0xff)
-            throw new CompilerError("argument index overflow");
-        return opcode(Instruction.STORE_ARG, 0, 1, (byte) (index & 0xff));
     }
     public static final Opcode storeGlobal(int index) throws CompilerError
     {
@@ -396,6 +384,14 @@ public final class Opcodes
         if(offsetIndex > 0xff)
             throw new CompilerError("args offset index overflow");
         return opcode(Instruction.ARGS_TO_ARRAY, 0, 0, (byte) (varIndex & 0xff), (byte) (offsetIndex & 0xff));
+    }
+    public static final Opcode argToVar(int varIndex, int argIndex) throws CompilerError
+    {
+        if(varIndex > 0xff)
+            throw new CompilerError("variable index overflow");
+        if(argIndex > 0xff)
+            throw new CompilerError("argument index overflow");
+        return opcode(Instruction.ARG_TO_VAR, 1, 0, (byte) (varIndex & 0xff), (byte) (argIndex & 0xff));
     }
     
     

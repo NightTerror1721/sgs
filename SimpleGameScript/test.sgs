@@ -1,10 +1,30 @@
+import io;
 
-def text_to_print = "hello world";
+def text_to_print = "hello world\n";
+
+def write(text, endline) {
+	endline = endline ? "\n" : "";
+	print(text..endline);
+}
 
 def main() {
+	def callback = def(toprint) { write(toprint, true); }
+
 	int it = 0;
 	it + 5;
-	printf(text_to_print);
+	it = (int) "50";
+	write(text_to_print);
+	write(it + 45, true);
+	
+	def val = "36";
+	it = it - ((int) val);
+	
+	def res = it == 50 ? true : false;
+	write(res.."\n");
+	
+	
+	
+	callback(65);
 }
 
 

@@ -66,13 +66,12 @@ public final class SGSScript
         {
             switch(code[inst++] & 0xff)
             {
-                default: throw new RuntimeException("Invalid instruction: " + Integer.toHexString(code[inst++ - 1] & 0xff));
+                default: throw new RuntimeException("Invalid instruction: " + Integer.toHexString(code[inst - 1] & 0xff));
                 case NOP: break;
                 
                 case LOAD_CONST: stack[sit++] = constants[code[inst++] & 0xff]; break;
                 case LOAD_CONST16: stack[sit++] = constants[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)]; break;
                 case LOAD_VAR: stack[sit++] = stack[code[inst++] & 0xff]; break;
-                case LOAD_ARG: stack[sit++] = (code[inst++] & 0xff) >= args.length ? SGSValue.UNDEFINED : args[code[inst - 1] & 0xff]; break;
                 case LOAD_FUNCTION: stack[sit++] = loadFunctionFromCache(code[inst++ & 0xff]); break;
                 case LOAD_FUNCTION16: stack[sit++] = loadFunctionFromCache((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); break;
                 case LOAD_CLOSURE: {
@@ -134,7 +133,7 @@ public final class SGSScript
                 case CAST_ARRAY: stack[sit - 1] = stack[sit - 1].toArray().toSGSValue(); break;
                 case CAST_OBJECT: stack[sit - 1] = stack[sit - 1].toObject().toSGSValue(); break;
                 
-                case GOTO: inst = (code[inst++] & 0xff) - 1; break;
+                case GOTO: inst = (code[inst++] & 0xff) - 1; inst++; break;
                 case GOTO16: inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
                 
                 case RETURN_NONE: return SGSValue.UNDEFINED;
@@ -179,7 +178,7 @@ public final class SGSScript
                 case IF_EQ16: if(stack[--sit - 1].operatorEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
                 case IF_NEQ: if(stack[--sit - 1].operatorNotEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
                 case IF_NEQ16: if(stack[--sit - 1].operatorNotEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_TEQ: if(stack[--sit - 1].operatorTypedEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
+                case IF_TEQ: if(stack[--sit - 1].operatorTypedEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst+=2; break;
                 case IF_TEQ16: if(stack[--sit - 1].operatorTypedEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
                 case IF_TNEQ: if(stack[--sit - 1].operatorTypedNotEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
                 case IF_TNEQ16: if(stack[--sit - 1].operatorTypedNotEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
@@ -304,6 +303,7 @@ public final class SGSScript
                 case LIBE_VCALL_NA: libelements[code[inst++] & 0xff].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
                 case LIBE_VCALL_NA16: libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
                 case ARGS_TO_ARRAY: stack[code[inst++] & 0xff] = new Varargs(args, code[inst++] & 0xff); break;
+                case ARG_TO_VAR: stack[sit++] = stack[code[inst++] & 0xff] = (code[inst++] & 0xff) >= args.length ? SGSValue.UNDEFINED : args[code[inst - 1] & 0xff]; break;
             }
         }
     }

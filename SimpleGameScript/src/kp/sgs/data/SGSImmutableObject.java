@@ -148,4 +148,16 @@ public final class SGSImmutableObject extends SGSImmutableValue implements SGSOb
 
     @Override
     public final Iterator<Map.Entry<String, SGSValue>> iterator() { return properties.entrySet().iterator(); }
+    
+    @Override
+    public final SGSValue getGlobalValue(String name) { return properties.getOrDefault(name, UNDEFINED); }
+
+    @Override
+    public final SGSValue setGlobalValue(String name, SGSValue value)
+    {
+        throw new UnsupportedOperationException("const Object cannot support modify global values");
+    }
+
+    @Override
+    public final boolean hasGlobalValue(String name) { return properties.containsKey(name); }
 }

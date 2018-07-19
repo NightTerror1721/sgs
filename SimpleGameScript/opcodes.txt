@@ -1,0 +1,90 @@
+#CONSTANTS: 10
+#0: string: hello world\n
+#1: string: 
+#2: string: \n
+#3: int: 1
+#4: int: 0
+#5: int: 5
+#6: int: 50
+#7: int: 45
+#8: string: 36
+#9: int: 65
+
+
+#IDENTIFIERS: 0
+
+
+#LIBRARY IMPORTS: 1
+#0: from io import print
+
+
+#FUNCTIONS: 3
+#0: 
+    stack_len: 9
+    vars_len: 7
+    return_type: 255
+    code:
+    0x3: LOAD_FUNCTION #2 
+    0x5: STORE_VAR #2 
+    0x7: LOAD_CONST #4 
+    0x9: STORE_VAR #4 
+    0xb: LOAD_VAR #4 
+    0xd: LOAD_CONST #5 
+    0xf: ADD 
+    0x10: POP 
+    0x11: LOAD_CONST #6 
+    0x13: STORE_VAR #4 
+    0x15: LOAD_CONST #0 
+    0x17: LOCAL_CALL 1 #1 
+    0x1a: LOAD_VAR #4 
+    0x1c: LOAD_CONST #7 
+    0x1e: ADD 
+    0x1f: LOAD_CONST #3 
+    0x21: LOCAL_CALL 2 #1 
+    0x24: LOAD_CONST #8 
+    0x26: STORE_VAR #5 
+    0x28: LOAD_VAR #4 
+    0x2a: LOAD_VAR #5 
+    0x2c: CAST_INT 
+    0x2d: SUB 
+    0x2e: STORE_VAR #4 
+    0x30: LOAD_VAR #4 
+    0x32: LOAD_CONST #6 
+    0x34: IF_EQ 0x3c 
+    0x37: LOAD_CONST #4 
+    0x39: GOTO 0x3e 
+    0x3c: LOAD_CONST #3 
+    0x3e: STORE_VAR #6 
+    0x40: LOAD_VAR #6 
+    0x42: LOAD_CONST #2 
+    0x44: CONCAT 
+    0x45: LOCAL_CALL 1 #1 
+    0x48: LOAD_VAR #2 
+    0x4a: LOAD_CONST #9 
+    0x4c: CALL 1 
+    0x4e: RETURN_NONE 
+#1: 
+    stack_len: 3
+    vars_len: 2
+    return_type: 255
+    code:
+    0x3: ARG_TO_VAR #0 #1 
+    0x6: IF 0xe 
+    0x9: LOAD_CONST #1 
+    0xb: GOTO 0x10 
+    0xe: LOAD_CONST #2 
+    0x10: STORE_VAR #0 
+    0x12: ARG_TO_VAR #1 #0 
+    0x15: LOAD_VAR #0 
+    0x17: CONCAT 
+    0x18: LIBE_CALL 1 #0 
+    0x1b: RETURN_NONE 
+#2: 
+    stack_len: 4
+    vars_len: 4
+    return_type: 255
+    code:
+    0x3: ARG_TO_VAR #3 #0 
+    0x6: LOAD_CONST #3 
+    0x8: LOCAL_CALL 2 #1 
+    0xb: RETURN_NONE 

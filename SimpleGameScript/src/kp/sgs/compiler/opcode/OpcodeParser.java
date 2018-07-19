@@ -11,11 +11,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import kp.sgs.SGSConstants;
 import static kp.sgs.SGSConstants.Instruction.*;
 import kp.sgs.SGSScript;
 import kp.sgs.SGSScriptIO;
+import kp.sgs.data.SGSValue;
 
 /**
  *
@@ -38,7 +40,9 @@ public final class OpcodeParser
         try
         {
             output.append("#CONSTANTS: ").append(Integer.toString(SGSScriptIO.getConstantCount(script)));
-            SGSScriptIO.forEachConstantExcept(script, (c, i) -> output.append('\n').appendElementReference(i).append(c.toString()));
+            SGSScriptIO.forEachConstantExcept(script, (c, i) -> output.append('\n').appendElementReference(i)
+                    .append(SGSValue.Type.toString(c.getDataType())).append(": ")
+                    .append(c.toString().replace("\n", "\\n").replace("\t", "\\t")));
             output.append("\n\n\n");
             
             output.append("#IDENTIFIERS: ").append(Integer.toString(SGSScriptIO.getIdentifierCount(script)));
@@ -61,12 +65,28 @@ public final class OpcodeParser
                         .append("\n    code:");
                 for(int offset = SGSConstants.CODE_INIT; offset < func.length; offset++)
                 {
-                    output.append('\n').appendOpcodePosition(offset);
+                    output.append("\n    ").appendOpcodePosition(offset);
                     offset += parseOpcode(output, func, offset);
                 }
             });
+            output.flush();
         }
         catch(Throwable ex) { throw new IOException(ex); }
+    }
+    
+    static final String opcodeToString(Opcode opcode)
+    {
+        byte[] code = new byte[opcode.length];
+        opcode.build(code, 0);
+        StringWriter w;
+        Output out = new Output(w = new StringWriter());
+        try
+        {
+            parseOpcode(out, code, 0);
+            out.close();
+            return w.toString();
+        }
+        catch(IOException ex) { return "<<OPCODE NAME ERROR>>"; }
     }
     
     private static int parseOpcode(Output output, byte[] code, int offset) throws IOException
@@ -78,7 +98,6 @@ public final class OpcodeParser
             case LOAD_CONST: output.appendOpname("LOAD_CONST").appendByteRef(code[offset + 1]); return 1;
             case LOAD_CONST16: output.appendOpname("LOAD_CONST16").appendWordRef(code[offset + 1], code[offset + 2]); return 2;
             case LOAD_VAR: output.appendOpname("LOAD_VAR").appendByteRef(code[offset + 1]); return 1;
-            case LOAD_ARG: output.appendOpname("LOAD_ARG").appendByteRef(code[offset + 1]); return 1;
             case LOAD_FUNCTION: output.appendOpname("LOAD_FUNCTION").appendByteRef(code[offset + 1]); return 1;
             case LOAD_FUNCTION16: output.appendOpname("LOAD_FUNCTION16").appendWordRef(code[offset + 1], code[offset + 2]); return 2;
             case LOAD_CLOSURE: output.appendOpname("LOAD_CLOSURE").appendByteRef(code[offset + 1]).appendByte(code[offset + 2]); return 2;
@@ -88,7 +107,6 @@ public final class OpcodeParser
             case LOAD_UNDEF: output.appendOpname("LOAD_UNDEF"); return 0;
             
             case STORE_VAR: output.appendOpname("STORE_VAR").appendByteRef(code[offset + 1]); return 1;
-            case STORE_ARG: output.appendOpname("STORE_ARG").appendByteRef(code[offset + 1]); return 1;
             case STORE_GLOBAL: output.appendOpname("STORE_GLOBAL").appendByteRef(code[offset + 1]); return 1;
             case STORE_GLOBAL16: output.appendOpname("STORE_GLOBAL16").appendWordRef(code[offset + 1], code[offset + 2]); return 2;
             case STORE_VAR_UNDEF: output.appendOpname("STORE_VAR_UNDEF").appendByteRef(code[offset + 1]); return 1;
@@ -231,6 +249,7 @@ public final class OpcodeParser
             case LIBE_VCALL_NA16: output.appendOpname("LIBE_VCALL_NA16").appendWordRef(code[offset + 2], code[offset + 3]); return 2;
             
             case ARGS_TO_ARRAY: output.appendOpname("ARGS_TO_ARRAY").appendByteRef(code[offset + 1]).appendByte(code[offset + 2]); return 2;
+            case ARG_TO_VAR: output.appendOpname("ARG_TO_VAR").appendByteRef(code[offset + 1]).appendByteRef(code[offset + 2]); return 2;
             
             default: output.append("<<UNKNOWN_OPCODE>>"); return 0;
         }

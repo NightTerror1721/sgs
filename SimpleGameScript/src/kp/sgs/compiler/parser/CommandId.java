@@ -13,6 +13,7 @@ public enum CommandId
 {
     DEF,
     INCLUDE,
+    IMPORT,
     IF,
     ELSE,
     FOR,

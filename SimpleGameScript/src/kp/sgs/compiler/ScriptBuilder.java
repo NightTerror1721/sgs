@@ -35,6 +35,7 @@ public final class ScriptBuilder
     private final NamespaceScope rootNamespace;
     private final RuntimeStack stack;
     private final String mainFunctionName;
+    private final SGSLibraryRepository allLibs;
     private final SGSLibraryRepository libs;
     
     public ScriptBuilder(CompilerProperties props)
@@ -42,7 +43,8 @@ public final class ScriptBuilder
         this.rootNamespace = new NamespaceScope(null, false);
         this.stack = new RuntimeStack();
         this.mainFunctionName = props.getFunctionName();
-        this.libs = props.getLibraryRepository();
+        this.allLibs = props.getLibraryRepository();
+        this.libs = new SGSLibraryRepository();
         
         functions.add(new Function(mainFunctionName, 0)); //main function
     }
@@ -71,6 +73,8 @@ public final class ScriptBuilder
     
     private Function createFunction(String name)
     {
+        if(name != null && name.equals(mainFunctionName))
+            return functions.getFirst();
         int index = functions.size();
         Function func = new Function(name == null ? "" : name, index);
         functions.add(func);
@@ -97,7 +101,7 @@ public final class ScriptBuilder
     public final LibraryElement findLibraryElement(String name)
     {
         LibraryElement e = usedLibElements.getOrDefault(name, null);
-        if(e != null || libs == null)
+        if(e != null)
             return e;
         for(SGSLibrary lib : libs)
             if(lib.hasLibraryElement(name))
@@ -116,6 +120,9 @@ public final class ScriptBuilder
     
     public final SGSScript buildScript()
     {
+        if(functions.getFirst().bytecode == null) //Main function not found
+            FunctionCompiler.createEmptyFunction(functions.getFirst());
+        
         SGSImmutableValue[] cnsts = new SGSImmutableValue[constants.size()];
         for(Constant c : constants)
             cnsts[c.getIndex()] = c.value.getSGSValue();
@@ -198,17 +205,16 @@ public final class ScriptBuilder
                 return id;
             if(parent != null)
             {
+                id = parent.getIdentifier(name);
                 if(isFunctionScope() && id.needInherition())
                 {
-                    id = parent.getIdentifier(name);
                     inherithedIds.add((LocalVariable) id);
                     ids.put(id.getName(), id);
-                    return id;
                 }
-                if((id = findLibraryElement(name)) != null)
-                    return id;
-                return parent.getIdentifier(name);
+                return id;
             }
+            if((id = findLibraryElement(name)) != null)
+                return id;
             return new GlobalVariable(name);
         }
         
@@ -244,6 +250,19 @@ public final class ScriptBuilder
             ids.put(arg.getName(), arg);
             return arg;
         }
+        public final LocalVariable argumentToLocal(Argument arg) throws CompilerError
+        {
+            if(ids.getOrDefault(arg.getName(), null) == arg)
+            {
+                int index = stack.allocateVariable();
+                LocalVariable var = new LocalVariable(arg.getName(), index, arg.getType());
+                ids.put(arg.getName(), var);
+                return var;
+            }
+            else if(parent != null)
+                return parent.argumentToLocal(arg);
+            else throw new IllegalStateException();
+        }
         
         public final LocalVariable createVarArgument(String name) throws CompilerError
         {
@@ -276,6 +295,15 @@ public final class ScriptBuilder
         }
         
         public final int registerIdentifier(String identifier) { return ScriptBuilder.this.registerIdentifier(identifier); }
+        
+        public final void importLibrary(String identifier) throws CompilerError
+        {
+            if(allLibs == null || !allLibs.hasLibrary(identifier))
+                throw new CompilerError("Library " + identifier + " not found");
+            if(libs.hasLibrary(identifier))
+                return;
+            libs.registerLibrary(allLibs.getLibrary(identifier));
+        }
     }
     
     

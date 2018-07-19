@@ -5,6 +5,7 @@
  */
 package kp.sgs.compiler;
 
+import kp.sgs.compiler.ScriptBuilder.Argument;
 import kp.sgs.compiler.ScriptBuilder.Constant;
 import kp.sgs.compiler.ScriptBuilder.Function;
 import kp.sgs.compiler.ScriptBuilder.LocalVariable;
@@ -66,7 +67,7 @@ public final class StatementCompiler
                 opcodes.append(Opcodes.loadGlobal(id.getIndex()));
                 break;
             case ARGUMENT:
-                opcodes.append(Opcodes.loadArg(id.getIndex()));
+                compileLoadArgument(scope, opcodes, id);
                 break;
             case CONSTANT:
                 opcodes.append(Opcodes.loadConst(id.getIndex()));
@@ -80,6 +81,15 @@ public final class StatementCompiler
             default: throw new IllegalStateException();
         }
         return id.getType();
+    }
+    
+    private static DataType compileLoadArgument(NamespaceScope scope, OpcodeList opcodes, NamespaceIdentifier arg) throws CompilerError
+    {
+        if(!arg.isArgument())
+            throw new IllegalStateException();
+        LocalVariable var = scope.argumentToLocal((Argument) arg);
+        opcodes.append(Opcodes.argToVar(var.getIndex(), arg.getIndex()));
+        return var.getType();
     }
     
     public static final DataType compileLiteral(NamespaceScope scope, OpcodeList opcodes, Statement literal) throws CompilerError
@@ -332,6 +342,9 @@ public final class StatementCompiler
             case BITWISE_OR:
                 opcodes.append(Opcodes.BW_OR);
                 return type;
+            case CONCAT:
+                opcodes.append(Opcodes.CONCAT);
+                return DataType.STRING;
             default: throw new IllegalStateException();
         }
     }
@@ -396,7 +409,7 @@ public final class StatementCompiler
         if(funcOp.isIdentifier())
         {
             NamespaceIdentifier id = scope.getIdentifier(funcOp.toString());
-            if(id.isFunction() || id.isLibraryElement())
+            if(id.isFunction())
             {
                 int count = compileArguments(scope, opcodes, args);
                 opcodes.append(Opcodes.localCall(id.getIndex(), count, popReturn));
@@ -433,11 +446,11 @@ public final class StatementCompiler
     
     private static DataType compileTernaryCondition(NamespaceScope scope, OpcodeList opcodes, Statement condOp, Statement trueOp, Statement falseOp, boolean pop) throws CompilerError
     {
-        OpcodeLocation falseJump = compileDefaultIf(scope, opcodes, falseOp);
-        DataType trueType = compile(scope, opcodes, trueOp, pop);
+        OpcodeLocation trueJump = compileCondition(scope, opcodes, condOp);
+        DataType falseType = compile(scope, opcodes, falseOp, pop);
         OpcodeLocation endJump = opcodes.append(Opcodes.goTo());
-        opcodes.setJumpOpcodeLocationToBottom(falseJump);
-        DataType falseType = compile(scope, opcodes, trueOp, pop);
+        opcodes.setJumpOpcodeLocationToBottom(trueJump);
+        DataType trueType = compile(scope, opcodes, trueOp, pop);
         opcodes.setJumpOpcodeLocationToBottom(endJump);
         if(pop)
             opcodes.append(Opcodes.POP);
@@ -457,12 +470,12 @@ public final class StatementCompiler
         Function func = scope.createFunction(name == null ? null : name.toString());
         NamespaceScope child = scope.createChildScope(true);
         compileNewFunctionParameters(child, pars);
-        FunctionCompiler.compile(func, scope, funcScope);
+        FunctionCompiler.compile(func, child, funcScope);
         if(child.hasInheritedIds())
         {
             for(LocalVariable id : child.getInheritedIds())
                 if(id.isArgument())
-                    opcodes.append(Opcodes.loadArg(id.getIndex()));
+                    compileLoadArgument(scope, opcodes, id);
                 else opcodes.append(Opcodes.loadVar(id.getIndex()));
             opcodes.append(Opcodes.loadClosure(func.getIndex(), child.getInheritedIdCount()));
             if(name != null)
@@ -535,7 +548,6 @@ public final class StatementCompiler
         switch(identifier.getIdentifierType())
         {
             case LOCAL_VARIABLE: opcodes.append(Opcodes.storeVar(identifier.getIndex())); break;
-            case ARGUMENT: opcodes.append(Opcodes.storeArg(identifier.getIndex())); break;
             case GLOBAL_VARIABLE: opcodes.append(Opcodes.storeGlobal(identifier.getIndex())); break;
             default: throw new CompilerError("Cannot store value into " + identifier.getIdentifierType());
         }

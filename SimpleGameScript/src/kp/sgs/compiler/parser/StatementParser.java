@@ -64,7 +64,7 @@ public final class StatementParser
             {
                 if(identifier != Operator.CALL)
                     throw new CompilerError("Expected a valid arguments list in new function.");
-                it.increase();
+                //it.increase();
                 identifier = null;
             }
             if(it.end())
@@ -107,8 +107,8 @@ public final class StatementParser
     {
         int len = list.length();
         for(int i=index;i<len;i++)
-            if(list.get(index).is(CodeFragmentType.OPERATOR))
-                return list.get(index);
+            if(list.get(i).is(CodeFragmentType.OPERATOR))
+                return list.get(i);
         return null;
     }
     

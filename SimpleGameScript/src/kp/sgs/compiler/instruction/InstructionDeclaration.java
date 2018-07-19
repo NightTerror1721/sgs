@@ -104,7 +104,7 @@ public class InstructionDeclaration extends Instruction
                 if(!left.isIdentifier())
                     throw new CompilerError("Invalid left part of assignation operator in declaration. Required valid identifier, but found: " + left);
                 scope.createLocalVariable(left.toString(), type);
-                StatementCompiler.compile(scope, opcodes, left, false);
+                StatementCompiler.compile(scope, opcodes, assignment, false);
             }
             else if(assignment.isNewFunction())
             {

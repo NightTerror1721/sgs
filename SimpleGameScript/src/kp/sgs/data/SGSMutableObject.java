@@ -183,5 +183,18 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
 
     @Override
     public final Iterator<Map.Entry<String, SGSValue>> iterator() { return properties.entrySet().iterator(); }
+
+    @Override
+    public final SGSValue getGlobalValue(String name) { return properties.getOrDefault(name, UNDEFINED); }
+
+    @Override
+    public final SGSValue setGlobalValue(String name, SGSValue value)
+    {
+        properties.put(name, value == null ? UNDEFINED : value);
+        return value;
+    }
+
+    @Override
+    public final boolean hasGlobalValue(String name) { return properties.containsKey(name); }
     
 }
