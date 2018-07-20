@@ -6,11 +6,13 @@
 package kp.sgs.compiler;
 
 import java.util.List;
+import kp.sgs.SGSConstants;
 import kp.sgs.compiler.ScriptBuilder.Function;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.instruction.Instruction;
 import kp.sgs.compiler.opcode.OpcodeList;
+import kp.sgs.compiler.opcode.OpcodeList.OpcodeLocation;
 import kp.sgs.compiler.opcode.Opcodes;
 import kp.sgs.compiler.parser.DataType;
 import kp.sgs.compiler.parser.Scope;
@@ -30,7 +32,8 @@ public final class FunctionCompiler
             opcodes.append(Opcodes.argsToArray(scope.getVarargs().getIndex(), scope.getArgumentCount()));
         for(Instruction instruction : instructions)
             instruction.compileFunctionPart(scope, opcodes);
-        opcodes.append(Opcodes.RETURN_NONE);
+        if(!isReturnOpcode(opcodes.getLastLocation()))
+            opcodes.append(Opcodes.RETURN_NONE);
         
         byte[] bytecode =  BytecodeBuilder.buildFunction(scope, DataType.ANY, opcodes);
         function.setBytecode(bytecode);
@@ -44,7 +47,8 @@ public final class FunctionCompiler
             opcodes.append(Opcodes.argsToArray(scope.getVarargs().getIndex(), scope.getArgumentCount()));
         for(Instruction instruction : funcScope)
             instruction.compileFunctionPart(scope, opcodes);
-        opcodes.append(Opcodes.RETURN_NONE);
+        if(!isReturnOpcode(opcodes.getLastLocation()))
+            opcodes.append(Opcodes.RETURN_NONE);
         
         byte[] bytecode =  BytecodeBuilder.buildFunction(scope, DataType.ANY, opcodes);
         function.setBytecode(bytecode);
@@ -56,5 +60,11 @@ public final class FunctionCompiler
         byte[] bytecode =  BytecodeBuilder.buildEmptyFunction();
         function.setBytecode(bytecode);
         function.setReturnType(DataType.ANY);
+    }
+    
+    private static boolean isReturnOpcode(OpcodeLocation loc)
+    {
+        int code = loc.getOpcode().getOpcode();
+        return code == SGSConstants.Instruction.RETURN || code == SGSConstants.Instruction.RETURN_NONE;
     }
 }

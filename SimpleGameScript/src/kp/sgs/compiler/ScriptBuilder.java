@@ -33,7 +33,7 @@ public final class ScriptBuilder
     private final LinkedList<Function> functions = new LinkedList<>();
     private final LinkedList<LibraryElement> libelements = new LinkedList<>();
     private final NamespaceScope rootNamespace;
-    private final RuntimeStack stack;
+    //private final RuntimeStack stack;
     private final String mainFunctionName;
     private final SGSLibraryRepository allLibs;
     private final SGSLibraryRepository libs;
@@ -41,7 +41,7 @@ public final class ScriptBuilder
     public ScriptBuilder(CompilerProperties props)
     {
         this.rootNamespace = new NamespaceScope(null, false);
-        this.stack = new RuntimeStack();
+        //this.stack = new RuntimeStack();
         this.mainFunctionName = props.getFunctionName();
         this.allLibs = props.getLibraryRepository();
         this.libs = new SGSLibraryRepository();
@@ -49,7 +49,7 @@ public final class ScriptBuilder
         functions.add(new Function(mainFunctionName, 0)); //main function
     }
     
-    public final RuntimeStack getRuntimeStack() { return stack; }
+    //public final RuntimeStack getRuntimeStack() { return stack; }
     
     public final NamespaceScope getRootNamespace() { return rootNamespace; }
     
@@ -148,6 +148,7 @@ public final class ScriptBuilder
         private final NamespaceScope parent;
         private final HashMap<String, NamespaceIdentifier> ids = new HashMap<>();
         private final LinkedList<LocalVariable> inherithedIds;
+        private final RuntimeStack stack;
         private int argCount = 0;
         private LocalVariable varargs = null;
         
@@ -155,6 +156,9 @@ public final class ScriptBuilder
         {
             this.parent = parent;
             this.inherithedIds = functionScope ? new LinkedList<>() : null;
+            if(parent == null)
+                stack = null;
+            else stack = functionScope ? new RuntimeStack() : parent.stack;
         }
         
         public final ScriptBuilder getScriptBuilder() { return ScriptBuilder.this; }

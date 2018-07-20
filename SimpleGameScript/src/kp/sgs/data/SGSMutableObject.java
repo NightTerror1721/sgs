@@ -91,30 +91,28 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
 
     /* Array operators */
     @Override public SGSValue operatorGet(SGSValue index) { return properties.getOrDefault(index.toString(), UNDEFINED); }
-    @Override public SGSValue operatorSet(SGSValue index, SGSValue value)
+    @Override public void     operatorSet(SGSValue index, SGSValue value)
     {
         if(value == null)
             throw new NullPointerException();
         properties.put(index.toString(), value);
-        return value;
     }
     
     
     /* Object operators */
     @Override public SGSValue operatorGetProperty(String name) { return properties.getOrDefault(name, UNDEFINED); }
-    @Override public SGSValue operatorSetProperty(String name, SGSValue value)
+    @Override public void     operatorSetProperty(String name, SGSValue value)
     {
         if(value == null)
             throw new NullPointerException();
         properties.put(name, value);
-        return value;
     }
     @Override public SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { throw new UnsupportedOperationException("Object cannot use operatorCall"); }
     
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("Object cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorPointerSet"); }
+    @Override public final void     operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

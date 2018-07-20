@@ -2,6 +2,12 @@ import io;
 
 def text_to_print = "hello world\n";
 
+def props = {
+	small: 'S',
+	medium: 'M',
+	large: 'L'
+};
+
 def write(text, endline) {
 	endline = endline ? "\n" : "";
 	print(text..endline);
@@ -25,6 +31,37 @@ def main() {
 	
 	
 	callback(65);
+	test_call(callback);
+	
+	write(sum((int) "365", 45), true);
+	
+	
+	array arr = [350, 46, "ola k ase"];
+	write(arr, true);
+	
+	object obj = {
+		dash: true,
+		"weapon power": 65
+	};
+	
+	obj.defense = 45;
+	
+	write(obj, true);
+	
+	int local_value = 0;
+	def ptr = &local_value;
+	
+	write(ptr, true);
+	write(*ptr, true);
+	
+	increaser(ptr);
+	
+	write(local_value, true);
+	write(props, true);
 }
 
+def increaser(ptr) { *ptr = *ptr + 1; }
 
+def test_call(callb) { callb(30); }
+
+def sum(x, y) { return x + y; }

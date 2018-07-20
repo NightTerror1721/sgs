@@ -27,6 +27,7 @@ import kp.sgs.compiler.parser.Scope;
 import kp.sgs.compiler.parser.Statement;
 import kp.sgs.compiler.parser.Varargs;
 import kp.sgs.data.SGSImmutableValue;
+import kp.sgs.data.SGSValue.Type;
 
 /**
  *
@@ -164,7 +165,7 @@ public final class StatementCompiler
             NamespaceIdentifier id = scope.getIdentifier(op.toString());
             if(!id.isLocalVariable())
                 throw new CompilerError("Expected valid local variable to \"&\" operator.");
-            opcodes.append(Opcodes.refLocal(id.getIndex()));
+            opcodes.append(Opcodes.refLocal(id.getIndex(), id.getType().getTypeId()));
             return DataType.ANY;
         }
         if(operator == Operator.INDIRECTION)
@@ -545,14 +546,27 @@ public final class StatementCompiler
     
     private static DataType compileStoreIdentifier(NamespaceScope scope, OpcodeList opcodes, NamespaceIdentifier identifier, DataType sourceType) throws CompilerError
     {
+        DataType destType = identifier.getType();
+        if(!DataType.canUseImplicitCast(destType, sourceType))
+            throw new CompilerError("Cannot assign " + sourceType + " to " + identifier.getType());
+        if(destType != sourceType)
+        {
+            switch(destType.getTypeId())
+            {
+                case Type.INTEGER: opcodes.append(Opcodes.CAST_INT); break;
+                case Type.FLOAT: opcodes.append(Opcodes.CAST_FLOAT); break;
+                case Type.STRING: opcodes.append(Opcodes.CAST_STRING); break;
+                case Type.ARRAY: opcodes.append(Opcodes.CAST_ARRAY); break;
+                case Type.OBJECT: opcodes.append(Opcodes.CAST_OBJECT); break;
+            }
+        }
         switch(identifier.getIdentifierType())
         {
             case LOCAL_VARIABLE: opcodes.append(Opcodes.storeVar(identifier.getIndex())); break;
             case GLOBAL_VARIABLE: opcodes.append(Opcodes.storeGlobal(identifier.getIndex())); break;
             default: throw new CompilerError("Cannot store value into " + identifier.getIdentifierType());
         }
-        if(!DataType.canUseImplicitCast(identifier.getType(), sourceType))
-            throw new CompilerError("Cannot assign " + sourceType + " to " + identifier.getType());
+            
         return identifier.getType();
     }
     

@@ -201,8 +201,8 @@ public final class CodeParser
                         {
                             default: {
                                 if(accumulated.hasLast() && accumulated.last().isValidOperand())
-                                    accumulated.enqueue(Operator.ADDRESS_OF);
-                                else accumulated.enqueue(Operator.BITWISE_AND);
+                                    accumulated.enqueue(Operator.BITWISE_AND);
+                                else accumulated.enqueue(Operator.ADDRESS_OF);
                                 source.move(-1);
                             } break;
                             case '&': {
@@ -508,9 +508,9 @@ public final class CodeParser
                         switch(c)
                         {
                             default: {
-                                if(accumulated.hasLast() && (accumulated.last().isValidOperand() || accumulated.last() == Operator.INDIRECTION))
-                                    accumulated.enqret(Operator.INDIRECTION);
-                                else accumulated.enqueue(Operator.MULTIPLICATION);
+                                if(accumulated.hasLast() && accumulated.last().isValidOperand())
+                                    accumulated.enqret(Operator.MULTIPLICATION);
+                                else accumulated.enqueue(Operator.INDIRECTION);
                                 source.move(-1);
                             } break;
                             case '=': {

@@ -82,21 +82,21 @@ public abstract class SGSValue
     
     /* Array operators */
     public abstract SGSValue operatorGet(SGSValue index);
-    public abstract SGSValue operatorSet(SGSValue index, SGSValue value);
+    public abstract void     operatorSet(SGSValue index, SGSValue value);
     public          SGSValue operatorGet(int index) { return operatorGet(new SGSInteger(index)); }
-    public          SGSValue operatorSet(int index, SGSValue value) { return operatorSet(new SGSInteger(index), value); }
+    public          void     operatorSet(int index, SGSValue value) { operatorSet(new SGSInteger(index), value); }
     
     
     /* Object operators */
     public abstract SGSValue operatorGetProperty(String name);
-    public abstract SGSValue operatorSetProperty(String name, SGSValue value);
+    public abstract void     operatorSetProperty(String name, SGSValue value);
     public abstract SGSValue operatorCall(SGSGlobals globals, SGSValue[] args);
     public final    SGSValue operatorCall(SGSGlobals globals) { return operatorCall(globals, SGSConstants.EMPTY_ARGS); }
     
     
     /* Pointer operators */
     public abstract SGSValue operatorReferenceGet();
-    public abstract SGSValue operatorReferenceSet(SGSValue value);
+    public abstract void     operatorReferenceSet(SGSValue value);
     
     
     /* Iterator operators */

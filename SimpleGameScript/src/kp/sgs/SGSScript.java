@@ -99,20 +99,20 @@ public final class SGSScript
                 
                 case ARRAY_NEW: stack[sit - 1] = new SGSMutableArray(stack[sit - 1].toInt()); break;
                 case ARRAY_GET: stack[sit - 2] = stack[sit - 2].operatorGet(stack[sit - 1]); sit--; break;
-                case ARRAY_SET: stack[sit - 3] = stack[sit - 3].operatorSet(stack[sit - 2], stack[sit - 1]); sit -= 2; break;
+                case ARRAY_SET: stack[sit - 3].operatorSet(stack[sit - 2], stack[sit - 1]); sit -= 3; break;
                 case ARRAY_INT_GET: stack[sit - 1] = stack[sit - 1].operatorGet(code[inst++] & 0xff); break;
-                case ARRAY_INT_SET: stack[sit - 2] = stack[sit - 2].operatorSet(code[inst++] & 0xff, stack[sit - 1]); sit--; break;
+                case ARRAY_INT_SET: stack[sit - 2].operatorSet(code[inst++] & 0xff, stack[sit - 1]); sit -= 2; break;
                 
                 case OBJ_NEW: stack[sit++] = new SGSMutableObject(); break;
                 case OBJ_PGET: stack[sit - 1] = stack[sit - 1].operatorGetProperty(identifiers[code[inst++] & 0xff]); break;
                 case OBJ_PGET16: stack[sit - 1] = stack[sit - 1].operatorGetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)]); break;
-                case OBJ_PSET: stack[sit - 2] = stack[sit - 2].operatorSetProperty(identifiers[code[inst++] & 0xff], stack[sit - 1]); sit--; break;
-                case OBJ_PSET16: stack[sit - 2] = stack[sit - 2].operatorSetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)], stack[sit - 1]); sit--; break;
+                case OBJ_PSET: stack[sit - 2].operatorSetProperty(identifiers[code[inst++] & 0xff], stack[sit - 1]); sit -= 2; break;
+                case OBJ_PSET16: stack[sit - 2].operatorSetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)], stack[sit - 1]); sit -= 2; break;
                 
                 case REF_HEAP: stack[sit++] = new SGSHeapReference(); break;
-                case REF_LOCAL: stack[sit++] = new SGSLocalReference(stack, code[inst++]);
+                case REF_LOCAL: stack[sit++] = getLocalReference(stack, code[inst++] & 0xff, code[inst++] & 0xff); break;
                 case REF_GET: stack[sit - 1] = stack[sit - 1].operatorReferenceGet(); break;
-                case REF_SET: stack[sit - 2] = stack[sit - 2].operatorReferenceSet(stack[sit - 1]); sit--; break;
+                case REF_SET: stack[sit - 2].operatorReferenceSet(stack[sit - 1]); sit -= 2; break;
                 
                 case POP: sit--; break;
                 case SWAP: {
@@ -126,6 +126,7 @@ public final class SGSScript
                     stack[sit - 3] = aux;
                 } break;
                 case DUP: stack[sit++] = stack[sit - 2]; break;
+                case DUP2: stack[sit++] = stack[sit - 3]; break;
                 
                 case CAST_INT: stack[sit - 1] = new SGSInteger(stack[sit - 1].toInt()); break;
                 case CAST_FLOAT: stack[sit - 1] = new SGSFloat(stack[sit - 1].toDouble()); break;
@@ -313,6 +314,19 @@ public final class SGSScript
         return functionCache[index] != null ? functionCache[index] : (functionCache[index] = new SGSScriptFunction(index));
     }
     
+    private static SGSLocalReference getLocalReference(SGSValue[] stack, int varIndex, int typeid)
+    {
+        switch(typeid)
+        {
+            case SGSValue.Type.INTEGER: return new SGSIntLocalReference(stack, varIndex);
+            case SGSValue.Type.FLOAT: return new SGSFloatLocalReference(stack, varIndex);
+            case SGSValue.Type.STRING: return new SGSStringLocalReference(stack, varIndex);
+            case SGSValue.Type.ARRAY: return new SGSArrayLocalReference(stack, varIndex);
+            case SGSValue.Type.OBJECT: return new SGSObjectLocalReference(stack, varIndex);
+            default: return new SGSLocalReference(stack, varIndex);
+        }
+    }
+    
     
     
     public class SGSScriptFunction extends SGSFunction
@@ -367,10 +381,10 @@ public final class SGSScript
         }
     }
     
-    private final class SGSLocalReference extends SGSReference
+    private static class SGSLocalReference extends SGSReference
     {
-        private final SGSValue[] stack;
-        private final int varIdx;
+        final SGSValue[] stack;
+        final int varIdx;
         
         private SGSLocalReference(SGSValue[] stack, int varIdx)
         {
@@ -380,11 +394,32 @@ public final class SGSScript
         
         /* Pointer operators */
         @Override public final SGSValue operatorReferenceGet() { return stack[varIdx] == null ? UNDEFINED : stack[varIdx]; }
-        @Override public final SGSValue operatorReferenceSet(SGSValue value)
-        {
-            stack[varIdx] = value;
-            return value == null ? UNDEFINED : value;
-        }
+        @Override public       void     operatorReferenceSet(SGSValue value) { stack[varIdx] = value; }
+    }
+    private static final class SGSIntLocalReference extends SGSLocalReference
+    {
+        private SGSIntLocalReference(SGSValue[] stack, int varIdx) { super(stack, varIdx); }
+        @Override public final void     operatorReferenceSet(SGSValue value) { stack[varIdx] = new SGSInteger(value.toInt()); }
+    }
+    private static final class SGSFloatLocalReference extends SGSLocalReference
+    {
+        private SGSFloatLocalReference(SGSValue[] stack, int varIdx) { super(stack, varIdx); }
+        @Override public final void     operatorReferenceSet(SGSValue value) { stack[varIdx] = new SGSFloat(value.toDouble()); }
+    }
+    private static final class SGSStringLocalReference extends SGSLocalReference
+    {
+        private SGSStringLocalReference(SGSValue[] stack, int varIdx) { super(stack, varIdx); }
+        @Override public final void     operatorReferenceSet(SGSValue value) { stack[varIdx] = new SGSString(value.toString()); }
+    }
+    private static final class SGSArrayLocalReference extends SGSLocalReference
+    {
+        private SGSArrayLocalReference(SGSValue[] stack, int varIdx) { super(stack, varIdx); }
+        @Override public final void     operatorReferenceSet(SGSValue value) { stack[varIdx] = value.toArray().toSGSValue(); }
+    }
+    private static final class SGSObjectLocalReference extends SGSLocalReference
+    {
+        private SGSObjectLocalReference(SGSValue[] stack, int varIdx) { super(stack, varIdx); }
+        @Override public final void     operatorReferenceSet(SGSValue value) { stack[varIdx] = value.toObject().toSGSValue(); }
     }
     
     private static final class Varargs extends SGSUserdata
@@ -443,9 +478,9 @@ public final class SGSScript
         }
         
         @Override public final SGSValue operatorGet(SGSValue index) { return args[offset + index.toInt()]; }
-        @Override public final SGSValue operatorSet(SGSValue index, SGSValue value) { return args[offset + index.toInt()] = value; }
+        @Override public final void     operatorSet(SGSValue index, SGSValue value) { args[offset + index.toInt()] = value; }
         @Override public final SGSValue operatorGet(int index) { return args[offset + index]; }
-        @Override public final SGSValue operatorSet(int index, SGSValue value) { return args[offset + index] = value; }
+        @Override public final void     operatorSet(int index, SGSValue value) { args[offset + index] = value; }
         
         @Override public final SGSValue operatorIterator()
         {

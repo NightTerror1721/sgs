@@ -35,7 +35,7 @@ public abstract class Operator extends CodeFragment
     public final boolean isTernaryConditional() { return getOperatorType() == OperatorType.TERNARY_CONDITIONAL; }
     public final boolean isAssignment() { return getOperatorType() == OperatorType.ASSIGNMENT; }
     public final boolean isArrayGet() { return getOperatorType() == OperatorType.ARRAY_GET; }
-    public final boolean isPropertyGet() { return getOperatorType() == OperatorType.ARRAY_GET; }
+    public final boolean isPropertyGet() { return getOperatorType() == OperatorType.PROPERTY_GET; }
     public final boolean isCall() { return getOperatorType() == OperatorType.CALL; }
     public final boolean isInvoke() { return getOperatorType() == OperatorType.INVOKE; }
     public final boolean isNewFunction() { return getOperatorType() == OperatorType.NEW_FUNCTION; }

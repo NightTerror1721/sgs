@@ -88,7 +88,6 @@ public final class SGSUndefined extends SGSImmutableValue
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("Undefined cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Undefined cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

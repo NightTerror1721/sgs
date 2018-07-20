@@ -95,7 +95,6 @@ public final class SGSString extends SGSImmutableValue
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("String cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("String cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

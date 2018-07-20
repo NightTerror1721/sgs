@@ -100,7 +100,6 @@ public final class SGSImmutableObject extends SGSImmutableValue implements SGSOb
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("Object cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

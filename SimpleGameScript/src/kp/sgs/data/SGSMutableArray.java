@@ -110,20 +110,20 @@ public final class SGSMutableArray extends SGSValue implements SGSArray
     
     /* Array operators */
     @Override public final SGSValue operatorGet(SGSValue index) { return array[index.toInt()]; }
-    @Override public final SGSValue operatorSet(SGSValue index, SGSValue value) { return array[index.toInt()] = value; }
+    @Override public final void     operatorSet(SGSValue index, SGSValue value) { array[index.toInt()] = value; }
     @Override public final SGSValue operatorGet(int index) { return array[index]; }
-    @Override public final SGSValue operatorSet(int index, SGSValue value) { return array[index] = value; }
+    @Override public final void     operatorSet(int index, SGSValue value) { array[index] = value; }
     
     
     /* Object operators */
     @Override public final SGSValue operatorGetProperty(String name) { throw new UnsupportedOperationException("Array cannot use operatorGetProperty"); }
-    @Override public final SGSValue operatorSetProperty(String name, SGSValue value) { throw new UnsupportedOperationException("Array cannot use operatorSetProperty"); }
+    @Override public final void     operatorSetProperty(String name, SGSValue value) { throw new UnsupportedOperationException("Array cannot use operatorSetProperty"); }
     @Override public final SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { throw new UnsupportedOperationException("Array cannot use operatorCall"); }
     
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("Array cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Array cannot use operatorPointerSet"); }
+    @Override public final void     operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Array cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

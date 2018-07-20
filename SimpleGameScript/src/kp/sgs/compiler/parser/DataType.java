@@ -88,6 +88,19 @@ public final class DataType extends CodeFragment
         return frag == Command.DEF || frag.isDataType();
     }
     
+    public static final String fromTypeidToString(int typeid)
+    {
+        switch(typeid)
+        {
+            case Type.INTEGER: return "int";
+            case Type.FLOAT: return "float";
+            case Type.STRING: return "string";
+            case Type.ARRAY: return "array";
+            case Type.OBJECT: return "object";
+            default: return "any";
+        }
+    }
+    
     
     public static final DataType
             INTEGER = new DataType(Type.INTEGER, Operator.CAST_INT),

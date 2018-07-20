@@ -122,7 +122,6 @@ public class SGSImmutableArray extends SGSImmutableValue implements SGSArray
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("const Array cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("const Array cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

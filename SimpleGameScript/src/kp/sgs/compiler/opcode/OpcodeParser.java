@@ -17,6 +17,7 @@ import kp.sgs.SGSConstants;
 import static kp.sgs.SGSConstants.Instruction.*;
 import kp.sgs.SGSScript;
 import kp.sgs.SGSScriptIO;
+import kp.sgs.compiler.parser.DataType;
 import kp.sgs.data.SGSValue;
 
 /**
@@ -61,7 +62,7 @@ public final class OpcodeParser
                 output.append('\n').appendElementReference(index).append('\n')
                         .append("    stack_len: ").append(Integer.toString(func[SGSConstants.CODE_STACK_LEN] & 0xff))
                         .append("\n    vars_len: ").append(Integer.toString(func[SGSConstants.CODE_VARS_LEN] & 0xff))
-                        .append("\n    return_type: ").append(Integer.toString(func[SGSConstants.CODE_RETURN_TYPE] & 0xff))
+                        .append("\n    return_type: ").append(DataType.fromTypeidToString(func[SGSConstants.CODE_RETURN_TYPE] & 0xff))
                         .append("\n    code:");
                 for(int offset = SGSConstants.CODE_INIT; offset < func.length; offset++)
                 {
@@ -124,7 +125,7 @@ public final class OpcodeParser
             case OBJ_PSET16: output.appendOpname("OBJ_PSET16").appendWordRef(code[offset + 1], code[offset + 2]); return 2;
             
             case REF_HEAP: output.appendOpname("REF_HEAP"); return 0;
-            case REF_LOCAL: output.appendOpname("REF_LOCAL").appendByteRef(code[offset + 1]); return 1;
+            case REF_LOCAL: output.appendOpname("REF_LOCAL").appendByteRef(code[offset + 1]).appendTypeid(code[offset + 2]); return 2;
             case REF_GET: output.appendOpname("REF_GET"); return 0;
             case REF_SET: output.appendOpname("REF_SET"); return 0;
             
@@ -132,6 +133,7 @@ public final class OpcodeParser
             case SWAP: output.appendOpname("SWAP"); return 0;
             case SWAP2: output.appendOpname("SWAP2"); return 0;
             case DUP: output.appendOpname("DUP"); return 0;
+            case DUP2: output.appendOpname("DUP2"); return 0;
             
             case CAST_INT: output.appendOpname("CAST_INT"); return 0;
             case CAST_FLOAT: output.appendOpname("CAST_FLOAT"); return 0;
@@ -286,5 +288,7 @@ public final class OpcodeParser
         
         public final Output appendElementReference(int reference) throws IOException { super.append('#').append(Integer.toString(reference)).append(": "); return this; }
         public final Output appendOpcodePosition(int position) throws IOException { super.append("0x").append(Integer.toHexString(position)).append(": "); return this; }
+        
+        public final Output appendTypeid(int typeid) throws IOException { super.append(DataType.fromTypeidToString(typeid)).append(' '); return this; }
     }
 }

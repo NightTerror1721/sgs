@@ -92,7 +92,7 @@ public final class Opcodes
     
     public static final Opcode ARRAY_NEW = opcode(Instruction.ARRAY_NEW, 1, 1);
     public static final Opcode ARRAY_GET = opcode(Instruction.ARRAY_GET, 1, 2);
-    public static final Opcode ARRAY_SET = opcode(Instruction.ARRAY_SET, 1, 3);
+    public static final Opcode ARRAY_SET = opcode(Instruction.ARRAY_SET, 0, 3);
     public static final Opcode arrayIntGet(int index) throws CompilerError
     {
         if(index > 0xff)
@@ -103,7 +103,7 @@ public final class Opcodes
     {
         if(index > 0xff)
             throw new CompilerError("array int index overflow");
-        return opcode(Instruction.ARRAY_INT_SET, 1, 2, (byte) (index & 0xff));
+        return opcode(Instruction.ARRAY_INT_SET, 0, 2, (byte) (index & 0xff));
     }
     
     public static final Opcode OBJ_NEW = opcode(Instruction.OBJ_NEW, 1, 0);
@@ -120,24 +120,27 @@ public final class Opcodes
         if(index > 0xffff)
             throw new CompilerError("identifier index overflow");
         if(index > 0xff)
-            return opcode(Instruction.OBJ_PSET16, 1, 2, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
-        return opcode(Instruction.OBJ_PSET, 1, 2, (byte) (index & 0xff));
+            return opcode(Instruction.OBJ_PSET16, 0, 2, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+        return opcode(Instruction.OBJ_PSET, 0, 2, (byte) (index & 0xff));
     }
     
     public static final Opcode REF_HEAP = opcode(Instruction.REF_HEAP, 1, 0);
-    public static final Opcode refLocal(int index) throws CompilerError
+    public static final Opcode refLocal(int varIndex, int typeid) throws CompilerError
     {
-        if(index > 0xff)
+        if(varIndex > 0xff)
             throw new CompilerError("variable index overflow");
-        return opcode(Instruction.REF_LOCAL, 1, 0, (byte) (index & 0xff));
+        if(typeid > 0xff)
+            throw new CompilerError("typeid index overflow");
+        return opcode(Instruction.REF_LOCAL, 1, 0, (byte) (varIndex & 0xff), (byte) (typeid & 0xff));
     }
     public static final Opcode REF_GET = opcode(Instruction.REF_GET, 1, 1);
-    public static final Opcode REF_SET = opcode(Instruction.REF_SET, 1, 2);
+    public static final Opcode REF_SET = opcode(Instruction.REF_SET, 0, 2);
     
     public static final Opcode POP = opcode(Instruction.POP, 0, 1);
     public static final Opcode SWAP = opcode(Instruction.SWAP, 0, 0);
     public static final Opcode SWAP2 = opcode(Instruction.SWAP2, 0, 0);
     public static final Opcode DUP = opcode(Instruction.DUP, 1, 0);
+    public static final Opcode DUP2 = opcode(Instruction.DUP2, 1, 0);
     
     public static final Opcode CAST_INT = opcode(Instruction.CAST_INT, 1, 1);
     public static final Opcode CAST_FLOAT = opcode(Instruction.CAST_FLOAT, 1, 1);
@@ -255,7 +258,7 @@ public final class Opcodes
             throw new CompilerError("identifier index overflow");
         if(argumentCount > 0xff)
             throw new CompilerError("argument count overflow");
-        switch((index > 0xff ? 0x1 : 0x0) | (argumentCount > 0 ? 0x2 : 0x0) | (popReturn ? 0x4 : 0x0))
+        switch((index > 0xff ? 0x1 : 0x0) | (argumentCount > 0 ? 0x2 : 0x0) | (!popReturn ? 0x4 : 0x0))
         {
             default: throw new IllegalStateException();
             case 0x0: return opcode(Instruction.LOCAL_VCALL_NA, 0, 0, (byte) (index & 0xff));
@@ -273,7 +276,7 @@ public final class Opcodes
     {
         if(argumentCount > 0xff)
             throw new CompilerError("argument count overflow");
-        switch((argumentCount > 0 ? 0x1 : 0x0) | (popReturn ? 0x2 : 0x0))
+        switch((argumentCount > 0 ? 0x1 : 0x0) | (!popReturn ? 0x2 : 0x0))
         {
             default: throw new IllegalStateException();
             case 0x0: return opcode(Instruction.VCALL_NA, 0, 1);
@@ -289,7 +292,7 @@ public final class Opcodes
             throw new CompilerError("identifier index overflow");
         if(argumentCount > 0xff)
             throw new CompilerError("argument count overflow");
-        switch((index > 0xff ? 0x1 : 0x0) | (argumentCount > 0 ? 0x2 : 0x0) | (popReturn ? 0x4 : 0x0))
+        switch((index > 0xff ? 0x1 : 0x0) | (argumentCount > 0 ? 0x2 : 0x0) | (!popReturn ? 0x4 : 0x0))
         {
             default: throw new IllegalStateException();
             case 0x0: return opcode(Instruction.VINVOKE_NA, 0, 1, (byte) (index & 0xff));
@@ -363,7 +366,7 @@ public final class Opcodes
             throw new CompilerError("identifier index overflow");
         if(argumentCount > 0xff)
             throw new CompilerError("argument count overflow");
-        switch((index > 0xff ? 0x1 : 0x0) | (argumentCount > 0 ? 0x2 : 0x0) | (popReturn ? 0x4 : 0x0))
+        switch((index > 0xff ? 0x1 : 0x0) | (argumentCount > 0 ? 0x2 : 0x0) | (!popReturn ? 0x4 : 0x0))
         {
             default: throw new IllegalStateException();
             case 0x0: return opcode(Instruction.LIBE_VCALL_NA, 0, 0, (byte) (index & 0xff));

@@ -90,7 +90,6 @@ public final class SGSFloat extends SGSImmutableValue
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("Float cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Float cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

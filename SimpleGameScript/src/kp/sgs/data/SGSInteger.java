@@ -90,7 +90,6 @@ public final class SGSInteger extends SGSImmutableValue
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("Integer cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Integer cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

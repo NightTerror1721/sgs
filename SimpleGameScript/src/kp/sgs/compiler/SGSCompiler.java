@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import kp.sgs.SGSScript;
 import kp.sgs.compiler.ScriptBuilder.Function;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
@@ -63,28 +64,49 @@ public final class SGSCompiler
             for(Instruction inst : insts)
                 inst.compileConstantPart(builder.getRootNamespace(), functions);
             
-            for(Operation funcOp : functions)
-                compileStaticFunction(builder.getRootNamespace(), funcOp);
+            functions.stream().map(op -> new StaticFunction(builder.getRootNamespace(), op)).collect(Collectors.toList())
+                     .stream().forEach(StaticFunction::compile);
         }
         catch(CompilerError ex) { throw CompilerException.single(ex); }
+        catch(RuntimeException ex) { throw CompilerException.single((CompilerError) ex.getCause()); }
         
         return builder.buildScript();
     }
     
-    private static void compileStaticFunction(NamespaceScope scope, Operation op) throws CompilerError
+    private static final class StaticFunction
     {
-        Identifier name = op.getOperand(0);
-        if(name == null)
-            throw new CompilerError("Expected valid identifier name for static function");
-        Arguments pars = op.getOperand(1);
-        NamespaceScope child = scope.createChildScope(true);
-        StatementCompiler.compileNewFunctionParameters(child, pars);
-        Scope funcScope = op.getOperand(2);
-        Function func = scope.createFunction(name.toString());
+        private final NamespaceScope scope;
+        private final Function function;
+        private final Arguments pars;
+        private final Scope instScope;
         
-        FunctionCompiler.compile(func, child, funcScope);
-        if(child.hasInheritedIds())
-            throw new CompilerError("Static function cannot have inherited elements.");
-        scope.registerFunction(func);
+        private StaticFunction(NamespaceScope scope, Operation operation)
+        {
+            try
+            {
+                this.scope = scope;
+                Identifier name = operation.getOperand(0);
+                if(name == null)
+                    throw new CompilerError("Expected valid identifier name for static function");
+                this.pars = operation.getOperand(1);
+                this.instScope = operation.getOperand(2);
+                this.function = scope.createFunction(name.toString());
+                scope.registerFunction(function);
+            }
+            catch(CompilerError ex) { throw new RuntimeException(ex); }
+        }
+        
+        private void compile()
+        {
+            try
+            {
+                NamespaceScope child = scope.createChildScope(true);
+                StatementCompiler.compileNewFunctionParameters(child, pars);
+                FunctionCompiler.compile(function, child, instScope);
+                if(child.hasInheritedIds())
+                    throw new CompilerError("Static function cannot have inherited elements.");
+            }
+            catch(CompilerError ex) { throw new RuntimeException(ex); }
+        }
     }
 }

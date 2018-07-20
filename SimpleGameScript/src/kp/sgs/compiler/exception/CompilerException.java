@@ -33,7 +33,7 @@ public final class CompilerException extends Exception implements Iterable<Error
     private static String generateMessage(ErrorList errors)
     {
         StringBuilder sb = new StringBuilder();
-        sb.append(errors.getErrorCount()).append(errors.getErrorCount() == 1 ? "error found:" : "errors found:");
+        sb.append(errors.getErrorCount()).append(errors.getErrorCount() == 1 ? " error found:" : " errors found:");
         for(ErrorEntry e : errors)
         {
             sb.append("\n\t");

@@ -78,17 +78,22 @@ public abstract class SGSReference extends SGSValue
     
     /* Array operators */
     @Override public final SGSValue operatorGet(SGSValue index) { throw new UnsupportedOperationException("Pointer cannot use operatorGet"); }
-    @Override public final SGSValue operatorSet(SGSValue index, SGSValue value) { throw new UnsupportedOperationException("Pointer cannot use operatorSet"); }
+    @Override public final void     operatorSet(SGSValue index, SGSValue value) { throw new UnsupportedOperationException("Pointer cannot use operatorSet"); }
     
     
     /* Object operators */
     @Override public final SGSValue operatorGetProperty(String name) { throw new UnsupportedOperationException("Pointer cannot use operatorGetProperty"); }
-    @Override public final SGSValue operatorSetProperty(String name, SGSValue value) { throw new UnsupportedOperationException("Pointer cannot use operatorSetProperty"); }
+    @Override public final void     operatorSetProperty(String name, SGSValue value) { throw new UnsupportedOperationException("Pointer cannot use operatorSetProperty"); }
     @Override public final SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { throw new UnsupportedOperationException("Pointer cannot use operatorCall"); }
     
     
     /* Iterator operators */
     @Override public final SGSValue operatorIterator() { return SGSIterator.scalarIterator(this); }
+    
+    
+    /* Pointer operators */
+    @Override public abstract SGSValue operatorReferenceGet();
+    @Override public abstract void     operatorReferenceSet(SGSValue value);
     
     
     @Override
@@ -100,3 +105,4 @@ public abstract class SGSReference extends SGSValue
     @Override
     public final SGSImmutableValue operatorConst() { throw new UnsupportedOperationException("Pointer cannot use operatorConst"); }
 }
+

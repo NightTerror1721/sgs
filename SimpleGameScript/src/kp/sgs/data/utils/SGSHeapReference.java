@@ -18,9 +18,5 @@ public final class SGSHeapReference extends SGSReference
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { return value == null ? UNDEFINED : value; }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value)
-    {
-        this.value = value;
-        return value == null ? UNDEFINED : value;
-    }
+    @Override public final void     operatorReferenceSet(SGSValue value) { this.value = value; }
 }

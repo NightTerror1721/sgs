@@ -78,18 +78,18 @@ public class SGSUserdata extends SGSValue
     
     /* Array operators */
     @Override public SGSValue operatorGet(SGSValue index) { throw new UnsupportedOperationException("Object cannot use operatorGet"); }
-    @Override public SGSValue operatorSet(SGSValue index, SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorSet"); }
+    @Override public void     operatorSet(SGSValue index, SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorSet"); }
     
     
     /* Object operators */
     @Override public SGSValue operatorGetProperty(String name) { throw new UnsupportedOperationException("Object cannot use operatorGetProperty"); }
-    @Override public SGSValue operatorSetProperty(String name, SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorSetProperty"); }
+    @Override public void     operatorSetProperty(String name, SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorSetProperty"); }
     @Override public SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { throw new UnsupportedOperationException("Object cannot use operatorCall"); }
     
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("Userdata cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Userdata cannot use operatorPointerSet"); }
+    @Override public final void     operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Userdata cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */

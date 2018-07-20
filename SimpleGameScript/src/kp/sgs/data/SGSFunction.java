@@ -88,7 +88,6 @@ public abstract class SGSFunction extends SGSImmutableValue
     
     /* Pointer operators */
     @Override public final SGSValue operatorReferenceGet() { throw new UnsupportedOperationException("Function cannot use operatorPointerGet"); }
-    @Override public final SGSValue operatorReferenceSet(SGSValue value) { throw new UnsupportedOperationException("Function cannot use operatorPointerSet"); }
     
     
     /* Iterator operators */
