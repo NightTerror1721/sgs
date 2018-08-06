@@ -28,6 +28,8 @@ public interface SGSObject extends Iterable<Map.Entry<String, SGSValue>>, SGSGlo
     
     SGSValue objectSetProperty(String name, SGSValue value);
     
+    SGSValue objectGetBase();
+    
     SGSValue toSGSValue();
     
     Map<String, SGSValue> map();

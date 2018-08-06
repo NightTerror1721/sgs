@@ -253,6 +253,12 @@ public final class OpcodeParser
             case ARGS_TO_ARRAY: output.appendOpname("ARGS_TO_ARRAY").appendByteRef(code[offset + 1]).appendByte(code[offset + 2]); return 2;
             case ARG_TO_VAR: output.appendOpname("ARG_TO_VAR").appendByteRef(code[offset + 1]).appendByteRef(code[offset + 2]); return 2;
             
+            case NEW: output.appendOpname("NEW").appendByte(code[offset + 1]); return 1;
+            case NEW_NA: output.appendOpname("NEW_NA"); return 0;
+            case VNEW: output.appendOpname("VNEW").appendByte(code[offset + 1]); return 1;
+            case VNEW_NA: output.appendOpname("VNEW_NA"); return 0;
+            case BASE: output.appendOpname("BASE"); return 1;
+            
             default: output.append("<<UNKNOWN_OPCODE>>"); return 0;
         }
     }

@@ -8,7 +8,6 @@ package kp.sgs.data;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import kp.sgs.SGSGlobals;
 import static kp.sgs.data.SGSValue.FALSE;
 import static kp.sgs.data.SGSValue.TRUE;
 import kp.sgs.data.utils.SGSIterator;
@@ -117,7 +116,7 @@ public class SGSImmutableArray extends SGSImmutableValue implements SGSArray
     
     /* Object operators */
     @Override public final SGSValue operatorGetProperty(String name) { throw new UnsupportedOperationException("const Array cannot use operatorGetProperty"); }
-    @Override public final SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { throw new UnsupportedOperationException("const Array cannot use operatorCall"); }
+    @Override public final SGSValue operatorCall(SGSValue[] args) { throw new UnsupportedOperationException("const Array cannot use operatorCall"); }
     
     
     /* Pointer operators */

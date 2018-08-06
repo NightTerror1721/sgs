@@ -6,6 +6,7 @@
 package kp.sgs;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +35,7 @@ import kp.sgs.lib.SGSLibraryElement;
  */
 public final class SGSScript
 {
+    final SGSGlobals globals;
     final SGSImmutableValue[] constants;
     final String[] identifiers;
     final byte[][] functions;
@@ -41,11 +43,13 @@ public final class SGSScript
     private final SGSFunction[] functionCache;
     
     public SGSScript(
+            SGSGlobals globals,
             SGSImmutableValue[] constants,
             String[] identifiers,
             byte[][] functions,
             SGSLibraryElement[] libelements)
     {
+        this.globals = Objects.requireNonNull(globals);
         this.constants = Objects.requireNonNull(constants);
         this.identifiers = Objects.requireNonNull(identifiers);
         this.functions = Objects.requireNonNull(functions);
@@ -53,8 +57,8 @@ public final class SGSScript
         this.functionCache = new SGSFunction[functions.length];
     }
     
-    public final SGSValue execute(SGSGlobals globals, SGSValue... args) { return executeFunction(globals, functions[0], args); }
-    public final SGSValue execute(SGSGlobals globals) { return executeFunction(globals, functions[0], SGSConstants.EMPTY_ARGS); }
+    public final SGSValue execute(SGSValue... args) { return executeFunction(globals, functions[0], args); }
+    public final SGSValue execute() { return executeFunction(globals, functions[0], SGSConstants.EMPTY_ARGS); }
     
     private SGSValue executeFunction(SGSGlobals globals, byte[] code, SGSValue[] args)
     {
@@ -227,47 +231,47 @@ public final class SGSScript
                 case CALL: {
                     SGSValue[] fargs = new SGSValue[code[inst++] & 0xff];
                     System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
-                    stack[sit - 1] = stack[sit - 1].operatorCall(globals, fargs);
+                    stack[sit - 1] = stack[sit - 1].operatorCall(fargs);
                 } break;
-                case CALL_NA: stack[sit - 1] = stack[sit - 1].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
+                case CALL_NA: stack[sit - 1] = stack[sit - 1].operatorCall(SGSConstants.EMPTY_ARGS); break;
                 case VCALL: {
                     SGSValue[] fargs = new SGSValue[code[inst++] & 0xff];
                     System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
-                    stack[--sit].operatorCall(globals, fargs);
+                    stack[--sit].operatorCall(fargs);
                 } break;
-                case VCALL_NA: stack[--sit].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
+                case VCALL_NA: stack[--sit].operatorCall(SGSConstants.EMPTY_ARGS); break;
                 
                 case INVOKE: {
                     SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff) + 1];
                     System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
-                    stack[sit++] = fargs[0].operatorGetProperty(identifiers[code[inst++] & 0xff]).operatorCall(globals, fargs);
+                    stack[sit++] = fargs[0].operatorGetProperty(identifiers[code[inst++] & 0xff]).operatorCall(fargs);
                 } break;
                 case INVOKE16: {
                     SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff) + 1];
                     System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
-                    stack[sit++] = fargs[0].operatorGetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)]).operatorCall(globals, fargs);
+                    stack[sit++] = fargs[0].operatorGetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)]).operatorCall(fargs);
                 } break;
                 case INVOKE_NA: stack[sit - 1] = stack[sit - 1].operatorGetProperty(identifiers[code[inst++] & 0xff])
-                        .operatorCall(globals, new SGSValue[] { stack[sit - 1] }); break;
+                        .operatorCall(new SGSValue[] { stack[sit - 1] }); break;
                 case INVOKE_NA16: stack[sit - 1] = stack[sit - 1].operatorGetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)])
-                        .operatorCall(globals, new SGSValue[] { stack[sit - 1] }); break;
+                        .operatorCall(new SGSValue[] { stack[sit - 1] }); break;
                 case VINVOKE: {
                     SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff) + 1];
                     System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
-                    fargs[0].operatorGetProperty(identifiers[code[inst++] & 0xff]).operatorCall(globals, fargs);
+                    fargs[0].operatorGetProperty(identifiers[code[inst++] & 0xff]).operatorCall(fargs);
                 } break;
                 case VINVOKE16: {
                     SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff) + 1];
                     System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
-                    fargs[0].operatorGetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)]).operatorCall(globals, fargs);
+                    fargs[0].operatorGetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)]).operatorCall(fargs);
                 } break;
                 case VINVOKE_NA: sit--; stack[sit].operatorGetProperty(identifiers[code[inst++] & 0xff])
-                        .operatorCall(globals, new SGSValue[] { stack[sit] }); break;
+                        .operatorCall(new SGSValue[] { stack[sit] }); break;
                 case VINVOKE_NA16: sit--; stack[sit].operatorGetProperty(identifiers[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)])
-                        .operatorCall(globals, new SGSValue[] { stack[sit] }); break;
+                        .operatorCall(new SGSValue[] { stack[sit] }); break;
                         
-                case LIBE_LOAD: stack[sit++] = libelements[code[inst++] & 0xff].toSGSValue(); break;
-                case LIBE_LOAD16: stack[sit++] = libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].toSGSValue(); break;
+                case LIBE_LOAD: stack[sit++] = libelements[code[inst++] & 0xff].toSGSValue(globals); break;
+                case LIBE_LOAD16: stack[sit++] = libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].toSGSValue(globals); break;
                 case LIBE_A_GET: stack[sit - 1] = libelements[code[inst++] & 0xff].operatorGet(stack[sit - 1]); break;
                 case LIBE_A_GET16: stack[sit - 1] = libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].operatorGet(stack[sit - 1]); break;
                 case LIBE_AINT_GET: stack[sit++] = libelements[code[inst++] & 0xff].operatorGet(code[inst++] & 0xff); break;
@@ -303,8 +307,31 @@ public final class SGSScript
                 } break;
                 case LIBE_VCALL_NA: libelements[code[inst++] & 0xff].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
                 case LIBE_VCALL_NA16: libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
+                
                 case ARGS_TO_ARRAY: stack[code[inst++] & 0xff] = new Varargs(args, code[inst++] & 0xff); break;
                 case ARG_TO_VAR: stack[sit++] = stack[code[inst++] & 0xff] = (code[inst++] & 0xff) >= args.length ? SGSValue.UNDEFINED : args[code[inst - 1] & 0xff]; break;
+                
+                case NEW: {
+                    SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff)];
+                    System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
+                    SGSValue obj = new SGSMutableObject(new HashMap<>(), stack[sit - 1]);
+                    stack[sit - 1].constructor(obj, fargs);
+                    stack[sit - 1] = obj;
+                } break;
+                case NEW_NA: {
+                    SGSValue obj = new SGSMutableObject(new HashMap<>(), stack[sit - 1]);
+                    stack[sit - 1].constructor(obj, SGSConstants.EMPTY_ARGS);
+                    stack[sit - 1] = obj;
+                } break;
+                case VNEW: {
+                    SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff)];
+                    System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
+                    stack[sit - 1].constructor(new SGSMutableObject(new HashMap<>(), stack[--sit]), fargs);
+                } break;
+                case VNEW_NA: {
+                    stack[sit - 1].constructor(new SGSMutableObject(new HashMap<>(), stack[--sit]), SGSConstants.EMPTY_ARGS);
+                } break;
+                case BASE: stack[sit - 1] = stack[sit - 1].toObject().objectGetBase(); break;
             }
         }
     }
@@ -355,7 +382,7 @@ public final class SGSScript
         }
         private SGSScript script() { return SGSScript.this; }
         
-        @Override public SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { return executeFunction(globals, functions[functionIdx], args); }
+        @Override public SGSValue operatorCall(SGSValue[] args) { return executeFunction(globals, functions[functionIdx], args); }
     }
     
     private final class SGSScriptClosure extends SGSScriptFunction
@@ -368,7 +395,7 @@ public final class SGSScript
         }
         
         @Override
-        public final SGSValue operatorCall(SGSGlobals globals, SGSValue[] args)
+        public final SGSValue operatorCall(SGSValue[] args)
         {
             if(inners.length > 0)
             {

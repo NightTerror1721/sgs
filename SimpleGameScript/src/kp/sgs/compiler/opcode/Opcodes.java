@@ -397,6 +397,21 @@ public final class Opcodes
         return opcode(Instruction.ARG_TO_VAR, 1, 0, (byte) (varIndex & 0xff), (byte) (argIndex & 0xff));
     }
     
+    public static final Opcode New(int argumentCount, boolean popReturn) throws CompilerError
+    {
+        if(argumentCount > 0xff)
+            throw new CompilerError("argument count overflow");
+        switch((argumentCount > 0 ? 0x1 : 0x0) | (!popReturn ? 0x2 : 0x0))
+        {
+            default: throw new IllegalStateException();
+            case 0x0: return opcode(Instruction.VNEW_NA, 0, 1);
+            case 0x1: return opcode(Instruction.VNEW, 0, (argumentCount + 1), (byte) argumentCount);
+            case 0x2: return opcode(Instruction.NEW_NA, 1, 1);
+            case 0x1 | 0x2: return opcode(Instruction.NEW, 1, (argumentCount + 1), (byte) argumentCount);
+        }
+    }
+    public static final Opcode BASE = opcode(Instruction.BASE, 1, 1);
+    
     
     
     

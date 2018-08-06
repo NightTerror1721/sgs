@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import kp.sgs.SGSConstants;
-import kp.sgs.SGSGlobals;
 
 /**
  *
@@ -90,8 +89,10 @@ public abstract class SGSValue
     /* Object operators */
     public abstract SGSValue operatorGetProperty(String name);
     public abstract void     operatorSetProperty(String name, SGSValue value);
-    public abstract SGSValue operatorCall(SGSGlobals globals, SGSValue[] args);
-    public final    SGSValue operatorCall(SGSGlobals globals) { return operatorCall(globals, SGSConstants.EMPTY_ARGS); }
+    public abstract SGSValue operatorCall(SGSValue[] args);
+    public final    SGSValue operatorCall() { return operatorCall(SGSConstants.EMPTY_ARGS); }
+    public          void     constructor(SGSValue object, SGSValue[] args) { return; }
+    public final    void     constructor(SGSValue object) { constructor(object, SGSConstants.EMPTY_ARGS); }
     
     
     /* Pointer operators */

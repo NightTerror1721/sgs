@@ -29,9 +29,9 @@ public final class Main
         rep.registerLibrary(DefaultLibs.IO);
         props.setLibraryRepository(rep);
         
-        SGSScript script = SGSCompiler.compile(new File("test.sgs"), props);
+        SGSScript script = SGSCompiler.compile(new File("test.sgs"), new SGSMutableObject(), props);
         OpcodeParser.parseTo(script, new File("opcodes.txt"));
         
-        script.execute(new SGSMutableObject());
+        script.execute();
     }
 }

@@ -56,6 +56,7 @@ public final class Operation extends Statement
     public final boolean isPropertyGet() { return operator.isPropertyGet(); }
     public final boolean isCall() { return operator.isCall(); }
     public final boolean isInvoke() { return operator.isInvoke(); }
+    public final boolean isNew() { return operator.isNew(); }
     public final boolean isNewFunction() { return operator.isNewFunction(); }
     
     @Override
@@ -139,6 +140,13 @@ public final class Operation extends Statement
         if(!arguments.isArguments())
             throw new CompilerError("Expected a valid arguments list in invoke operator. But found: " + arguments);
         return new Operation(Operator.INVOKE, object, (Identifier) identifier, (Arguments) arguments);
+    }
+    
+    public static final Statement New(Statement base, CodeFragment arguments) throws CompilerError
+    {
+        if(!arguments.isArguments())
+            throw new CompilerError("Expected a valid arguments list in new operator. But found: " + arguments);
+        return new Operation(Operator.NEW, base, (Arguments) arguments);
     }
     
     

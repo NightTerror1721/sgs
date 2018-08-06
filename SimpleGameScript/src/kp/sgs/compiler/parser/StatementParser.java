@@ -41,6 +41,20 @@ public final class StatementParser
             if(it.end())
                 throw new CompilerError("unexpected end of instruction");
             Operator prefix = (Operator) part;
+            if(prefix.isNew())
+            {
+                part = packNextOperatorPart(it, (Operator) part);
+                if(!part.isValidOperand())
+                    throw new CompilerError("Expected valid operand after \"new\" operator. But found: " + part);
+                if(it.end() || it.listValue() != Operator.CALL)
+                    throw new CompilerError("Expected a valid arguments list in new function.");
+                it.increase();
+                if(it.end())
+                throw new CompilerError("Expected a valid arguments list in new function.");
+                CodeFragment args = it.listValue();
+                it.increase();
+                return Operation.New((Statement) part, args);
+            }
             if(!prefix.isUnary())
                 throw new CompilerError("Operator " + prefix + " cannot be a non unary prefix operator");
             part = packNextOperatorPart(it, (Operator) part);

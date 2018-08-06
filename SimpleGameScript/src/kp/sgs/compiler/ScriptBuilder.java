@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import kp.sgs.SGSGlobals;
 import kp.sgs.SGSScript;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.parser.DataType;
@@ -118,7 +119,7 @@ public final class ScriptBuilder
         return null;
     }
     
-    public final SGSScript buildScript()
+    public final SGSScript buildScript(SGSGlobals globals)
     {
         if(functions.getFirst().bytecode == null) //Main function not found
             FunctionCompiler.createEmptyFunction(functions.getFirst());
@@ -139,7 +140,7 @@ public final class ScriptBuilder
         for(LibraryElement e : libelements)
             libels[e.getIndex()] = e.element;
         
-        return new SGSScript(cnsts, ids, funcs, libels);
+        return new SGSScript(globals, cnsts, ids, funcs, libels);
     }
     
     

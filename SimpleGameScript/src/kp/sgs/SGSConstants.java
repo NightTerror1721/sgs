@@ -189,5 +189,11 @@ public interface SGSConstants
         int ARGS_TO_ARRAY   = 0x88; // <var_idx> <offset_idx>
         int ARG_TO_VAR      = 0x89; // <var_idx> <arg_idx>
         
+        int NEW             = 0x8A; // <args_len>
+        int NEW_NA          = 0x8B; // 
+        int VNEW            = 0x8C; // <args_len>
+        int VNEW_NA         = 0x8D; // 
+        int BASE            = 0x8E; // 
+        
     }
 }

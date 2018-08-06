@@ -80,7 +80,7 @@ public final class SGSScriptIO
     }
     
     
-    public static final SGSScript read(InputStream in, SGSLibraryRepository libs) throws IOException
+    public static final SGSScript read(InputStream in, SGSGlobals globals, SGSLibraryRepository libs) throws IOException
     {
         DataInputStream dis = new DataInputStream(new BufferedInputStream(in, 65536));
         if(dis.readInt() != SGSConstants.MAGIC_NUMBER)
@@ -118,13 +118,13 @@ public final class SGSScriptIO
             libelements[i] = lib.getLibraryElement(elementName);
         }
         
-        return new SGSScript(constants, identifiers, functions, libelements);
+        return new SGSScript(globals, constants, identifiers, functions, libelements);
     }
-    public static final SGSScript read(File file, SGSLibraryRepository libs) throws IOException
+    public static final SGSScript read(File file, SGSGlobals globals, SGSLibraryRepository libs) throws IOException
     {
         try(FileInputStream fis = new FileInputStream(file))
         {
-            return read(fis, libs);
+            return read(fis, globals, libs);
         }
     }
     

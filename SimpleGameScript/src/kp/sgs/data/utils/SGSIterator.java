@@ -7,7 +7,6 @@ package kp.sgs.data.utils;
 
 import java.util.Iterator;
 import java.util.Objects;
-import kp.sgs.SGSGlobals;
 import kp.sgs.data.SGSFunction;
 import kp.sgs.data.SGSValue;
 
@@ -29,7 +28,7 @@ public class SGSIterator extends SGSFunction
     }
 
     @Override
-    public final SGSValue operatorCall(SGSGlobals globals, SGSValue[] args)
+    public SGSValue operatorCall(SGSValue[] args)
     {
         return it.hasNext() ? it.next() : UNDEFINED;
     }

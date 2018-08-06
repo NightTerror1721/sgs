@@ -8,11 +8,6 @@ package kp.sgs.data;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import kp.sgs.SGSGlobals;
-import static kp.sgs.data.SGSValue.FALSE;
-import static kp.sgs.data.SGSValue.TRUE;
-import static kp.sgs.data.SGSValue.UNDEFINED;
-import kp.sgs.data.utils.SGSIterator;
 
 /**
  *
@@ -20,82 +15,84 @@ import kp.sgs.data.utils.SGSIterator;
  */
 public final class SGSImmutableObject extends SGSImmutableValue implements SGSObject
 {
-    private final Map<String, SGSValue> properties;
+    private final SGSMutableObject object;
     
     public SGSImmutableObject(Map<String, ? extends SGSValue> properties)
     {
         if(properties == null)
             throw new NullPointerException();
-        this.properties = Collections.unmodifiableMap(properties);
+        this.object = new SGSMutableObject(Collections.unmodifiableMap(properties));
     }
     
     @Override
     public final int getDataType() { return Type.CONST_OBJECT; }
 
     @Override
-    public final int toInt() { return properties.size(); }
+    public final int toInt() { return object.toInt(); }
 
     @Override
-    public final long toLong() { return properties.size(); }
+    public final long toLong() { return object.toLong(); }
 
     @Override
-    public final float toFloat() { return properties.size(); }
+    public final float toFloat() { return object.toFloat(); }
 
     @Override
-    public final double toDouble() { return properties.size(); }
+    public final double toDouble() { return object.toDouble(); }
 
     @Override
-    public final boolean toBoolean() { return !properties.isEmpty(); }
+    public final boolean toBoolean() { return object.toBoolean(); }
 
     @Override
-    public final String toString() { return SGSMutableObject.objectToString(this); }
+    public final String toString() { return object.toString(); }
 
     @Override
-    public final SGSArray toArray() { return SGSArray.of(true, this); }
+    public final SGSArray toArray() { return object.toArray(); }
     
     @Override
     public final SGSObject toObject() { return this; }
     
     
     /* Comparison operators */
-    @Override public final SGSValue operatorEquals(SGSValue value) { return properties.equals(value.toObject().map()) ? TRUE : FALSE; }
-    @Override public final SGSValue operatorNotEquals(SGSValue value) { return properties.equals(value.toObject().map()) ? FALSE : TRUE; }
-    @Override public final SGSValue operatorGreater(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorGreater"); }
-    @Override public final SGSValue operatorSmaller(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorSmaller"); }
-    @Override public final SGSValue operatorGreaterEquals(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorGreaterEquals"); }
-    @Override public final SGSValue operatorSmallerEquals(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorSmallerEquals"); }
-    @Override public final SGSValue operatorNegate() { return properties.isEmpty() ? TRUE : FALSE; }
-    @Override public final SGSValue operatorConcat(SGSValue value) { return new SGSString(toString().concat(value.toString())); }
-    @Override public final int      operatorLength() { return properties.size(); }
+    @Override public final SGSValue operatorEquals(SGSValue value) { return object.operatorEquals(value); }
+    @Override public final SGSValue operatorNotEquals(SGSValue value) { return object.operatorNotEquals(value); }
+    @Override public final SGSValue operatorGreater(SGSValue value) { return object.operatorGreater(value); }
+    @Override public final SGSValue operatorSmaller(SGSValue value) { return object.operatorSmaller(value); }
+    @Override public final SGSValue operatorGreaterEquals(SGSValue value) { return object.operatorGreaterEquals(value); }
+    @Override public final SGSValue operatorSmallerEquals(SGSValue value) { return object.operatorSmallerEquals(value); }
+    @Override public final SGSValue operatorNegate() { return object.operatorNegate(); }
+    @Override public final SGSValue operatorConcat(SGSValue value) { return object.operatorConcat(value); }
+    @Override public final int      operatorLength() { return object.operatorLength(); }
     
     
     /* Math operators */
-    @Override public final SGSValue operatorPlus(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorPlus"); }
-    @Override public final SGSValue operatorMinus(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorMinus"); }
-    @Override public final SGSValue operatorMultiply(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorMultiply"); }
-    @Override public final SGSValue operatorDivide(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorDivide"); }
-    @Override public final SGSValue operatorRemainder(SGSValue value) { throw new UnsupportedOperationException("Undefined cannot use operatorRemainder"); }
-    @Override public final SGSValue operatorIncrease() { throw new UnsupportedOperationException("Object cannot use operatorIncrease"); }
-    @Override public final SGSValue operatorDecrease() { throw new UnsupportedOperationException("Object cannot use operatorDecrease"); }
-    @Override public final SGSValue operatorNegative() { throw new UnsupportedOperationException("Object cannot use operatorNegative"); }
+    @Override public final SGSValue operatorPlus(SGSValue value) { return object.operatorPlus(value); }
+    @Override public final SGSValue operatorMinus(SGSValue value) { return object.operatorMinus(value); }
+    @Override public final SGSValue operatorMultiply(SGSValue value) { return object.operatorMultiply(value); }
+    @Override public final SGSValue operatorDivide(SGSValue value) { return object.operatorDivide(value); }
+    @Override public final SGSValue operatorRemainder(SGSValue value) { return object.operatorRemainder(value); }
+    @Override public final SGSValue operatorIncrease() { return object.operatorIncrease(); }
+    @Override public final SGSValue operatorDecrease() { return object.operatorDecrease(); }
+    @Override public final SGSValue operatorNegative() { return object.operatorNegative(); }
     
     
     /* Bit operators */
-    @Override public final SGSValue operatorBitwiseShiftLeft(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorShiftLeft"); }
-    @Override public final SGSValue operatorBitwiseShiftRight(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorShiftRight"); }
-    @Override public final SGSValue operatorBitwiseAnd(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorLogicAnd"); }
-    @Override public final SGSValue operatorBitwiseOr(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorLogicOr"); }
-    @Override public final SGSValue operatorBitwiseXor(SGSValue value) { throw new UnsupportedOperationException("Object cannot use operatorLogicXor"); }
-    @Override public final SGSValue operatorBitwiseNot() { throw new UnsupportedOperationException("Object cannot use operatorLogicNot"); }
+    @Override public final SGSValue operatorBitwiseShiftLeft(SGSValue value) { return object.operatorBitwiseShiftLeft(value); }
+    @Override public final SGSValue operatorBitwiseShiftRight(SGSValue value) { return object.operatorBitwiseShiftRight(value); }
+    @Override public final SGSValue operatorBitwiseAnd(SGSValue value) { return object.operatorBitwiseAnd(value); }
+    @Override public final SGSValue operatorBitwiseOr(SGSValue value) { return object.operatorBitwiseOr(value); }
+    @Override public final SGSValue operatorBitwiseXor(SGSValue value) { return object.operatorBitwiseXor(value); }
+    @Override public final SGSValue operatorBitwiseNot() { return object.operatorBitwiseNot(); }
     
 
     /* Array operators */
-    @Override public SGSValue operatorGet(SGSValue index) { return properties.getOrDefault(index.toString(), UNDEFINED); }
+    
+    @Override public final SGSValue operatorGet(SGSValue index) { return object.operatorGet(index); }
     
     
     /* Object operators */
-    @Override public SGSValue operatorGetProperty(String name) { return properties.getOrDefault(name, UNDEFINED); }
-    @Override public SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { throw new UnsupportedOperationException("Object cannot use operatorCall"); }
+    @Override public final SGSValue operatorGetProperty(String name) { return object.operatorGetProperty(name); }
+    @Override public final SGSValue operatorCall(SGSValue[] args) { return object.operatorCall(args); }
+    @Override public final void     constructor(SGSValue object, SGSValue[] args) { object.constructor(object); }
     
     
     /* Pointer operators */
@@ -103,53 +100,50 @@ public final class SGSImmutableObject extends SGSImmutableValue implements SGSOb
     
     
     /* Iterator operators */
-    @Override public final SGSValue operatorIterator() { return new SGSIterator(properties.values()); }
+    @Override public final SGSValue operatorIterator() { return object.operatorIterator(); }
     
     @Override
     public final boolean equals(Object o)
     {
-        return o instanceof SGSImmutableObject && properties.equals(((SGSImmutableObject) o).properties);
+        return o instanceof SGSImmutableObject && object.equals(((SGSImmutableObject) o).object);
     }
 
     @Override
-    public final int hashCode() { return properties.hashCode(); }
+    public final int hashCode() { return object.hashCode(); }
     
 
     @Override
     public final boolean isMutable() { return false; }
 
     @Override
-    public final int objectSize() { return properties.size(); }
+    public final int objectSize() { return object.objectSize(); }
     
     @Override
-    public final boolean objectIsEmpty() { return properties.isEmpty(); }
+    public final boolean objectIsEmpty() { return object.objectIsEmpty(); }
     
     @Override
-    public final boolean objectHasProperty(String name) { return properties.containsKey(name); }
+    public final boolean objectHasProperty(String name) { return object.objectHasProperty(name); }
 
     @Override
-    public final SGSValue objectGetProperty(String name) { return properties.getOrDefault(name, UNDEFINED); }
+    public final SGSValue objectGetProperty(String name) { return object.objectGetProperty(name); }
 
     @Override
     public final SGSValue objectSetProperty(String name, SGSValue value)
     {
-        if(value == null)
-            throw new NullPointerException();
-        properties.put(name, value);
-        return value;
+        throw new UnsupportedOperationException("Cannot modify properties in const object.");
     }
     
     @Override
-    public final Map<String, SGSValue> map() { return properties; }
+    public final Map<String, SGSValue> map() { return object.map(); }
     
     @Override
     public final SGSValue toSGSValue() { return this; }
 
     @Override
-    public final Iterator<Map.Entry<String, SGSValue>> iterator() { return properties.entrySet().iterator(); }
+    public final Iterator<Map.Entry<String, SGSValue>> iterator() { return object.iterator(); }
     
     @Override
-    public final SGSValue getGlobalValue(String name) { return properties.getOrDefault(name, UNDEFINED); }
+    public final SGSValue getGlobalValue(String name) { return object.getGlobalValue(name); }
 
     @Override
     public final SGSValue setGlobalValue(String name, SGSValue value)
@@ -158,5 +152,8 @@ public final class SGSImmutableObject extends SGSImmutableValue implements SGSOb
     }
 
     @Override
-    public final boolean hasGlobalValue(String name) { return properties.containsKey(name); }
+    public final boolean hasGlobalValue(String name) { return object.hasGlobalValue(name); }
+
+    @Override
+    public final SGSValue objectGetBase() { return object.objectGetBase(); }
 }

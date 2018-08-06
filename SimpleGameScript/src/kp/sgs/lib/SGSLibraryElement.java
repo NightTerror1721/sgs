@@ -35,7 +35,7 @@ public abstract class SGSLibraryElement
     public abstract DataType getValueType();
     public abstract DataType getReturnType();
     
-    public abstract SGSValue toSGSValue();
+    public abstract SGSValue toSGSValue(SGSGlobals globals);
     
     public abstract SGSValue operatorGet(SGSValue index);
     public          SGSValue operatorGet(int index) { return operatorGet(new SGSInteger(index)); }

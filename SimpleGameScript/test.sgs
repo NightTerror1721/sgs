@@ -15,6 +15,16 @@ def write(text, endline) {
 
 def main() {
 	def callback = def(toprint) { write(toprint, true); }
+	
+	def cl = {
+		"new": def(self, power, dash) {
+			self.dash = dash;
+			self.power = power;
+		}
+	};
+	
+	def obval = new cl(32, false);
+	write(obval, true);
 
 	int it = 0;
 	it + 5;

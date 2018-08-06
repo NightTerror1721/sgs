@@ -146,6 +146,7 @@ public final class StatementCompiler
             case PROPERTY_GET: type = compilePropertyGet(scope, opcodes, op.getOperand(0), op.getOperand(1)); break;
             case CALL: type = compileCall(scope, opcodes, op.getOperand(0), op.getOperand(1), pop); pop = false; break;
             case INVOKE: type = compileInvoke(scope, opcodes, op.getOperand(0), op.getOperand(1), op.getOperand(2), pop); pop = false; break;
+            case NEW: type = compileNew(scope, opcodes, op.getOperand(0), op.getOperand(1), pop); pop = false; break;
             case TERNARY_CONDITIONAL: type = compileTernaryCondition(scope, opcodes, op.getOperand(0), op.getOperand(1), op.getOperand(2), pop); pop = false; break;
             case NEW_FUNCTION: type = compileNewFunction(scope, opcodes, op, pop); pop = false; break;
             case ASSIGNMENT: type = compileAssignment(scope, opcodes, op.getOperator(), op.getOperand(0), op.getOperand(1), pop); pop = false; break;
@@ -436,6 +437,14 @@ public final class StatementCompiler
         NamespaceIdentifier id = scope.getIdentifier(property.toString());
         opcodes.append(Opcodes.invoke(id.getIndex(), count, popReturn));
         return DataType.ANY;
+    }
+    
+    private static DataType compileNew(NamespaceScope scope, OpcodeList opcodes, Statement base, Arguments args, boolean popReturn) throws CompilerError
+    {
+        compile(scope, opcodes, base, false);
+        int count = compileArguments(scope, opcodes, args);
+        opcodes.append(Opcodes.New(count, popReturn));
+        return DataType.OBJECT;
     }
     
     private static int compileArguments(NamespaceScope scope, OpcodeList opcodes, Arguments args) throws CompilerError

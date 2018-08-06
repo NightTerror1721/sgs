@@ -771,6 +771,8 @@ public final class CodeParser
                 case "isdef": return Operator.ISDEF;
                 case "typeid": return Operator.TYPEID;
                 case "iterator": return Operator.ITERATOR;
+                case "new": return Operator.NEW;
+                case "base": return Operator.BASE;
                 case "def": return Command.DEF;
                 case "include": return Command.INCLUDE;
                 case "import": return Command.IMPORT;

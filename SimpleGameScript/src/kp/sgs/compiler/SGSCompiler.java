@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import kp.sgs.SGSGlobals;
 import kp.sgs.SGSScript;
 import kp.sgs.compiler.ScriptBuilder.Function;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
@@ -35,22 +36,22 @@ public final class SGSCompiler
 {
     private SGSCompiler() {}
     
-    public static final SGSScript compile(InputStream input, CompilerProperties props) throws CompilerException
+    public static final SGSScript compile(InputStream input, SGSGlobals globals, CompilerProperties props) throws CompilerException
     {
-        return compile(new CodeReader(input), props);
+        return compile(new CodeReader(input), globals, props);
     }
     
-    public static final SGSScript compile(Reader reader, CompilerProperties props) throws CompilerException
+    public static final SGSScript compile(Reader reader, SGSGlobals globals, CompilerProperties props) throws CompilerException
     {
-        return compile(new CodeReader(reader), props);
+        return compile(new CodeReader(reader), globals, props);
     }
     
-    public static final SGSScript compile(File file, CompilerProperties props) throws CompilerException, IOException
+    public static final SGSScript compile(File file, SGSGlobals globals, CompilerProperties props) throws CompilerException, IOException
     {
-        try(FileInputStream fis = new FileInputStream(file)) { return compile(new CodeReader(fis), props); }
+        try(FileInputStream fis = new FileInputStream(file)) { return compile(new CodeReader(fis), globals, props); }
     }
     
-    private static SGSScript compile(CodeReader source, CompilerProperties props) throws CompilerException
+    private static SGSScript compile(CodeReader source, SGSGlobals globals, CompilerProperties props) throws CompilerException
     {
         ScriptBuilder builder = new ScriptBuilder(props);
         ErrorList errors = new ErrorList();
@@ -70,7 +71,7 @@ public final class SGSCompiler
         catch(CompilerError ex) { throw CompilerException.single(ex); }
         catch(RuntimeException ex) { throw CompilerException.single((CompilerError) ex.getCause()); }
         
-        return builder.buildScript();
+        return builder.buildScript(globals);
     }
     
     private static final class StaticFunction

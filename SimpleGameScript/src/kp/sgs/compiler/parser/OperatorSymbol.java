@@ -15,6 +15,7 @@ public enum OperatorSymbol
     SUFIX_DECREMENT("--", 1, false, false),
     CALL("()", 1),
     INVOKE("->()", 1),
+    NEW("new", 1),
     ARRAY_GET("[]", 1),
     PROPERTY_GET(".", 1),
     
@@ -37,6 +38,7 @@ public enum OperatorSymbol
     TYPEID("typeid", 2, true, false),
     ITERATOR("iterator", 2, true, false),
     NEW_FUNCTION("def", 2, true, false),
+    BASE("base", 2, true, false),
     
     MULTIPLICATION("*", 3),
     DIVISION("/", 3),

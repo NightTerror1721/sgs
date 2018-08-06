@@ -5,7 +5,6 @@
  */
 package kp.sgs.data;
 
-import kp.sgs.SGSGlobals;
 import static kp.sgs.data.SGSValue.FALSE;
 import static kp.sgs.data.SGSValue.TRUE;
 
@@ -83,7 +82,7 @@ public abstract class SGSFunction extends SGSImmutableValue
     @Override public SGSValue operatorGetProperty(String name) { throw new UnsupportedOperationException("Function cannot use operatorGetProperty"); }
     
     
-    @Override public abstract SGSValue operatorCall(SGSGlobals globals, SGSValue[] args);
+    @Override public abstract SGSValue operatorCall(SGSValue[] args);
     
     
     /* Pointer operators */

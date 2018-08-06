@@ -104,7 +104,7 @@ public final class Def
         private AbstractLibraryElement(String name) { super(name); }
         
         @Override
-        public SGSValue toSGSValue() { return new LibraryElementWrapper(this); }
+        public SGSValue toSGSValue(SGSGlobals globals) { return new LibraryElementWrapper(this, globals); }
         
         @Override
         public DataType getValueType() { return DataType.ANY; }
@@ -128,8 +128,9 @@ public final class Def
     private static final class LibraryElementWrapper extends SGSUserdata
     {
         private final SGSLibraryElement element;
+        private final SGSGlobals globals;
         
-        private LibraryElementWrapper(SGSLibraryElement element) { this.element = element; }
+        private LibraryElementWrapper(SGSLibraryElement element, SGSGlobals globals) { this.element = element; this.globals = globals; }
         
         @Override
         public final SGSValue operatorGet(SGSValue index) { return element.operatorGet(index); }
@@ -141,6 +142,6 @@ public final class Def
         public final SGSValue operatorGetProperty(String name) { return element.operatorGetProperty(name); }
 
         @Override
-        public final SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { return element.operatorCall(globals, args); }
+        public final SGSValue operatorCall(SGSValue[] args) { return element.operatorCall(globals, args); }
     }
 }

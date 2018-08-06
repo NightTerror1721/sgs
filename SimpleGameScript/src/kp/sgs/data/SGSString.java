@@ -6,7 +6,6 @@
 package kp.sgs.data;
 
 import java.util.Objects;
-import kp.sgs.SGSGlobals;
 import kp.sgs.data.utils.SGSIterator;
 
 /**
@@ -90,7 +89,7 @@ public final class SGSString extends SGSImmutableValue
     
     /* Object operators */
     @Override public final SGSValue operatorGetProperty(String name) { throw new UnsupportedOperationException("String cannot use operatorGetProperty"); }
-    @Override public final SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { throw new UnsupportedOperationException("String cannot use operatorCall"); }
+    @Override public final SGSValue operatorCall(SGSValue[] args) { throw new UnsupportedOperationException("String cannot use operatorCall"); }
     
     
     /* Pointer operators */

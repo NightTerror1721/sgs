@@ -5,7 +5,6 @@
  */
 package kp.sgs.data;
 
-import kp.sgs.SGSGlobals;
 import static kp.sgs.data.SGSValue.FALSE;
 import static kp.sgs.data.SGSValue.TRUE;
 import kp.sgs.data.utils.SGSIterator;
@@ -84,7 +83,7 @@ public abstract class SGSReference extends SGSValue
     /* Object operators */
     @Override public final SGSValue operatorGetProperty(String name) { throw new UnsupportedOperationException("Pointer cannot use operatorGetProperty"); }
     @Override public final void     operatorSetProperty(String name, SGSValue value) { throw new UnsupportedOperationException("Pointer cannot use operatorSetProperty"); }
-    @Override public final SGSValue operatorCall(SGSGlobals globals, SGSValue[] args) { throw new UnsupportedOperationException("Pointer cannot use operatorCall"); }
+    @Override public final SGSValue operatorCall(SGSValue[] args) { throw new UnsupportedOperationException("Pointer cannot use operatorCall"); }
     
     
     /* Iterator operators */

@@ -38,6 +38,7 @@ public abstract class Operator extends CodeFragment
     public final boolean isPropertyGet() { return getOperatorType() == OperatorType.PROPERTY_GET; }
     public final boolean isCall() { return getOperatorType() == OperatorType.CALL; }
     public final boolean isInvoke() { return getOperatorType() == OperatorType.INVOKE; }
+    public final boolean isNew() { return getOperatorType() == OperatorType.NEW; }
     public final boolean isNewFunction() { return getOperatorType() == OperatorType.NEW_FUNCTION; }
     
     public final int comparePriority(Operator op) { return symbol.comparePriority(op.symbol); }
@@ -58,6 +59,7 @@ public abstract class Operator extends CodeFragment
             SUFIX_DECREMENT = new UnaryOperator(OperatorSymbol.SUFIX_DECREMENT),
             CALL = new CallOperator(),
             INVOKE = new InvokeOperator(),
+            NEW = new NewOperator(),
             ARRAY_GET = new ArrayGetOperator(),
             PROPERTY_GET = new PropertyGetOperator(),
             
@@ -80,6 +82,7 @@ public abstract class Operator extends CodeFragment
             TYPEID = new UnaryOperator(OperatorSymbol.TYPEID),
             ITERATOR = new UnaryOperator(OperatorSymbol.ITERATOR),
             NEW_FUNCTION = new NewFunctionOperator(),
+            BASE = new UnaryOperator(OperatorSymbol.BASE),
             
             MULTIPLICATION = new BinaryOperator(OperatorSymbol.MULTIPLICATION),
             DIVISION = new BinaryOperator(OperatorSymbol.DIVISION),
@@ -236,7 +239,18 @@ public abstract class Operator extends CodeFragment
         }
         
         @Override
-        public final OperatorType getOperatorType() { return OperatorType.CALL; }
+        public final OperatorType getOperatorType() { return OperatorType.INVOKE; }
+    }
+    
+    private static class NewOperator extends Operator
+    {
+        public NewOperator()
+        {
+            super(OperatorSymbol.NEW);
+        }
+        
+        @Override
+        public final OperatorType getOperatorType() { return OperatorType.NEW; }
     }
     
     private static class NewFunctionOperator extends Operator
@@ -250,5 +264,5 @@ public abstract class Operator extends CodeFragment
         public final OperatorType getOperatorType() { return OperatorType.NEW_FUNCTION; }
     }
     
-    public enum OperatorType { UNARY, BINARY, TERNARY_CONDITIONAL, ASSIGNMENT, ARRAY_GET, PROPERTY_GET, CALL, INVOKE, NEW_FUNCTION }
+    public enum OperatorType { UNARY, BINARY, TERNARY_CONDITIONAL, ASSIGNMENT, ARRAY_GET, PROPERTY_GET, CALL, INVOKE, NEW, NEW_FUNCTION }
 }
