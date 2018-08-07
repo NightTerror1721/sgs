@@ -8,8 +8,11 @@ package kp.sgs.compiler.instruction;
 import java.util.List;
 import java.util.Objects;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.StatementCompiler;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
+import kp.sgs.compiler.opcode.OpcodeList.OpcodeLocation;
+import kp.sgs.compiler.opcode.Opcodes;
 import kp.sgs.compiler.parser.CodeFragment;
 import kp.sgs.compiler.parser.CodeFragmentList;
 import kp.sgs.compiler.parser.CommandArguments;
@@ -60,12 +63,16 @@ public class InstructionLoopWhile extends Instruction
     @Override
     public final void compileConstantPart(NamespaceScope scope, List<Operation> functions) throws CompilerError
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+        throw new CompilerError("Cannot compile while loop in constant mode");
     }
 
     @Override
     public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        OpcodeLocation loopStart = opcodes.getBottomLocation();
+        OpcodeLocation condFalse = StatementCompiler.compileDefaultIf(scope, opcodes, condition);
+        StatementCompiler.compileScope(scope.createChildScope(false), opcodes, action);
+        opcodes.append(Opcodes.goTo(loopStart));
+        opcodes.setJumpOpcodeLocationToBottom(condFalse);
     }
 }

@@ -31,6 +31,7 @@ public final class Command extends CodeFragment
     
     public static final Command
             DEF = new Command(CommandId.DEF),
+            GLOBAL = new Command(CommandId.GLOBAL),
             INCLUDE = new Command(CommandId.INCLUDE),
             IMPORT = new Command(CommandId.IMPORT),
             IF = new Command(CommandId.IF),

@@ -79,15 +79,15 @@ public final class SGSScript
                 case LOAD_FUNCTION: stack[sit++] = loadFunctionFromCache(code[inst++ & 0xff]); break;
                 case LOAD_FUNCTION16: stack[sit++] = loadFunctionFromCache((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); break;
                 case LOAD_CLOSURE: {
-                    int fidx = code[inst++];
                     int len = code[inst++] & 0xff;
+                    int fidx = code[inst++] & 0xff;
                     SGSValue[] a = new SGSValue[len];
                     System.arraycopy(stack, sit -= len, a, 0, a.length);
                     stack[sit++] = new SGSScriptClosure(fidx, a);
                 } break;
                 case LOAD_CLOSURE16: {
-                    int fidx = code[inst++];
-                    int len = (code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8);
+                    int len = code[inst++] & 0xff;
+                    int fidx = (code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8);
                     SGSValue[] a = new SGSValue[len];
                     System.arraycopy(stack, sit -= len, a, 0, a.length);
                     stack[sit++] = new SGSScriptClosure(fidx, a);
@@ -138,8 +138,8 @@ public final class SGSScript
                 case CAST_ARRAY: stack[sit - 1] = stack[sit - 1].toArray().toSGSValue(); break;
                 case CAST_OBJECT: stack[sit - 1] = stack[sit - 1].toObject().toSGSValue(); break;
                 
-                case GOTO: inst = (code[inst++] & 0xff) - 1; inst++; break;
-                case GOTO16: inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
+                case GOTO: inst = (code[inst++] & 0xff); break;
+                case GOTO16: inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); break;
                 
                 case RETURN_NONE: return SGSValue.UNDEFINED;
                 case RETURN: return stack[--sit];
@@ -176,32 +176,32 @@ public final class SGSScript
                 case TYPEID: stack[sit - 1] = new SGSInteger(stack[sit - 1].getDataType()); break;
                 case ITERATOR: stack[sit - 1] = stack[sit - 1].operatorIterator(); break;
                 
-                case IF: if(stack[--sit].toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF16: if(stack[--sit].toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
+                case IF: if(stack[--sit].toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF16: if(stack[--sit].toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
                 
-                case IF_EQ: if(stack[--sit - 1].operatorEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_EQ16: if(stack[--sit - 1].operatorEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_NEQ: if(stack[--sit - 1].operatorNotEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_NEQ16: if(stack[--sit - 1].operatorNotEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_TEQ: if(stack[--sit - 1].operatorTypedEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst+=2; break;
-                case IF_TEQ16: if(stack[--sit - 1].operatorTypedEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_TNEQ: if(stack[--sit - 1].operatorTypedNotEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_TNEQ16: if(stack[--sit - 1].operatorTypedNotEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_GR: if(stack[--sit - 1].operatorGreater(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_GR16: if(stack[--sit - 1].operatorGreater(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_SM: if(stack[--sit - 1].operatorSmaller(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_SM16: if(stack[--sit - 1].operatorSmaller(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_GREQ: if(stack[--sit - 1].operatorGreaterEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_GREQ16: if(stack[--sit - 1].operatorGreaterEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_SMEQ: if(stack[--sit - 1].operatorSmallerEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_SMEQ16: if(stack[--sit - 1].operatorSmallerEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_INV: if(stack[sit--].operatorNegate().toBoolean()) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_INV16: if(stack[sit--].operatorNegate().toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
+                case IF_EQ: if(stack[--sit - 1].operatorEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_EQ16: if(stack[--sit - 1].operatorEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_NEQ: if(stack[--sit - 1].operatorNotEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_NEQ16: if(stack[--sit - 1].operatorNotEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_TEQ: if(stack[--sit - 1].operatorTypedEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_TEQ16: if(stack[--sit - 1].operatorTypedEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_TNEQ: if(stack[--sit - 1].operatorTypedNotEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_TNEQ16: if(stack[--sit - 1].operatorTypedNotEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_GR: if(stack[--sit - 1].operatorGreater(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_GR16: if(stack[--sit - 1].operatorGreater(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_SM: if(stack[--sit - 1].operatorSmaller(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_SM16: if(stack[--sit - 1].operatorSmaller(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_GREQ: if(stack[--sit - 1].operatorGreaterEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_GREQ16: if(stack[--sit - 1].operatorGreaterEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_SMEQ: if(stack[--sit - 1].operatorSmallerEquals(stack[sit--]).toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_SMEQ16: if(stack[--sit - 1].operatorSmallerEquals(stack[sit--]).toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_INV: if(stack[sit--].operatorNegate().toBoolean()) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_INV16: if(stack[sit--].operatorNegate().toBoolean()) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
                 
-                case IF_DEF: if(stack[--sit] != SGSValue.UNDEFINED) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_DEF16: if(stack[--sit] != SGSValue.UNDEFINED) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
-                case IF_UNDEF: if(stack[--sit] == SGSValue.UNDEFINED) inst = (code[inst++] & 0xff) - 1; else inst++; break;
-                case IF_UNDEF16: if(stack[--sit] == SGSValue.UNDEFINED) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)) - 1; break;
+                case IF_DEF: if(stack[--sit] != SGSValue.UNDEFINED) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_DEF16: if(stack[--sit] != SGSValue.UNDEFINED) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
+                case IF_UNDEF: if(stack[--sit] == SGSValue.UNDEFINED) inst = (code[inst++] & 0xff); else inst+=2; break;
+                case IF_UNDEF16: if(stack[--sit] == SGSValue.UNDEFINED) inst = ((code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)); else inst+=2; break;
                 
                 case LOCAL_CALL: {
                     SGSValue[] fargs = new SGSValue[code[inst++] & 0xff];

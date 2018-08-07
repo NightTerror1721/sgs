@@ -7,9 +7,12 @@ package kp.sgs.compiler.instruction;
 
 import java.util.List;
 import java.util.Objects;
-import kp.sgs.compiler.ScriptBuilder;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.StatementCompiler;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
+import kp.sgs.compiler.opcode.OpcodeList.OpcodeLocation;
+import kp.sgs.compiler.opcode.Opcodes;
 import kp.sgs.compiler.parser.CodeFragment;
 import kp.sgs.compiler.parser.CodeFragmentList;
 import kp.sgs.compiler.parser.CommandArguments;
@@ -27,12 +30,10 @@ import kp.sgs.compiler.parser.Stopchar;
  */
 public abstract class InstructionLoopFor extends Instruction
 {
-    final DataType type; //null == global variable
     final Statement action;
     
-    private InstructionLoopFor(DataType type, Statement action)
+    private InstructionLoopFor(Statement action)
     {
-        this.type = type;
         this.action = Objects.requireNonNull(action);
     }
     
@@ -71,40 +72,16 @@ public abstract class InstructionLoopFor extends Instruction
     
     
     
-    private static final NumericFor createNumeric(CodeFragmentList initsList, CodeFragmentList conditionList, CodeFragmentList endsList, Statement action) throws CompilerError
+    private static final NumericFor createNumeric(CodeFragmentList initsList, CodeFragmentList conditionList, CodeFragmentList endsList, Statement action)
+            throws CompilerError
     {
         /* Inits and type */
-        DataType type;
-        Operation[] inits;
+        Instruction inits;
         if(initsList != null && !initsList.isEmpty())
         {
-            if(DataType.isValid(initsList.get(0)))
-            {
-                type = DataType.parse(initsList.get(0));
-                initsList = initsList.subList(1);
-            }
-            else type = null;
-            
-            CodeFragmentList[] parts = initsList.split(Stopchar.COMMA);
-            if(parts == null || parts.length < 1 || (parts.length == 0 && parts[0].isEmpty()))
-            {
-                if(type == null)
-                    throw new CompilerError("Malformed numeric \"for\" command. Expected for(<type|def>? <varname>*;<conditions>;<ends>*){<scope>}.");
-                inits = null;
-            }
-            else
-            {
-                inits = new Operation[parts.length];
-                for(int i=0;i<inits.length;i++)
-                {
-                    Statement stat = StatementParser.parse(parts[i]);
-                    if(!stat.isOperation() || !((Operation) stat).isAssignment())
-                        throw new CompilerError("Malformed numeric \"for\" command. Expected for(<type|def>? <varname>*;<conditions>;<ends>*){<scope>}.");
-                    inits[i] = (Operation) stat;
-                }
-            }
+            inits = InstructionParser.parseDeclarationInstructions(initsList);
         }
-        else { inits = null; type = null; }
+        else { inits = null; }
         
         /* Condition */
         Statement condition;
@@ -119,10 +96,8 @@ public abstract class InstructionLoopFor extends Instruction
         if(endsList != null && !endsList.isEmpty())
         {
             CodeFragmentList[] parts = initsList.split(Stopchar.COMMA);
-            if(parts == null || parts.length < 1 || (parts.length == 0 && parts[0].isEmpty()))
+            if(parts == null || parts.length < 1 || (parts.length == 1 && parts[0].isEmpty()))
             {
-                if(type == null)
-                    throw new CompilerError("Malformed numeric \"for\" command. Expected for(<type|def>? <varname>*;<conditions>;<ends>*){<scope>}.");
                 ends = null;
             }
             else
@@ -136,7 +111,7 @@ public abstract class InstructionLoopFor extends Instruction
         }
         else ends = null;
         
-        return new NumericFor(type, inits, condition, ends, action);
+        return new NumericFor(inits, condition, ends, action);
     }
     
     private static final GenericFor createGeneric(CodeFragmentList varnameList, CodeFragmentList iterableList, Statement action) throws CompilerError
@@ -146,14 +121,8 @@ public abstract class InstructionLoopFor extends Instruction
         switch(varnameList.length())
         {
             default: throw new CompilerError("Malformed generic \"for\" command. Expected for(<type|def>? <varname> : <iterable>){<scope>}.");
-            case 1: {
-                if(!varnameList.get(0).isIdentifier())
-                    throw new CompilerError("Malformed generic \"for\" command. Expected for(<type|def>? <varname> : <iterable>){<scope>}.");
-                type = null;
-                varname = varnameList.get(0);
-            } break;
             case 2: {
-                type = DataType.parse(varnameList.get(1));
+                type = DataType.parse(varnameList.get(0));
                 if(!varnameList.get(1).isIdentifier())
                     throw new CompilerError("Malformed generic \"for\" command. Expected for(<type|def>? <varname> : <iterable>){<scope>}.");
                 varname = varnameList.get(1);
@@ -166,28 +135,44 @@ public abstract class InstructionLoopFor extends Instruction
     
     private static final class NumericFor extends InstructionLoopFor
     {
-        private final Operation[] inits;
+        private final Instruction inits;
         private final Statement condition;
         private final Statement[] ends;
         
-        private NumericFor(DataType type, Operation[] inits, Statement condition, Statement[] ends, Statement action)
+        private NumericFor(Instruction inits, Statement condition, Statement[] ends, Statement action)
         {
-            super(type, action);
-            this.inits = inits == null ? new Operation[0] : inits;
+            super(action);
+            this.inits = inits;
             this.condition = condition;
-            this.ends = ends == null ? new Statement[0] : ends;
+            this.ends = ends;
         }
         
         @Override
-        public final void compileConstantPart(ScriptBuilder.NamespaceScope scope, List<Operation> functions) throws CompilerError
+        public final void compileConstantPart(NamespaceScope scope, List<Operation> functions) throws CompilerError
         {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+            throw new CompilerError("Cannot compile for loop in constant mode");
         }
 
         @Override
-        public final void compileFunctionPart(ScriptBuilder.NamespaceScope scope, OpcodeList opcodes) throws CompilerError
+        public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
         {
-            throw new UnsupportedOperationException("Not supported yet.");
+            NamespaceScope child = scope.createChildScope(false);
+            if(inits != null)
+                inits.compileFunctionPart(child, opcodes);
+            
+            OpcodeLocation loopStart = opcodes.getBottomLocation();
+            OpcodeLocation condFalse = null;
+            if(condition != null)
+                condFalse = StatementCompiler.compileDefaultIf(child, opcodes, condition);
+            
+            StatementCompiler.compileScope(child, opcodes, action);
+            if(ends != null)
+                for(Statement statement : ends)
+                    StatementCompiler.compile(child, opcodes, statement, true);
+            
+            opcodes.append(Opcodes.goTo(loopStart));
+            if(condFalse != null)
+                opcodes.setJumpOpcodeLocationToBottom(condFalse);
         }
     }
     
@@ -195,24 +180,26 @@ public abstract class InstructionLoopFor extends Instruction
     
     private static final class GenericFor extends InstructionLoopFor
     {
+        private final DataType type;
         private final Identifier varname;
         private final Statement iteratorGetter;
         
         private GenericFor(DataType type, Identifier varname, Statement iteratorGetter, Statement action)
         {
-            super(type, action);
+            super(action);
+            this.type = type == null ? DataType.ANY : type;
             this.varname = Objects.requireNonNull(varname);
             this.iteratorGetter = Objects.requireNonNull(iteratorGetter);
         }
         
         @Override
-        public final void compileConstantPart(ScriptBuilder.NamespaceScope scope, List<Operation> functions) throws CompilerError
+        public final void compileConstantPart(NamespaceScope scope, List<Operation> functions) throws CompilerError
         {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+            throw new CompilerError("Cannot compile for loop in constant mode");
         }
 
         @Override
-        public final void compileFunctionPart(ScriptBuilder.NamespaceScope scope, OpcodeList opcodes) throws CompilerError
+        public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
         {
             throw new UnsupportedOperationException("Not supported yet.");
         }

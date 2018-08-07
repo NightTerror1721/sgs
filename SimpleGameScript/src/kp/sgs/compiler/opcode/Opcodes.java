@@ -56,8 +56,8 @@ public final class Opcodes
         if(parameterCount > 0xff)
             throw new CompilerError("parameter count overflow");
         if(index > 0xff)
-            return opcode(Instruction.LOAD_CLOSURE16, 1, 0, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff), (byte) (parameterCount & 0xff));
-        return opcode(Instruction.LOAD_CLOSURE, 1, 0, (byte) (index & 0xff), (byte) 0, (byte) (parameterCount & 0xff));
+            return opcode(Instruction.LOAD_CLOSURE16, 1, 0, (byte) (parameterCount & 0xff), (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+        return opcode(Instruction.LOAD_CLOSURE, 1, 0, (byte) (parameterCount & 0xff), (byte) (index & 0xff));
     }
     public static final Opcode loadGlobal(int index) throws CompilerError
     {

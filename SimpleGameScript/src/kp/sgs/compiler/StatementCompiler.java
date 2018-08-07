@@ -12,6 +12,7 @@ import kp.sgs.compiler.ScriptBuilder.LocalVariable;
 import kp.sgs.compiler.ScriptBuilder.NamespaceIdentifier;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
 import kp.sgs.compiler.exception.CompilerError;
+import kp.sgs.compiler.instruction.Instruction;
 import kp.sgs.compiler.opcode.OpcodeList;
 import kp.sgs.compiler.opcode.OpcodeList.OpcodeLocation;
 import kp.sgs.compiler.opcode.Opcodes;
@@ -54,6 +55,17 @@ public final class StatementCompiler
         if(pop)
             opcodes.append(Opcodes.POP);
         return resultType;
+    }
+    
+    public static final void compileScope(NamespaceScope scope, OpcodeList opcodes, Statement statement) throws CompilerError
+    {
+        if(statement.isScope())
+        {
+            Scope sscope = (Scope) statement;
+            for(Instruction inst : sscope)
+                inst.compileFunctionPart(scope, opcodes);
+        }
+        else compile(scope, opcodes, statement, true);
     }
     
     public static final DataType compileIdentifier(NamespaceScope scope, OpcodeList opcodes, Statement identifier) throws CompilerError
@@ -286,6 +298,11 @@ public final class StatementCompiler
         }
         DataType tleft = compile(scope, opcodes, left, false);
         DataType tright = compile(scope, opcodes, right, false);
+        if(operator == Operator.CONCAT)
+        {
+            opcodes.append(Opcodes.CONCAT);
+            return DataType.STRING;
+        }
         DataType type = binaryDataCheck(scope, opcodes, tleft, tright);
         
         switch(operator.getSymbol())
@@ -344,9 +361,6 @@ public final class StatementCompiler
             case BITWISE_OR:
                 opcodes.append(Opcodes.BW_OR);
                 return type;
-            case CONCAT:
-                opcodes.append(Opcodes.CONCAT);
-                return DataType.STRING;
             default: throw new IllegalStateException();
         }
     }

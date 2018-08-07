@@ -68,6 +68,21 @@ def main() {
 	
 	write(local_value, true);
 	write(props, true);
+	
+	def valtest = 45;
+	valtest = valtest == 40 ? valtest + 5 : 45;
+	def opppp = def() { callback(valtest); }
+	
+	if(valtest == 45) {
+		write("valtest is "..valtest, true);
+	} else write("DIFFERENT!!!!!");
+	
+	int loptest = 0;
+	while(loptest < 10)
+	{
+		write("While in: "..loptest, true);
+		loptest++;
+	}
 }
 
 def increaser(ptr) { *ptr = *ptr + 1; }

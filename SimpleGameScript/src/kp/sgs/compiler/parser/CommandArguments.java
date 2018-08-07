@@ -42,7 +42,7 @@ public class CommandArguments extends CodeFragment implements Iterable<CodeFragm
     public final CodeFragmentType getFragmentType() { return CodeFragmentType.COMMAND_ARGUMENTS; }
 
     @Override
-    public final boolean isValidOperand() { return false; }
+    public final boolean isValidOperand() { return true; }
     
     @Override
     public final String toString()

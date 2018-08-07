@@ -203,7 +203,7 @@ public final class ScriptBuilder
         
         public final Iterable<LocalVariable> getInheritedIds() { return inherithedIds; }
         
-        public final NamespaceIdentifier getIdentifier(String name)
+        public final NamespaceIdentifier getIdentifier(String name) throws CompilerError
         {
             NamespaceIdentifier id = ids.getOrDefault(name, null);
             if(id != null)
@@ -220,7 +220,7 @@ public final class ScriptBuilder
             }
             if((id = findLibraryElement(name)) != null)
                 return id;
-            return new GlobalVariable(name);
+            throw new CompilerError("Identifier \"" + name + "\" not found.");
         }
         
         public final LocalVariable createLocalVariable(String name, DataType type) throws CompilerError
@@ -229,6 +229,15 @@ public final class ScriptBuilder
                 throw new CompilerError("Identifier \"" + name + "\" already exists.");
             int index = stack.allocateVariable();
             LocalVariable var = new LocalVariable(name, index, type);
+            ids.put(var.getName(), var);
+            return var;
+        }
+        
+        public final GlobalVariable createGlobalVariable(String name) throws CompilerError
+        {
+            if(hasIdentifierInCurrentScope(name))
+                throw new CompilerError("Identifier \"" + name + "\" already exists.");
+            GlobalVariable var = new GlobalVariable(name);
             ids.put(var.getName(), var);
             return var;
         }

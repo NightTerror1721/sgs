@@ -1,4 +1,4 @@
-#CONSTANTS: 18
+#CONSTANTS: 23
 #0: string: hello world\n
 #1: const object: {\n\tsmall: 83\n\tlarge: 76\n\tmedium: 77\n}
 #2: string: 
@@ -16,7 +16,12 @@
 #14: int: 350
 #15: int: 46
 #16: string: ola k ase
-#17: int: 30
+#17: int: 40
+#18: string: valtest is 
+#19: string: DIFFERENT!!!!!
+#20: int: 10
+#21: string: While in: 
+#22: int: 30
 
 
 #IDENTIFIERS: 5
@@ -31,10 +36,10 @@
 #0: from io import print
 
 
-#FUNCTIONS: 7
+#FUNCTIONS: 8
 #0: 
-    stack_len: 4
-    vars_len: 10
+    stack_len: 6
+    vars_len: 13
     return_type: any
     code:
     0x3: LOAD_FUNCTION #5 
@@ -143,7 +148,51 @@
     0xd1: LOAD_CONST #1 
     0xd3: LOAD_CONST #4 
     0xd5: LOCAL_VCALL 2 #1 
-    0xd8: RETURN_NONE 
+    0xd8: LOAD_CONST #9 
+    0xda: STORE_VAR #10 
+    0xdc: LOAD_VAR #10 
+    0xde: LOAD_CONST #17 
+    0xe0: IF_EQ 0xe8 
+    0xe3: LOAD_CONST #9 
+    0xe5: GOTO 0xed 
+    0xe8: LOAD_VAR #10 
+    0xea: LOAD_CONST #7 
+    0xec: ADD 
+    0xed: STORE_VAR #10 
+    0xef: LOAD_VAR #0 
+    0xf1: LOAD_VAR #10 
+    0xf3: LOAD_CLOSURE #2 7 
+    0xf6: STORE_VAR #11 
+    0xf8: LOAD_VAR #10 
+    0xfa: LOAD_CONST #9 
+    0xfc: IF_EQ16 0x102 
+    0xff: GOTO16 0x10f 
+    0x102: LOAD_CONST #18 
+    0x104: LOAD_VAR #10 
+    0x106: CONCAT 
+    0x107: LOAD_CONST #4 
+    0x109: LOCAL_VCALL 2 #1 
+    0x10c: GOTO16 0x114 
+    0x10f: LOAD_CONST #19 
+    0x111: LOCAL_VCALL 1 #1 
+    0x114: LOAD_CONST #6 
+    0x116: STORE_VAR #12 
+    0x118: LOAD_VAR #12 
+    0x11a: LOAD_CONST #20 
+    0x11c: IF_SM16 0x122 
+    0x11f: GOTO16 0x136 
+    0x122: LOAD_CONST #21 
+    0x124: LOAD_VAR #12 
+    0x126: CONCAT 
+    0x127: LOAD_CONST #4 
+    0x129: LOCAL_VCALL 2 #1 
+    0x12c: LOAD_VAR #12 
+    0x12e: INC 
+    0x12f: DUP 
+    0x130: STORE_VAR #12 
+    0x132: POP 
+    0x133: GOTO16 0x118 
+    0x136: RETURN_NONE 
 #1: 
     stack_len: 3
     vars_len: 2
@@ -178,7 +227,7 @@
     return_type: any
     code:
     0x3: ARG_TO_VAR #0 #0 
-    0x6: LOAD_CONST #17 
+    0x6: LOAD_CONST #22 
     0x8: VCALL 1 
     0xa: RETURN_NONE 
 #4: 
@@ -211,3 +260,12 @@
     0xd: ARG_TO_VAR #2 #1 
     0x10: OBJ_PSET #2 
     0x12: RETURN_NONE 
+#7: 
+    stack_len: 2
+    vars_len: 0
+    return_type: any
+    code:
+    0x3: LOAD_VAR #0 
+    0x5: LOAD_VAR #10 
+    0x7: VCALL 1 
+    0x9: RETURN_NONE 

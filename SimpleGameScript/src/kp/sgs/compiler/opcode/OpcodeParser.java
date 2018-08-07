@@ -275,17 +275,17 @@ public final class OpcodeParser
         public final Output appendBytePos(int bpos) throws IOException { super.append("0x").append(Integer.toHexString(bpos & 0xff)).append(' '); return this; }
         public final Output appendWord(int b0, int b1) throws IOException
         {
-            super.append(Integer.toString(b0 & 0xff)).append(' ').append(Integer.toString((b0 & 0xff) << 8)).append(' ');
+            super.append(Integer.toString((b0 & 0xff) | ((b0 & 0xff) << 8))).append(' ');
             return this;
         }
         public final Output appendWordRef(int bref0, int bref1) throws IOException
         {
-            super.append('#').append(Integer.toString(bref0 & 0xff)).append(' ').append(Integer.toString((bref1 & 0xff) << 8)).append(' ');
+            super.append('#').append(Integer.toString((bref0 & 0xff) | ((bref1 & 0xff) << 8))).append(' ');
             return this;
         }
         public final Output appendWordPos(int bpos0, int bpos1) throws IOException
         {
-            super.append("0x").append(Integer.toHexString(bpos0 & 0xff)).append(' ').append(Integer.toHexString((bpos1 & 0xff) << 8)).append(' ');
+            super.append("0x").append(Integer.toHexString((bpos0 & 0xff) | ((bpos1 & 0xff) << 8))).append(' ');
             return this;
         }
         

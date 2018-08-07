@@ -174,6 +174,7 @@ public final class OpcodeList implements Iterable<OpcodeList.OpcodeLocation>
     }
     
     public final OpcodeLocation getLastLocation() { return bottom.previous; }
+    public final OpcodeLocation getBottomLocation() { return bottom; }
 
     public final OpcodeLocation set(OpcodeLocation loc, Opcode element) throws CompilerError
     {

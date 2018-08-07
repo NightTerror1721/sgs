@@ -7,9 +7,12 @@ package kp.sgs.compiler.instruction;
 
 import java.util.List;
 import java.util.Objects;
-import kp.sgs.compiler.ScriptBuilder;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.StatementCompiler;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
+import kp.sgs.compiler.opcode.OpcodeList.OpcodeLocation;
+import kp.sgs.compiler.opcode.Opcodes;
 import kp.sgs.compiler.parser.CodeFragment;
 import kp.sgs.compiler.parser.CodeFragmentList;
 import kp.sgs.compiler.parser.CommandArguments;
@@ -69,14 +72,23 @@ public final class InstructionCondition extends Instruction
     }
 
     @Override
-    public final void compileConstantPart(ScriptBuilder.NamespaceScope scope, List<Operation> functions) throws CompilerError
+    public final void compileConstantPart(NamespaceScope scope, List<Operation> functions) throws CompilerError
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+        throw new CompilerError("Cannot compile conditionals in constant mode");
     }
 
     @Override
-    public final void compileFunctionPart(ScriptBuilder.NamespaceScope scope, OpcodeList opcodes) throws CompilerError
+    public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        OpcodeLocation elseLoc = StatementCompiler.compileDefaultIf(scope, opcodes, condition);
+        StatementCompiler.compileScope(scope.createChildScope(false), opcodes, action);
+        if(elseAction != null)
+        {
+            OpcodeLocation endIfLoc = opcodes.append(Opcodes.goTo());
+            opcodes.setJumpOpcodeLocationToBottom(elseLoc);
+            StatementCompiler.compileScope(scope.createChildScope(false), opcodes, elseAction);
+            opcodes.setJumpOpcodeLocationToBottom(endIfLoc);
+        }
+        else opcodes.setJumpOpcodeLocationToBottom(elseLoc);
     }
 }

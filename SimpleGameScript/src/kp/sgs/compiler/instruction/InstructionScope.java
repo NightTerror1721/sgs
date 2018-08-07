@@ -8,6 +8,7 @@ package kp.sgs.compiler.instruction;
 import java.util.List;
 import java.util.Objects;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.StatementCompiler;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
 import kp.sgs.compiler.parser.Operation;
@@ -39,7 +40,6 @@ public final class InstructionScope extends Instruction
     @Override
     public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
     {
-        for(Instruction inst : this.scope)
-            inst.compileFunctionPart(scope, opcodes);
+        StatementCompiler.compileScope(scope.createChildScope(false), opcodes, this.scope);
     }
 }

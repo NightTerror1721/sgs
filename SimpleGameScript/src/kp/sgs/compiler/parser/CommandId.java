@@ -12,6 +12,7 @@ package kp.sgs.compiler.parser;
 public enum CommandId
 {
     DEF,
+    GLOBAL,
     INCLUDE,
     IMPORT,
     IF,

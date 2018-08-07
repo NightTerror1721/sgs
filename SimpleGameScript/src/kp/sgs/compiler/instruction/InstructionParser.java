@@ -11,12 +11,14 @@ import java.util.List;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.exception.ErrorList;
 import kp.sgs.compiler.parser.CodeFragment;
+import kp.sgs.compiler.parser.CodeFragmentList;
 import kp.sgs.compiler.parser.CodeParser;
 import kp.sgs.compiler.parser.CodeReader;
 import kp.sgs.compiler.parser.Command;
 import kp.sgs.compiler.parser.DataType;
 import kp.sgs.compiler.parser.Scope;
 import kp.sgs.compiler.parser.Statement;
+import kp.sgs.compiler.parser.StatementParser;
 
 /**
  *
@@ -59,7 +61,8 @@ public final class InstructionParser
                 switch(((Command) first).getCommandId())
                 {
                     default: throw new IllegalStateException();
-                    case DEF: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY);
+                    case DEF: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY, false);
+                    case GLOBAL: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY, true);
                     case INCLUDE: return InstructionInclusion.create(code.parseInlineInstructionAsList(source, Command.INCLUDE, errors));
                     case IMPORT: return InstructionImportation.create(code.parseInlineInstructionAsList(source, Command.IMPORT, errors));
                     case IF: return InstructionCondition.create(code.parseUntilScopeOrInlineAsList(source, Command.IF, errors));
@@ -82,7 +85,7 @@ public final class InstructionParser
             else if(first.isDataType()) // <type> <identifier>
             {
                 DataType type = (DataType) first;
-                return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), type);
+                return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), type, false);
             }
             else // Statement
             {
@@ -96,5 +99,23 @@ public final class InstructionParser
             errors.addError(startLine, endLine, ex);
             return null;
         }
+    }
+    
+    public static final Instruction parseDeclarationInstructions(CodeFragmentList codeList) throws CompilerError
+    {
+        CodeFragment first = codeList.get(0);
+        if(first.isDataType())
+        {
+            DataType type = (DataType) first;
+            return InstructionDeclaration.create(codeList, type, false);
+        }
+        if(first.isCommand())
+        {
+            if(first == Command.DEF)
+                return InstructionDeclaration.create(codeList, DataType.ANY, false);
+            if(first == Command.GLOBAL)
+                return InstructionDeclaration.create(codeList, DataType.ANY, true);
+        }
+        return new InstructionStatement(StatementParser.parse(codeList));
     }
 }

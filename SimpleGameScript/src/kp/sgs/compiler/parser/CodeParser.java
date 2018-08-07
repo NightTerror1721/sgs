@@ -60,7 +60,7 @@ public final class CodeParser
                         builder.flush();
                         CodeReader scopeSource = extractScope(source, '(', ')');
                         CodeFragmentList list = parseSubStatement(scopeSource, errors);
-                        if(!accumulated.hasLast() || (!accumulated.last().isValidOperand() && accumulated.last() != Command.DEF)) //Parenthesis
+                        if(!accumulated.hasLast() || (!accumulated.last().isValidOperand() && !accumulated.last().isCommand())) //Parenthesis
                         {
                             if(list.length() == 1 && list.get(0).isDataType())
                                 return accumulated.enqret(list.<DataType>get(0).getCastOperator());
@@ -91,7 +91,7 @@ public final class CodeParser
                     case '{': {
                         builder.flush();
                         CodeReader scopeSource = extractScope(source, '{', '}');
-                        if(!accumulated.hasLast()|| !accumulated.last().isValidOperand()) // Object
+                        if(!accumulated.hasLast() || !accumulated.last().isValidOperand()) // Object
                         {
                             CodeFragmentList list = parseSubStatement(scopeSource, errors);
                             return accumulated.enqret(Mutable.object(list));
