@@ -8,6 +8,7 @@ package kp.sgs.compiler.instruction;
 import java.util.List;
 import java.util.Objects;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScopeType;
 import kp.sgs.compiler.StatementCompiler;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
@@ -71,8 +72,10 @@ public class InstructionLoopWhile extends Instruction
     {
         OpcodeLocation loopStart = opcodes.getBottomLocation();
         OpcodeLocation condFalse = StatementCompiler.compileDefaultIf(scope, opcodes, condition);
-        StatementCompiler.compileScope(scope.createChildScope(false), opcodes, action);
+        StatementCompiler.compileScope(scope.createChildScope(NamespaceScopeType.LOOP), opcodes, action);
         opcodes.append(Opcodes.goTo(loopStart));
         opcodes.setJumpOpcodeLocationToBottom(condFalse);
+        scope.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
+        scope.setContinuePointLocations(opcodes, loopStart);
     }
 }

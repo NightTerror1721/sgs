@@ -14,6 +14,8 @@ import java.util.Objects;
 import kp.sgs.SGSGlobals;
 import kp.sgs.SGSScript;
 import kp.sgs.compiler.exception.CompilerError;
+import kp.sgs.compiler.opcode.OpcodeList;
+import kp.sgs.compiler.opcode.OpcodeList.OpcodeLocation;
 import kp.sgs.compiler.parser.DataType;
 import kp.sgs.compiler.parser.Literal;
 import kp.sgs.data.SGSImmutableValue;
@@ -41,7 +43,7 @@ public final class ScriptBuilder
     
     public ScriptBuilder(CompilerProperties props)
     {
-        this.rootNamespace = new NamespaceScope(null, false);
+        this.rootNamespace = new NamespaceScope(null, -1, NamespaceScopeType.ROOT);
         //this.stack = new RuntimeStack();
         this.mainFunctionName = props.getFunctionName();
         this.allLibs = props.getLibraryRepository();
@@ -147,32 +149,52 @@ public final class ScriptBuilder
     public final class NamespaceScope
     {
         private final NamespaceScope parent;
+        private final NamespaceScopeType type;
         private final HashMap<String, NamespaceIdentifier> ids = new HashMap<>();
         private final LinkedList<LocalVariable> inherithedIds;
+        private final LinkedList<OpcodeLocation> breakPoints;
+        private final LinkedList<OpcodeLocation> continuePoints;
         private final RuntimeStack stack;
+        private int lastLocalIndex;
         private int argCount = 0;
         private LocalVariable varargs = null;
         
-        private NamespaceScope(NamespaceScope parent, boolean functionScope)
+        private NamespaceScope(NamespaceScope parent, int lastLocalIndex, NamespaceScopeType type)
         {
-            this.parent = parent;
-            this.inherithedIds = functionScope ? new LinkedList<>() : null;
+            if(type == null)
+                throw new NullPointerException();
+            this.parent = type == NamespaceScopeType.ROOT ? null : parent;
+            this.type = type;
+            this.inherithedIds = type == NamespaceScopeType.FUNCTION ? new LinkedList<>() : null;
+            this.lastLocalIndex = type == NamespaceScopeType.FUNCTION ? -1 : lastLocalIndex;
+            if(type == NamespaceScopeType.LOOP)
+            {
+                breakPoints = new LinkedList<>();
+                continuePoints = new LinkedList<>();
+            }
+            else
+            {
+                breakPoints = null;
+                continuePoints = null;
+            }
             if(parent == null)
                 stack = null;
-            else stack = functionScope ? new RuntimeStack() : parent.stack;
+            else stack = type == NamespaceScopeType.FUNCTION ? new RuntimeStack() : parent.stack;
         }
         
         public final ScriptBuilder getScriptBuilder() { return ScriptBuilder.this; }
         
-        public final boolean isFunctionScope() { return inherithedIds != null; }
+        public final boolean isRootScope() { return type == NamespaceScopeType.ROOT; }
+        public final boolean isLoopScope() { return type == NamespaceScopeType.LOOP; }
+        public final boolean isFunctionScope() { return type == NamespaceScopeType.FUNCTION; }
         
         public final int getArgumentCount() { return argCount; }
         
         public final RuntimeStack getRuntimeStack() { return stack; }
         
-        public final NamespaceScope createChildScope(boolean functionScope)
+        public final NamespaceScope createChildScope(NamespaceScopeType scopeType)
         {
-            return new NamespaceScope(this, functionScope);
+            return new NamespaceScope(this, lastLocalIndex, scopeType);
         }
         
         public final boolean hasVarargs() { return varargs != null; }
@@ -227,9 +249,18 @@ public final class ScriptBuilder
         {
             if(hasIdentifierInCurrentScope(name))
                 throw new CompilerError("Identifier \"" + name + "\" already exists.");
-            int index = stack.allocateVariable();
-            LocalVariable var = new LocalVariable(name, index, type);
+            lastLocalIndex = stack.allocateVariable(lastLocalIndex);
+            LocalVariable var = new LocalVariable(name, lastLocalIndex, type);
             ids.put(var.getName(), var);
+            return var;
+        }
+        
+        public final LocalVariable createHiddenLocalVariable(String name, DataType type) throws CompilerError
+        {
+            if(hasIdentifierInCurrentScope(name))
+                throw new CompilerError("Identifier \"" + name + "\" already exists.");
+            lastLocalIndex = stack.allocateVariable(lastLocalIndex);
+            LocalVariable var = new LocalVariable(name, lastLocalIndex, type);
             return var;
         }
         
@@ -268,8 +299,8 @@ public final class ScriptBuilder
         {
             if(ids.getOrDefault(arg.getName(), null) == arg)
             {
-                int index = stack.allocateVariable();
-                LocalVariable var = new LocalVariable(arg.getName(), index, arg.getType());
+                lastLocalIndex = stack.allocateVariable(lastLocalIndex);
+                LocalVariable var = new LocalVariable(arg.getName(), lastLocalIndex, arg.getType());
                 ids.put(arg.getName(), var);
                 return var;
             }
@@ -317,6 +348,34 @@ public final class ScriptBuilder
             if(libs.hasLibrary(identifier))
                 return;
             libs.registerLibrary(allLibs.getLibrary(identifier));
+        }
+        
+        public final void registerBreakPoint(OpcodeLocation loc) throws CompilerError
+        {
+            if(breakPoints == null)
+                throw new CompilerError("Cannot use break in " + type + " scope");
+            breakPoints.add(loc);
+        }
+        public final boolean hasBreakPoints() { return breakPoints != null && !breakPoints.isEmpty(); }
+        public final List<OpcodeLocation> getBreakPoints() { return breakPoints; }
+        public final void setBreakPointLocations(OpcodeList opcodes, OpcodeLocation endLoc)
+        {
+            for(OpcodeLocation loc : breakPoints)
+                opcodes.setJumpOpcodeLocationTarget(loc, endLoc);
+        }
+        
+        public final void registerContinuePoint(OpcodeLocation loc) throws CompilerError
+        {
+            if(continuePoints == null)
+                throw new CompilerError("Cannot use break in " + type + " scope");
+            continuePoints.add(loc);
+        }
+        public final boolean hasContinuePoints() { return continuePoints != null && !continuePoints.isEmpty(); }
+        public final List<OpcodeLocation> getContinuePoints() { return continuePoints; }
+        public final void setContinuePointLocations(OpcodeList opcodes, OpcodeLocation startLoc)
+        {
+            for(OpcodeLocation loc : continuePoints)
+                opcodes.setJumpOpcodeLocationTarget(loc, startLoc);
         }
     }
     
@@ -451,5 +510,13 @@ public final class ScriptBuilder
     public static enum IdentifierType
     {
         LOCAL_VARIABLE, GLOBAL_VARIABLE, CONSTANT, ARGUMENT, FUNCTION, LIBRARY_ELEMENT
+    }
+    
+    public static enum NamespaceScopeType
+    {
+        ROOT,
+        NORMAL,
+        LOOP,
+        FUNCTION;
     }
 }

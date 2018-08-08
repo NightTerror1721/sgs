@@ -19,5 +19,6 @@ public enum InstructionId
     CONDITION,
     LOOP_WHILE,
     LOOP_FOR,
+    JUMP_POINT,
     RETURN
 }

@@ -19,5 +19,7 @@ public enum CommandId
     ELSE,
     FOR,
     WHILE,
+    BREAK,
+    CONTINUE,
     RETURN
 }

@@ -17,6 +17,8 @@ import kp.sgs.compiler.instruction.Instruction;
  */
 public final class Scope extends Statement implements Iterable<Instruction>
 {
+    public static final Scope EMPTY_SCOPE = new Scope(new Instruction[0]);
+    
     private final List<Instruction> instructions;
     
     public Scope(List<Instruction> instructions)

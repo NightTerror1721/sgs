@@ -17,6 +17,7 @@ import kp.sgs.SGSGlobals;
 import kp.sgs.SGSScript;
 import kp.sgs.compiler.ScriptBuilder.Function;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScopeType;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.exception.CompilerException;
 import kp.sgs.compiler.exception.ErrorList;
@@ -101,7 +102,7 @@ public final class SGSCompiler
         {
             try
             {
-                NamespaceScope child = scope.createChildScope(true);
+                NamespaceScope child = scope.createChildScope(NamespaceScopeType.FUNCTION);
                 StatementCompiler.compileNewFunctionParameters(child, pars);
                 FunctionCompiler.compile(function, child, instScope);
                 if(child.hasInheritedIds())

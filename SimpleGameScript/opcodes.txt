@@ -1,4 +1,4 @@
-#CONSTANTS: 23
+#CONSTANTS: 30
 #0: string: hello world\n
 #1: const object: {\n\tsmall: 83\n\tlarge: 76\n\tmedium: 77\n}
 #2: string: 
@@ -21,7 +21,14 @@
 #19: string: DIFFERENT!!!!!
 #20: int: 10
 #21: string: While in: 
-#22: int: 30
+#22: int: 8
+#23: string: in FOR: STEP 
+#24: int: 7
+#25: int: 4
+#26: int: 2
+#27: int: 60
+#28: string: avalues: 
+#29: int: 30
 
 
 #IDENTIFIERS: 5
@@ -38,8 +45,8 @@
 
 #FUNCTIONS: 8
 #0: 
-    stack_len: 6
-    vars_len: 13
+    stack_len: 7
+    vars_len: 16
     return_type: any
     code:
     0x3: LOAD_FUNCTION #5 
@@ -192,7 +199,64 @@
     0x130: STORE_VAR #12 
     0x132: POP 
     0x133: GOTO16 0x118 
-    0x136: RETURN_NONE 
+    0x136: LOAD_CONST #6 
+    0x138: STORE_VAR #13 
+    0x13a: LOAD_VAR #13 
+    0x13c: LOAD_CONST #22 
+    0x13e: IF_SM16 0x144 
+    0x141: GOTO16 0x158 
+    0x144: LOAD_CONST #23 
+    0x146: LOAD_VAR #13 
+    0x148: CONCAT 
+    0x149: LOAD_CONST #4 
+    0x14b: LOCAL_VCALL 2 #1 
+    0x14e: LOAD_VAR #13 
+    0x150: INC 
+    0x151: DUP 
+    0x152: STORE_VAR #13 
+    0x154: POP 
+    0x155: GOTO16 0x13a 
+    0x158: LOAD_CONST #24 
+    0x15a: ARRAY_NEW 
+    0x15b: DUP 
+    0x15c: LOAD_CONST #7 
+    0x15e: ARRAY_INT_SET 0 
+    0x160: DUP 
+    0x161: LOAD_CONST #25 
+    0x163: ARRAY_INT_SET 1 
+    0x165: DUP 
+    0x166: LOAD_CONST #13 
+    0x168: ARRAY_INT_SET 2 
+    0x16a: DUP 
+    0x16b: LOAD_CONST #26 
+    0x16d: ARRAY_INT_SET 3 
+    0x16f: DUP 
+    0x170: LOAD_CONST #4 
+    0x172: ARRAY_INT_SET 4 
+    0x174: DUP 
+    0x175: LOAD_CONST #8 
+    0x177: ARRAY_INT_SET 5 
+    0x179: DUP 
+    0x17a: LOAD_CONST #27 
+    0x17c: ARRAY_INT_SET 6 
+    0x17e: STORE_VAR #13 
+    0x180: LOAD_VAR #13 
+    0x182: ITERATOR 
+    0x183: STORE_VAR #14 
+    0x185: LOAD_VAR #14 
+    0x187: CALL_NA 
+    0x188: DUP 
+    0x189: IF_UNDEF16 0x19c 
+    0x18c: CAST_INT 
+    0x18d: STORE_VAR #15 
+    0x18f: LOAD_CONST #28 
+    0x191: LOAD_VAR #15 
+    0x193: CONCAT 
+    0x194: LOAD_CONST #4 
+    0x196: LOCAL_VCALL 2 #1 
+    0x199: GOTO16 0x185 
+    0x19c: POP 
+    0x19d: RETURN_NONE 
 #1: 
     stack_len: 3
     vars_len: 2
@@ -227,7 +291,7 @@
     return_type: any
     code:
     0x3: ARG_TO_VAR #0 #0 
-    0x6: LOAD_CONST #22 
+    0x6: LOAD_CONST #29 
     0x8: VCALL 1 
     0xa: RETURN_NONE 
 #4: 

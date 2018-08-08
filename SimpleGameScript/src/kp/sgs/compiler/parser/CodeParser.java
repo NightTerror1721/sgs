@@ -162,14 +162,14 @@ public final class CodeParser
                     
                     case '?': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: ?");
                         return accumulated.enqret(Operator.TERNARY_CONDITIONAL);
                     }
                     
                     case '|': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: |");
                         c = source.next();
                         switch(c)
@@ -179,12 +179,12 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '|': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: |");
                                 accumulated.enqueue(Operator.LOGICAL_OR);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: |");
                                 accumulated.enqueue(Operator.ASSIFNMENT_BITWISE_OR);
                             } break;
@@ -194,7 +194,7 @@ public final class CodeParser
                     
                     case '&': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: &");
                         c = source.next();
                         switch(c)
@@ -206,12 +206,12 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '&': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: &");
                                 accumulated.enqueue(Operator.LOGICAL_AND);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: &");
                                 accumulated.enqueue(Operator.ASSIFNMENT_BITWISE_AND);
                             } break;
@@ -221,7 +221,7 @@ public final class CodeParser
                     
                     case '^': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: ^");
                         c = source.next();
                         switch(c)
@@ -231,7 +231,7 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: ^");
                                 accumulated.enqueue(Operator.ASSIFNMENT_BITWISE_XOR);
                             } break;
@@ -240,7 +240,7 @@ public final class CodeParser
                     }
                     
                     case '.': {
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: .");
                         c = source.next();
                         switch(c)
@@ -257,7 +257,7 @@ public final class CodeParser
                             } break;
                             case '.': {
                                 builder.flush();
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: .");
                                 c = source.next();
                                 switch(c)
@@ -279,7 +279,7 @@ public final class CodeParser
                     
                     case '!': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: !");
                         c = source.next();
                         switch(c)
@@ -289,7 +289,7 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: =");
                                 c = source.next();
                                 switch(c)
@@ -299,7 +299,7 @@ public final class CodeParser
                                         source.move(-1);
                                     } break;
                                     case '=': {
-                                        if(!source.canPeek(1))
+                                        if(!source.canPeek(0))
                                             throw new CompilerError("Unexpected character: =");
                                         accumulated.enqueue(Operator.TYPED_NOT_EQUALS);
                                     } break;
@@ -311,7 +311,7 @@ public final class CodeParser
                     
                     case '=': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: =");
                         c = source.next();
                         switch(c)
@@ -321,7 +321,7 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: =");
                                 c = source.next();
                                 switch(c)
@@ -331,7 +331,7 @@ public final class CodeParser
                                         source.move(-1);
                                     } break;
                                     case '=': {
-                                        if(!source.canPeek(1))
+                                        if(!source.canPeek(0))
                                             throw new CompilerError("Unexpected character: =");
                                         accumulated.enqueue(Operator.TYPED_EQUALS);
                                     } break;
@@ -343,7 +343,7 @@ public final class CodeParser
                     
                     case '>': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: >");
                         c = source.next();
                         switch(c)
@@ -353,12 +353,12 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: >");
                                 accumulated.enqueue(Operator.GREATER_EQUALS_THAN);
                             } break;
                             case '>': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: >");
                                 accumulated.enqueue(Operator.BITWISE_LEFT_SHIFT);
                             } break;
@@ -368,7 +368,7 @@ public final class CodeParser
                     
                     case '<': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: <");
                         c = source.next();
                         switch(c)
@@ -378,12 +378,12 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: <");
                                 accumulated.enqueue(Operator.SMALLER_EQUALS_THAN);
                             } break;
                             case '>': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: <");
                                 accumulated.enqueue(Operator.BITWISE_RIGHT_SHIFT);
                             } break;
@@ -393,7 +393,7 @@ public final class CodeParser
                     
                     case '-': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: -");
                         c = source.next();
                         switch(c)
@@ -412,14 +412,12 @@ public final class CodeParser
                                 else accumulated.enqueue(Operator.UNARY_MINUS);
                             } break;
                             case '-': {
-                                if(!source.canPeek(1))
-                                    throw new CompilerError("Unexpected character: -");
                                 if(!accumulated.hasLast() || !accumulated.last().isValidOperand())
                                     accumulated.enqueue(Operator.PREFIX_DECREMENT);
                                 else accumulated.enqueue(Operator.SUFIX_DECREMENT);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: -");
                                 accumulated.enqueue(Operator.ASSIGNMENT_SUBTRACTION);
                             } break;
@@ -429,7 +427,7 @@ public final class CodeParser
                     
                     case '+': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: +");
                         c = source.next();
                         switch(c)
@@ -445,14 +443,12 @@ public final class CodeParser
                                 else accumulated.enqueue(Operator.UNARY_PLUS);
                             } break;
                             case '+': {
-                                if(!source.canPeek(1))
-                                    throw new CompilerError("Unexpected character: +");
                                 if(!accumulated.hasLast() || !accumulated.last().isValidOperand())
                                     accumulated.enqueue(Operator.PREFIX_INCREMENT);
                                 else accumulated.enqueue(Operator.SUFIX_INCREMENT);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: +");
                                 accumulated.enqueue(Operator.ASSIGNMENT_ADDITION);
                             } break;
@@ -462,7 +458,7 @@ public final class CodeParser
                     
                     case '%': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: %");
                         c = source.next();
                         switch(c)
@@ -472,7 +468,7 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: %");
                                 accumulated.enqueue(Operator.ASSIGNMENT_REMAINDER);
                             } break;
@@ -482,7 +478,7 @@ public final class CodeParser
                     
                     case '/': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: /");
                         c = source.next();
                         switch(c)
@@ -492,7 +488,7 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: /");
                                 accumulated.enqueue(Operator.ASSIGNMENT_DIVISION);
                             } break;
@@ -502,7 +498,7 @@ public final class CodeParser
                     
                     case '*': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: *");
                         c = source.next();
                         switch(c)
@@ -514,7 +510,7 @@ public final class CodeParser
                                 source.move(-1);
                             } break;
                             case '=': {
-                                if(!source.canPeek(1))
+                                if(!source.canPeek(0))
                                     throw new CompilerError("Unexpected character: *");
                                 accumulated.enqueue(Operator.ASSIGNMENT_MULTIPLICATION);
                             } break;
@@ -524,7 +520,7 @@ public final class CodeParser
                     
                     case '~': {
                         builder.flush();
-                        if(!source.canPeek(1))
+                        if(!source.canPeek(0))
                             throw new CompilerError("Unexpected character: ~");
                         return accumulated.enqret(Operator.BITWISE_NOT);
                     }
@@ -588,6 +584,14 @@ public final class CodeParser
         return frags.isEmpty()
                 ? CodeFragmentList.empty(firstLine)
                 : new CodeFragmentList(firstLine, frags);
+    }
+    
+    public final void findEmptyInlineInstruction(CodeReader source, Command last, ErrorList errors) throws CompilerError
+    {
+        LinkedList<CodeFragment> frags = new LinkedList<>();
+        accumulated.setLast(frags.isEmpty() ? last : frags.getLast());
+        if(parseFragment(source, true, errors) != Stopchar.SEMICOLON)
+            throw new CompilerError("Expected empty instruction after " + last + " command");
     }
     
     public final CodeFragmentList parseUntilScopeAsList(CodeReader source, Command last, ErrorList errors) throws CompilerError
@@ -780,6 +784,8 @@ public final class CodeParser
                 case "else": return Command.ELSE;
                 case "for": return Command.FOR;
                 case "while": return Command.WHILE;
+                case "break": return Command.BREAK;
+                case "continue": return Command.CONTINUE;
                 case "return": return Command.RETURN;
             }
             CodeFragment frag = Literal.decodeNumber(str);

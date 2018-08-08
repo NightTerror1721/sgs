@@ -59,8 +59,10 @@ public final class RuntimeStack
             push(-mod);
     }
     
-    public final int allocateVariable() throws CompilerError
+    public final int allocateVariable(int lastIndex) throws CompilerError
     {
+        if(lastIndex + 1 < allocatedVars)
+            return lastIndex + 1;
         allocatedVars++;
         if(allocatedVars > SGSConstants.MAX_VARS)
             throw new CompilerError("Max local variables exceded");

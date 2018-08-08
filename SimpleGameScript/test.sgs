@@ -83,6 +83,22 @@ def main() {
 		write("While in: "..loptest, true);
 		loptest++;
 	}
+	
+	
+	for(int i=0;i<8;i++) {
+		write("in FOR: STEP "..i, true);
+	}
+	
+	
+	array avalues = [5, 4, 3, 2, 1, 50, 60];
+	
+	for(int val : avalues)
+	{
+		if(val == 3) { continue; }
+		if(val == 50)
+			val += 5;
+		write("avalues: "..val, true);
+	}
 }
 
 def increaser(ptr) { *ptr = *ptr + 1; }

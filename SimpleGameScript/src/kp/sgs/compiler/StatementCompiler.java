@@ -11,6 +11,7 @@ import kp.sgs.compiler.ScriptBuilder.Function;
 import kp.sgs.compiler.ScriptBuilder.LocalVariable;
 import kp.sgs.compiler.ScriptBuilder.NamespaceIdentifier;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScopeType;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.instruction.Instruction;
 import kp.sgs.compiler.opcode.OpcodeList;
@@ -492,7 +493,7 @@ public final class StatementCompiler
     public static final DataType compileNewFunction(NamespaceScope scope, OpcodeList opcodes, Identifier name, Arguments pars, Scope funcScope, boolean pop) throws CompilerError
     {
         Function func = scope.createFunction(name == null ? null : name.toString());
-        NamespaceScope child = scope.createChildScope(true);
+        NamespaceScope child = scope.createChildScope(NamespaceScopeType.FUNCTION);
         compileNewFunctionParameters(child, pars);
         FunctionCompiler.compile(func, child, funcScope);
         if(child.hasInheritedIds())

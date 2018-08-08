@@ -74,6 +74,12 @@ public final class InstructionParser
                     }
                     case WHILE: return InstructionLoopWhile.create(code.parseUntilScopeOrInlineAsList(source, Command.WHILE, errors));
                     case FOR: return InstructionLoopFor.create(code.parseUntilScopeOrInlineAsList(source, Command.FOR, errors));
+                    case BREAK:
+                        code.findEmptyInlineInstruction(source, Command.BREAK, errors);
+                        return InstructionJumpPoint.create(true);
+                    case CONTINUE:
+                        code.findEmptyInlineInstruction(source, Command.CONTINUE, errors);
+                        return InstructionJumpPoint.create(false);
                     case RETURN: return InstructionReturn.create(code.parseInlineInstructionAsList(source, Command.RETURN, errors));
                 }
             }
@@ -107,15 +113,67 @@ public final class InstructionParser
         if(first.isDataType())
         {
             DataType type = (DataType) first;
-            return InstructionDeclaration.create(codeList, type, false);
+            return InstructionDeclaration.create(codeList.subList(1), type, false);
         }
         if(first.isCommand())
         {
             if(first == Command.DEF)
-                return InstructionDeclaration.create(codeList, DataType.ANY, false);
+                return InstructionDeclaration.create(codeList.subList(1), DataType.ANY, false);
             if(first == Command.GLOBAL)
-                return InstructionDeclaration.create(codeList, DataType.ANY, true);
+                return InstructionDeclaration.create(codeList.subList(1), DataType.ANY, true);
         }
         return new InstructionStatement(StatementParser.parse(codeList));
+    }
+    
+    private static Scope createSingleInstructionScope(CodeFragmentList list) throws CompilerError
+    {
+        if(list.isEmpty())
+            return Scope.EMPTY_SCOPE;
+        CodeFragment first = list.get(0);
+        if(first == null)
+            return Scope.EMPTY_SCOPE;
+
+        if(first.isCommand()) // Commands
+        {
+            switch(((Command) first).getCommandId())
+            {
+                default: throw new IllegalStateException();
+                case DEF: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY, false);
+                case GLOBAL: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY, true);
+                case INCLUDE: return InstructionInclusion.create(code.parseInlineInstructionAsList(source, Command.INCLUDE, errors));
+                case IMPORT: return InstructionImportation.create(code.parseInlineInstructionAsList(source, Command.IMPORT, errors));
+                case IF: return InstructionCondition.create(code.parseUntilScopeOrInlineAsList(source, Command.IF, errors));
+                case ELSE: {
+                    if(last == null || last.getInstructionId() != InstructionId.CONDITION)
+                        throw new CompilerError("Expected \"if\" command before \"else\" command.");
+                    ((InstructionCondition) last).setElseAction(code.parseUntilScopeOrInlineAsList(source, Command.ELSE, errors));
+                    return null;
+                }
+                case WHILE: return InstructionLoopWhile.create(code.parseUntilScopeOrInlineAsList(source, Command.WHILE, errors));
+                case FOR: return InstructionLoopFor.create(code.parseUntilScopeOrInlineAsList(source, Command.FOR, errors));
+                case BREAK:
+                    code.findEmptyInlineInstruction(source, Command.BREAK, errors);
+                    return InstructionJumpPoint.create(true);
+                case CONTINUE:
+                    code.findEmptyInlineInstruction(source, Command.CONTINUE, errors);
+                    return InstructionJumpPoint.create(false);
+                case RETURN: return InstructionReturn.create(code.parseInlineInstructionAsList(source, Command.RETURN, errors));
+            }
+        }
+        else if(first.isScope()) // Multi-Statement
+        {
+            Scope scope = (Scope) first;
+            return new Scope(new InstructionScope(scope));
+        }
+        else if(first.isDataType()) // <type> <identifier>
+        {
+            DataType type = (DataType) first;
+            return new Scope(InstructionDeclaration.create(list.subList(1), type, false));
+        }
+        else // Statement
+        {
+            Statement statement = StatementParser.parse(list);
+            return new Scope(new InstructionStatement(statement));
+        }
     }
 }

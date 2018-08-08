@@ -7,7 +7,9 @@ package kp.sgs.compiler.instruction;
 
 import java.util.List;
 import java.util.Objects;
+import kp.sgs.compiler.ScriptBuilder.LocalVariable;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScopeType;
 import kp.sgs.compiler.StatementCompiler;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
@@ -23,6 +25,7 @@ import kp.sgs.compiler.parser.Scope;
 import kp.sgs.compiler.parser.Statement;
 import kp.sgs.compiler.parser.StatementParser;
 import kp.sgs.compiler.parser.Stopchar;
+import kp.sgs.data.SGSValue.Type;
 
 /**
  *
@@ -95,7 +98,7 @@ public abstract class InstructionLoopFor extends Instruction
         Statement[] ends;
         if(endsList != null && !endsList.isEmpty())
         {
-            CodeFragmentList[] parts = initsList.split(Stopchar.COMMA);
+            CodeFragmentList[] parts = endsList.split(Stopchar.COMMA);
             if(parts == null || parts.length < 1 || (parts.length == 1 && parts[0].isEmpty()))
             {
                 ends = null;
@@ -156,7 +159,7 @@ public abstract class InstructionLoopFor extends Instruction
         @Override
         public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
         {
-            NamespaceScope child = scope.createChildScope(false);
+            NamespaceScope child = scope.createChildScope(NamespaceScopeType.LOOP);
             if(inits != null)
                 inits.compileFunctionPart(child, opcodes);
             
@@ -173,6 +176,9 @@ public abstract class InstructionLoopFor extends Instruction
             opcodes.append(Opcodes.goTo(loopStart));
             if(condFalse != null)
                 opcodes.setJumpOpcodeLocationToBottom(condFalse);
+            
+            scope.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
+            scope.setContinuePointLocations(opcodes, loopStart);
         }
     }
     
@@ -201,7 +207,43 @@ public abstract class InstructionLoopFor extends Instruction
         @Override
         public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
         {
-            throw new UnsupportedOperationException("Not supported yet.");
+            NamespaceScope child = scope.createChildScope(NamespaceScopeType.LOOP);
+            LocalVariable iteratorVar = child.createHiddenLocalVariable("it", DataType.ANY);
+            LocalVariable var = child.createLocalVariable(varname.toString(), type);
+            
+            /* Iterator creation */
+            StatementCompiler.compile(child, opcodes, iteratorGetter, false);
+            opcodes.append(Opcodes.ITERATOR);
+            opcodes.append(Opcodes.storeVar(iteratorVar.getIndex()));
+            
+            /* loop condition */
+            OpcodeLocation loopStart = opcodes.getBottomLocation();
+            opcodes.append(Opcodes.loadVar(iteratorVar.getIndex()));
+            opcodes.append(Opcodes.call(0, false));
+            opcodes.append(Opcodes.DUP);
+            OpcodeLocation endIt = opcodes.append(Opcodes.ifUndef());
+            
+            /* scope action */
+            innerCast(opcodes);
+            opcodes.append(Opcodes.storeVar(var.getIndex()));
+            StatementCompiler.compileScope(child, opcodes, action);
+            opcodes.append(Opcodes.goTo(loopStart));
+            opcodes.setJumpOpcodeLocationToBottom(endIt);
+            scope.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
+            scope.setContinuePointLocations(opcodes, loopStart);
+            opcodes.append(Opcodes.POP);
+        }
+        
+        private void innerCast(OpcodeList opcodes) throws CompilerError
+        {
+            switch(type.getTypeId())
+            {
+                case Type.INTEGER: opcodes.append(Opcodes.CAST_INT); break;
+                case Type.FLOAT: opcodes.append(Opcodes.CAST_FLOAT); break;
+                case Type.STRING: opcodes.append(Opcodes.CAST_STRING); break;
+                case Type.ARRAY: opcodes.append(Opcodes.CAST_ARRAY); break;
+                case Type.OBJECT: opcodes.append(Opcodes.CAST_OBJECT); break;
+            }
         }
     }
 }

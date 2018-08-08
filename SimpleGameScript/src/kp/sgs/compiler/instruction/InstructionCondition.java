@@ -8,6 +8,7 @@ package kp.sgs.compiler.instruction;
 import java.util.List;
 import java.util.Objects;
 import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScopeType;
 import kp.sgs.compiler.StatementCompiler;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
@@ -81,12 +82,12 @@ public final class InstructionCondition extends Instruction
     public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
     {
         OpcodeLocation elseLoc = StatementCompiler.compileDefaultIf(scope, opcodes, condition);
-        StatementCompiler.compileScope(scope.createChildScope(false), opcodes, action);
+        StatementCompiler.compileScope(scope.createChildScope(NamespaceScopeType.NORMAL), opcodes, action);
         if(elseAction != null)
         {
             OpcodeLocation endIfLoc = opcodes.append(Opcodes.goTo());
             opcodes.setJumpOpcodeLocationToBottom(elseLoc);
-            StatementCompiler.compileScope(scope.createChildScope(false), opcodes, elseAction);
+            StatementCompiler.compileScope(scope.createChildScope(NamespaceScopeType.NORMAL), opcodes, elseAction);
             opcodes.setJumpOpcodeLocationToBottom(endIfLoc);
         }
         else opcodes.setJumpOpcodeLocationToBottom(elseLoc);

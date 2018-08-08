@@ -38,6 +38,8 @@ public final class Command extends CodeFragment
             ELSE = new Command(CommandId.ELSE),
             FOR = new Command(CommandId.FOR),
             WHILE = new Command(CommandId.WHILE),
+            BREAK = new Command(CommandId.BREAK),
+            CONTINUE = new Command(CommandId.CONTINUE),
             RETURN = new Command(CommandId.RETURN);
 
     @Override
