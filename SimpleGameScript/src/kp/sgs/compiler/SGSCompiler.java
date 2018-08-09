@@ -56,7 +56,7 @@ public final class SGSCompiler
     {
         ScriptBuilder builder = new ScriptBuilder(props);
         ErrorList errors = new ErrorList();
-        List<Instruction> insts = InstructionParser.parse(source, errors);
+        List<Instruction> insts = InstructionParser.parse(source, errors, false);
         if(errors.hasErrors())
             throw new CompilerException(errors);
         
@@ -70,6 +70,7 @@ public final class SGSCompiler
                      .stream().forEach(StaticFunction::compile);
         }
         catch(CompilerError ex) { throw CompilerException.single(ex); }
+        catch(NullPointerException ex) { ex.printStackTrace(System.err); throw CompilerException.single(new CompilerError("NULL POINTER EXCEPTION")); }
         catch(RuntimeException ex) { throw CompilerException.single((CompilerError) ex.getCause()); }
         
         return builder.buildScript(globals);

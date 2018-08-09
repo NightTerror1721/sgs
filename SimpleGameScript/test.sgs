@@ -99,6 +99,8 @@ def main() {
 			val += 5;
 		write("avalues: "..val, true);
 	}
+	
+	freeWrite(true, "ola", "k", "ase");
 }
 
 def increaser(ptr) { *ptr = *ptr + 1; }
@@ -106,3 +108,7 @@ def increaser(ptr) { *ptr = *ptr + 1; }
 def test_call(callb) { callb(30); }
 
 def sum(x, y) { return x + y; }
+
+def freeWrite(endl, args...) {
+	write(args, endl);
+}

@@ -72,10 +72,11 @@ public class InstructionLoopWhile extends Instruction
     {
         OpcodeLocation loopStart = opcodes.getBottomLocation();
         OpcodeLocation condFalse = StatementCompiler.compileDefaultIf(scope, opcodes, condition);
-        StatementCompiler.compileScope(scope.createChildScope(NamespaceScopeType.LOOP), opcodes, action);
+        NamespaceScope child = scope.createChildScope(NamespaceScopeType.LOOP);
+        StatementCompiler.compileScope(child, opcodes, action);
         opcodes.append(Opcodes.goTo(loopStart));
         opcodes.setJumpOpcodeLocationToBottom(condFalse);
-        scope.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
-        scope.setContinuePointLocations(opcodes, loopStart);
+        child.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
+        child.setContinuePointLocations(opcodes, loopStart);
     }
 }

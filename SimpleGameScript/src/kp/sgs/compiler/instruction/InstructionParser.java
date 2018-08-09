@@ -28,7 +28,7 @@ public final class InstructionParser
 {
     private InstructionParser() {}
     
-    public static final List<Instruction> parse(CodeReader source, ErrorList errors)
+    public static final List<Instruction> parse(CodeReader source, ErrorList errors, boolean singleInstruction)
     {
         if(!source.hasNext())
             return Collections.emptyList();
@@ -38,6 +38,8 @@ public final class InstructionParser
         Instruction last = null;
         while(source.hasNext())
         {
+            if(singleInstruction && last != null)
+                break;
             last = parseInstruction(source, codeParser, last, errors);
             if(last == null)
                 continue;
@@ -65,15 +67,15 @@ public final class InstructionParser
                     case GLOBAL: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY, true);
                     case INCLUDE: return InstructionInclusion.create(code.parseInlineInstructionAsList(source, Command.INCLUDE, errors));
                     case IMPORT: return InstructionImportation.create(code.parseInlineInstructionAsList(source, Command.IMPORT, errors));
-                    case IF: return InstructionCondition.create(code.parseUntilScopeOrInlineAsList(source, Command.IF, errors));
+                    case IF: return InstructionCondition.create(code.parseCommandArgsAndScope(source, Command.IF, errors));
                     case ELSE: {
                         if(last == null || last.getInstructionId() != InstructionId.CONDITION)
                             throw new CompilerError("Expected \"if\" command before \"else\" command.");
-                        ((InstructionCondition) last).setElseAction(code.parseUntilScopeOrInlineAsList(source, Command.ELSE, errors));
+                        ((InstructionCondition) last).setElseAction(code.parseCommandScope(source, Command.ELSE, errors));
                         return null;
                     }
-                    case WHILE: return InstructionLoopWhile.create(code.parseUntilScopeOrInlineAsList(source, Command.WHILE, errors));
-                    case FOR: return InstructionLoopFor.create(code.parseUntilScopeOrInlineAsList(source, Command.FOR, errors));
+                    case WHILE: return InstructionLoopWhile.create(code.parseCommandArgsAndScope(source, Command.WHILE, errors));
+                    case FOR: return InstructionLoopFor.create(code.parseCommandArgsAndScope(source, Command.FOR, errors));
                     case BREAK:
                         code.findEmptyInlineInstruction(source, Command.BREAK, errors);
                         return InstructionJumpPoint.create(true);
@@ -125,7 +127,7 @@ public final class InstructionParser
         return new InstructionStatement(StatementParser.parse(codeList));
     }
     
-    private static Scope createSingleInstructionScope(CodeFragmentList list) throws CompilerError
+    /*private static Scope createSingleInstructionScope(CodeFragmentList list) throws CompilerError
     {
         if(list.isEmpty())
             return Scope.EMPTY_SCOPE;
@@ -138,10 +140,10 @@ public final class InstructionParser
             switch(((Command) first).getCommandId())
             {
                 default: throw new IllegalStateException();
-                case DEF: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY, false);
-                case GLOBAL: return InstructionDeclaration.create(code.parseUntilScopeOrInlineAsList(source, Command.DEF, errors), DataType.ANY, true);
-                case INCLUDE: return InstructionInclusion.create(code.parseInlineInstructionAsList(source, Command.INCLUDE, errors));
-                case IMPORT: return InstructionImportation.create(code.parseInlineInstructionAsList(source, Command.IMPORT, errors));
+                //case DEF: return InstructionDeclaration.create(list.subList(1), DataType.ANY, false);
+                //case GLOBAL: return InstructionDeclaration.create(list.subList(1), DataType.ANY, true);
+                //case INCLUDE: return InstructionInclusion.create(list.subList(1));
+                //case IMPORT: return InstructionImportation.create(list.subList(1));
                 case IF: return InstructionCondition.create(code.parseUntilScopeOrInlineAsList(source, Command.IF, errors));
                 case ELSE: {
                     if(last == null || last.getInstructionId() != InstructionId.CONDITION)
@@ -175,5 +177,5 @@ public final class InstructionParser
             Statement statement = StatementParser.parse(list);
             return new Scope(new InstructionStatement(statement));
         }
-    }
+    }*/
 }

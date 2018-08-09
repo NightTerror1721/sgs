@@ -353,29 +353,43 @@ public final class ScriptBuilder
         public final void registerBreakPoint(OpcodeLocation loc) throws CompilerError
         {
             if(breakPoints == null)
-                throw new CompilerError("Cannot use break in " + type + " scope");
-            breakPoints.add(loc);
+            {
+                if(parent == null)
+                    throw new CompilerError("Cannot use break in non loop scope");
+                if(type == NamespaceScopeType.FUNCTION || type == NamespaceScopeType.ROOT)
+                    throw new CompilerError("Cannot use break in non loop scope");
+                parent.registerBreakPoint(loc);
+            }
+            else breakPoints.add(loc);
         }
         public final boolean hasBreakPoints() { return breakPoints != null && !breakPoints.isEmpty(); }
         public final List<OpcodeLocation> getBreakPoints() { return breakPoints; }
         public final void setBreakPointLocations(OpcodeList opcodes, OpcodeLocation endLoc)
         {
-            for(OpcodeLocation loc : breakPoints)
-                opcodes.setJumpOpcodeLocationTarget(loc, endLoc);
+            if(breakPoints != null)
+                for(OpcodeLocation loc : breakPoints)
+                    opcodes.setJumpOpcodeLocationTarget(loc, endLoc);
         }
         
         public final void registerContinuePoint(OpcodeLocation loc) throws CompilerError
         {
             if(continuePoints == null)
-                throw new CompilerError("Cannot use break in " + type + " scope");
-            continuePoints.add(loc);
+            {
+                if(parent == null)
+                    throw new CompilerError("Cannot use continue in non loop scope");
+                if(type == NamespaceScopeType.FUNCTION || type == NamespaceScopeType.ROOT)
+                    throw new CompilerError("Cannot use continue in non loop scope");
+                parent.registerContinuePoint(loc);
+            }
+            else continuePoints.add(loc);
         }
         public final boolean hasContinuePoints() { return continuePoints != null && !continuePoints.isEmpty(); }
         public final List<OpcodeLocation> getContinuePoints() { return continuePoints; }
         public final void setContinuePointLocations(OpcodeList opcodes, OpcodeLocation startLoc)
         {
-            for(OpcodeLocation loc : continuePoints)
-                opcodes.setJumpOpcodeLocationTarget(loc, startLoc);
+            if(continuePoints != null)
+                for(OpcodeLocation loc : continuePoints)
+                    opcodes.setJumpOpcodeLocationTarget(loc, startLoc);
         }
     }
     

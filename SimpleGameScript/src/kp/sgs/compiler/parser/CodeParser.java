@@ -594,7 +594,7 @@ public final class CodeParser
             throw new CompilerError("Expected empty instruction after " + last + " command");
     }
     
-    public final CodeFragmentList parseUntilScopeAsList(CodeReader source, Command last, ErrorList errors) throws CompilerError
+    /*public final CodeFragmentList parseUntilScopeAsList(CodeReader source, Command last, ErrorList errors) throws CompilerError
     {
         LinkedList<CodeFragment> frags = new LinkedList<>();
         CodeFragment frag;
@@ -611,7 +611,7 @@ public final class CodeParser
         return frags.isEmpty()
                 ? CodeFragmentList.empty(firstLine)
                 : new CodeFragmentList(firstLine, frags);
-    }
+    }*/
     
     public final CodeFragmentList parseUntilScopeOrInlineAsList(CodeReader source, Command last, ErrorList errors) throws CompilerError
     {
@@ -634,6 +634,48 @@ public final class CodeParser
                 : new CodeFragmentList(firstLine, frags);
     }
     
+    public final CodeFragmentList parseCommandArgsAndScope(CodeReader source, Command last, ErrorList errors) throws CompilerError
+    {
+        int firstLine = source.getCurrentLine();
+        accumulated.setLast(last);
+        CodeFragment args = parseFragment(source, true, errors);
+        if(args == null || !args.isCommandArguments())
+            throw new CompilerError("Expected valid arguments before " + last + " command. But found: " + args);
+        int lastIndex = source.getCurrentIndex();
+        LinkedList<CodeFragment> old = new LinkedList<>(accumulated.list);
+        accumulated.setLast(args);
+        CodeFragment scope = parseFragment(source, true, errors);
+        if(scope == Stopchar.SEMICOLON)
+            return new CodeFragmentList(firstLine, args, Scope.EMPTY_SCOPE);
+        if(scope.isScope())
+            return new CodeFragmentList(firstLine, args, scope);
+        
+        source.setIndex(lastIndex);
+        accumulated.list.clear();
+        accumulated.list = old;
+        scope = new Scope(InstructionParser.parse(source, errors, true));
+        return new CodeFragmentList(firstLine, args, scope);
+    }
+    
+    public final CodeFragmentList parseCommandScope(CodeReader source, Command last, ErrorList errors) throws CompilerError
+    {
+        int firstLine = source.getCurrentLine();
+        accumulated.setLast(last);
+        int lastIndex = source.getCurrentIndex();
+        LinkedList<CodeFragment> old = new LinkedList<>(accumulated.list);
+        CodeFragment scope = parseFragment(source, true, errors);
+        if(scope == Stopchar.SEMICOLON)
+            return new CodeFragmentList(firstLine, Scope.EMPTY_SCOPE);
+        if(scope.isScope())
+            return new CodeFragmentList(firstLine, scope);
+        
+        source.setIndex(lastIndex);
+        accumulated.list.clear();
+        accumulated.list = old;
+        scope = new Scope(InstructionParser.parse(source, errors, true));
+        return new CodeFragmentList(firstLine, scope);
+    }
+    
     private CodeFragmentList parseSubStatement(CodeReader source, ErrorList errors) throws CompilerError
     {
         LinkedList<CodeFragment> frags = new LinkedList<>();
@@ -653,7 +695,7 @@ public final class CodeParser
     
     private Scope parseScope(CodeReader source, ErrorList errors) throws CompilerError
     {
-        List<Instruction> instrs = InstructionParser.parse(source, errors);
+        List<Instruction> instrs = InstructionParser.parse(source, errors, false);
         return new Scope(instrs);
     }
     

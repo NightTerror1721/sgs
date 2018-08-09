@@ -177,8 +177,8 @@ public abstract class InstructionLoopFor extends Instruction
             if(condFalse != null)
                 opcodes.setJumpOpcodeLocationToBottom(condFalse);
             
-            scope.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
-            scope.setContinuePointLocations(opcodes, loopStart);
+            child.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
+            child.setContinuePointLocations(opcodes, loopStart);
         }
     }
     
@@ -229,8 +229,8 @@ public abstract class InstructionLoopFor extends Instruction
             StatementCompiler.compileScope(child, opcodes, action);
             opcodes.append(Opcodes.goTo(loopStart));
             opcodes.setJumpOpcodeLocationToBottom(endIt);
-            scope.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
-            scope.setContinuePointLocations(opcodes, loopStart);
+            child.setBreakPointLocations(opcodes, opcodes.getBottomLocation());
+            child.setContinuePointLocations(opcodes, loopStart);
             opcodes.append(Opcodes.POP);
         }
         

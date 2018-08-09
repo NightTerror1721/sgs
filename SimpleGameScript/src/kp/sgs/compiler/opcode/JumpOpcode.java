@@ -32,7 +32,7 @@ public class JumpOpcode extends Opcode
     public final void build(byte[] bytecode, int offset)
     {
         if(target == null)
-            throw new IllegalStateException("Invalid jump instruction");
+            throw new IllegalStateException("Invalid jump instruction: Target is Empty");
         int index = target.getFirstByte();
         bytecode[offset] = (byte) (index > 0xff ? opcode16 : opcode);
         bytecode[offset + 1] = (byte) (index & 0xff);

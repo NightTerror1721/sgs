@@ -10,19 +10,23 @@
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/Identifier.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/opcode/JumpOpcode.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/CommandArguments.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/CodeReader.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/InstructionDeclaration.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/Main.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/Scope.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/CommandId.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/data/SGSMutableArray.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/DefaultLibs.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/InstructionStatement.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/opcode/Opcode.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/BytecodeBuilder.java</file>
-            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/InstructionParser.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/CodeFragmentList.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/InstructionLoopFor.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/InstructionParser.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/ScriptBuilder.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/InstructionLoopWhile.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/StatementCompiler.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/RuntimeStack.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/Instruction.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/SGSScript.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/opcode/OpcodeParser.java</file>
@@ -35,6 +39,7 @@
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/Operation.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/opcode/OpcodeList.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/StatementParser.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/data/utils/SGSIterator.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/SGSScriptIO.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/CodeParser.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/Stopchar.java</file>
@@ -51,6 +56,7 @@
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/SGSLibraryElement.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/opcode/Opcodes.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/SGSCompiler.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/InstructionJumpPoint.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/data/SGSInteger.java</file>
             <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/instruction/InstructionImportation.java</file>
         </group>

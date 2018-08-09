@@ -466,9 +466,9 @@ public final class SGSScript
         @Override public final float toFloat() { return args.length - offset; }
         @Override public final double toDouble() { return args.length - offset; }
         @Override public final boolean toBoolean() { return args.length - offset > 0; }
-        @Override public final String toString() { return Arrays.toString(Arrays.copyOf(args, args.length - offset)); }
-        @Override public final SGSArray toArray() { return SGSArray.of(false, Arrays.copyOf(args, args.length - offset)); }
-        @Override public final SGSObject toObject() { return SGSObject.of(false, Arrays.copyOf(args, args.length - offset)); }
+        @Override public final String toString() { return Arrays.toString(Arrays.copyOfRange(args, offset, args.length)); }
+        @Override public final SGSArray toArray() { return SGSArray.of(false, Arrays.copyOfRange(args, offset, args.length)); }
+        @Override public final SGSObject toObject() { return SGSObject.of(false, Arrays.copyOfRange(args, offset, args.length)); }
 
 
         /* Comparison operators */
