@@ -5,8 +5,10 @@
  */
 package kp.sgs.compiler;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +38,11 @@ public final class ScriptBuilder
     private final LinkedList<Function> functions = new LinkedList<>();
     private final LinkedList<LibraryElement> libelements = new LinkedList<>();
     private final NamespaceScope rootNamespace;
-    //private final RuntimeStack stack;
     private final String mainFunctionName;
     private final SGSLibraryRepository allLibs;
     private final SGSLibraryRepository libs;
+    private final HashSet<File> included = new HashSet<>();
+    private final List<File> dirs;
     
     public ScriptBuilder(CompilerProperties props)
     {
@@ -48,11 +51,10 @@ public final class ScriptBuilder
         this.mainFunctionName = props.getFunctionName();
         this.allLibs = props.getLibraryRepository();
         this.libs = new SGSLibraryRepository();
+        this.dirs = props.getDirectories();
         
         functions.add(new Function(mainFunctionName, 0)); //main function
     }
-    
-    //public final RuntimeStack getRuntimeStack() { return stack; }
     
     public final NamespaceScope getRootNamespace() { return rootNamespace; }
     
@@ -119,6 +121,26 @@ public final class ScriptBuilder
                 }
             }
         return null;
+    }
+    
+    private File findFileToInclude(String path) throws CompilerError
+    {
+        for(File dir : dirs)
+        {
+            File file = new File(dir.getAbsolutePath() + File.separator + path);
+            if(file.exists() && file.isFile())
+                return file;
+        }
+        throw new CompilerError("Script file \"" + path + "\" not found.");
+    }
+    
+    private void includeScript(String path) throws CompilerError
+    {
+        File file = findFileToInclude(path);
+        if(included.contains(file))
+            return;
+        included.add(file);
+        SGSCompiler.includeScript(file, this);
     }
     
     public final SGSScript buildScript(SGSGlobals globals)
@@ -348,6 +370,11 @@ public final class ScriptBuilder
             if(libs.hasLibrary(identifier))
                 return;
             libs.registerLibrary(allLibs.getLibrary(identifier));
+        }
+        
+        public final void includeScript(String path) throws CompilerError
+        {
+            ScriptBuilder.this.includeScript(path);
         }
         
         public final void registerBreakPoint(OpcodeLocation loc) throws CompilerError

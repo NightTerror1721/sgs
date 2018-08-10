@@ -28,6 +28,7 @@ public final class Main
         SGSLibraryRepository rep = new SGSLibraryRepository();
         rep.registerLibrary(DefaultLibs.IO);
         props.setLibraryRepository(rep);
+        props.addDirectories(System.getProperty("user.dir"));
         
         SGSScript script = SGSCompiler.compile(new File("test.sgs"), new SGSMutableObject(), props);
         OpcodeParser.parseTo(script, new File("opcodes.txt"));

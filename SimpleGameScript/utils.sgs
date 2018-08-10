@@ -1,0 +1,4 @@
+
+def integerDivision(dividend, divisor) {
+	return ((int) dividend) / ((int) divisor);
+}

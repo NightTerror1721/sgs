@@ -1,5 +1,7 @@
 import io;
 
+include "utils.sgs";
+
 def text_to_print = "hello world\n";
 
 def props = {
@@ -101,6 +103,8 @@ def main() {
 	}
 	
 	freeWrite(true, "ola", "k", "ase");
+	
+	write(integerDivision(3, 1.5), true);
 }
 
 def increaser(ptr) { *ptr = *ptr + 1; }

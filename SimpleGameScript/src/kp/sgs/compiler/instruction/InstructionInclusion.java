@@ -7,7 +7,7 @@ package kp.sgs.compiler.instruction;
 
 import java.util.List;
 import java.util.Objects;
-import kp.sgs.compiler.ScriptBuilder;
+import kp.sgs.compiler.ScriptBuilder.NamespaceScope;
 import kp.sgs.compiler.exception.CompilerError;
 import kp.sgs.compiler.opcode.OpcodeList;
 import kp.sgs.compiler.parser.CodeFragmentList;
@@ -41,14 +41,14 @@ public final class InstructionInclusion extends Instruction
     }
     
     @Override
-    public final void compileConstantPart(ScriptBuilder.NamespaceScope scope, List<Operation> functions) throws CompilerError
+    public final void compileConstantPart(NamespaceScope scope, List<Operation> functions) throws CompilerError
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+        scope.includeScript(path);
     }
 
     @Override
-    public final void compileFunctionPart(ScriptBuilder.NamespaceScope scope, OpcodeList opcodes) throws CompilerError
+    public final void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new CompilerError("Cannot compile \"include\" command in function source code");
     }
 }

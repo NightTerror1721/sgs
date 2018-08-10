@@ -1,4 +1,4 @@
-#CONSTANTS: 33
+#CONSTANTS: 34
 #0: string: hello world\n
 #1: const object: {\n\tsmall: 83\n\tlarge: 76\n\tmedium: 77\n}
 #2: string: 
@@ -31,7 +31,8 @@
 #29: string: ola
 #30: string: k
 #31: string: ase
-#32: int: 30
+#32: float: 1.5
+#33: int: 30
 
 
 #IDENTIFIERS: 5
@@ -46,17 +47,17 @@
 #0: from io import print
 
 
-#FUNCTIONS: 9
+#FUNCTIONS: 10
 #0: 
     stack_len: 7
     vars_len: 16
     return_type: any
     code:
-    0x3: LOAD_FUNCTION #6 
+    0x3: LOAD_FUNCTION #7 
     0x5: STORE_VAR #0 
     0x7: OBJ_NEW 
     0x8: DUP 
-    0x9: LOAD_FUNCTION #7 
+    0x9: LOAD_FUNCTION #8 
     0xb: OBJ_PSET #0 
     0xd: STORE_VAR #1 
     0xf: LOAD_VAR #1 
@@ -66,7 +67,7 @@
     0x17: STORE_VAR #2 
     0x19: LOAD_VAR #2 
     0x1b: LOAD_CONST #4 
-    0x1d: LOCAL_VCALL 2 #1 
+    0x1d: LOCAL_VCALL 2 #2 
     0x20: LOAD_CONST #6 
     0x22: STORE_VAR #3 
     0x24: LOAD_VAR #3 
@@ -76,12 +77,12 @@
     0x2a: LOAD_CONST #8 
     0x2c: STORE_VAR #3 
     0x2e: LOAD_CONST #0 
-    0x30: LOCAL_VCALL 1 #1 
+    0x30: LOCAL_VCALL 1 #2 
     0x33: LOAD_VAR #3 
     0x35: LOAD_CONST #9 
     0x37: ADD 
     0x38: LOAD_CONST #4 
-    0x3a: LOCAL_VCALL 2 #1 
+    0x3a: LOCAL_VCALL 2 #2 
     0x3d: LOAD_CONST #10 
     0x3f: STORE_VAR #4 
     0x41: LOAD_VAR #3 
@@ -99,17 +100,17 @@
     0x59: LOAD_VAR #5 
     0x5b: LOAD_CONST #3 
     0x5d: CONCAT 
-    0x5e: LOCAL_VCALL 1 #1 
+    0x5e: LOCAL_VCALL 1 #2 
     0x61: LOAD_VAR #0 
     0x63: LOAD_CONST #11 
     0x65: VCALL 1 
     0x67: LOAD_VAR #0 
-    0x69: LOCAL_VCALL 1 #3 
+    0x69: LOCAL_VCALL 1 #4 
     0x6c: LOAD_CONST #12 
     0x6e: LOAD_CONST #9 
-    0x70: LOCAL_CALL 2 #4 
+    0x70: LOCAL_CALL 2 #5 
     0x73: LOAD_CONST #4 
-    0x75: LOCAL_VCALL 2 #1 
+    0x75: LOCAL_VCALL 2 #2 
     0x78: LOAD_CONST #13 
     0x7a: ARRAY_NEW 
     0x7b: DUP 
@@ -124,7 +125,7 @@
     0x8a: STORE_VAR #6 
     0x8c: LOAD_VAR #6 
     0x8e: LOAD_CONST #4 
-    0x90: LOCAL_VCALL 2 #1 
+    0x90: LOCAL_VCALL 2 #2 
     0x93: OBJ_NEW 
     0x94: DUP 
     0x95: LOAD_CONST #4 
@@ -138,26 +139,26 @@
     0xa4: OBJ_PSET #4 
     0xa6: LOAD_VAR #7 
     0xa8: LOAD_CONST #4 
-    0xaa: LOCAL_VCALL 2 #1 
+    0xaa: LOCAL_VCALL 2 #2 
     0xad: LOAD_CONST #6 
     0xaf: STORE_VAR #8 
     0xb1: REF_LOCAL #8 int 
     0xb4: STORE_VAR #9 
     0xb6: LOAD_VAR #9 
     0xb8: LOAD_CONST #4 
-    0xba: LOCAL_VCALL 2 #1 
+    0xba: LOCAL_VCALL 2 #2 
     0xbd: LOAD_VAR #9 
     0xbf: REF_GET 
     0xc0: LOAD_CONST #4 
-    0xc2: LOCAL_VCALL 2 #1 
+    0xc2: LOCAL_VCALL 2 #2 
     0xc5: LOAD_VAR #9 
-    0xc7: LOCAL_VCALL 1 #2 
+    0xc7: LOCAL_VCALL 1 #3 
     0xca: LOAD_VAR #8 
     0xcc: LOAD_CONST #4 
-    0xce: LOCAL_VCALL 2 #1 
+    0xce: LOCAL_VCALL 2 #2 
     0xd1: LOAD_CONST #1 
     0xd3: LOAD_CONST #4 
-    0xd5: LOCAL_VCALL 2 #1 
+    0xd5: LOCAL_VCALL 2 #2 
     0xd8: LOAD_CONST #9 
     0xda: STORE_VAR #10 
     0xdc: LOAD_VAR #10 
@@ -171,7 +172,7 @@
     0xed: STORE_VAR #10 
     0xef: LOAD_VAR #0 
     0xf1: LOAD_VAR #10 
-    0xf3: LOAD_CLOSURE #2 8 
+    0xf3: LOAD_CLOSURE #2 9 
     0xf6: STORE_VAR #11 
     0xf8: LOAD_VAR #10 
     0xfa: LOAD_CONST #9 
@@ -181,10 +182,10 @@
     0x104: LOAD_VAR #10 
     0x106: CONCAT 
     0x107: LOAD_CONST #4 
-    0x109: LOCAL_VCALL 2 #1 
+    0x109: LOCAL_VCALL 2 #2 
     0x10c: GOTO16 0x114 
     0x10f: LOAD_CONST #19 
-    0x111: LOCAL_VCALL 1 #1 
+    0x111: LOCAL_VCALL 1 #2 
     0x114: LOAD_CONST #6 
     0x116: STORE_VAR #12 
     0x118: LOAD_VAR #12 
@@ -195,7 +196,7 @@
     0x124: LOAD_VAR #12 
     0x126: CONCAT 
     0x127: LOAD_CONST #4 
-    0x129: LOCAL_VCALL 2 #1 
+    0x129: LOCAL_VCALL 2 #2 
     0x12c: LOAD_VAR #12 
     0x12e: INC 
     0x12f: DUP 
@@ -212,7 +213,7 @@
     0x146: LOAD_VAR #13 
     0x148: CONCAT 
     0x149: LOAD_CONST #4 
-    0x14b: LOCAL_VCALL 2 #1 
+    0x14b: LOCAL_VCALL 2 #2 
     0x14e: LOAD_VAR #13 
     0x150: INC 
     0x151: DUP 
@@ -269,16 +270,32 @@
     0x1af: LOAD_VAR #15 
     0x1b1: CONCAT 
     0x1b2: LOAD_CONST #4 
-    0x1b4: LOCAL_VCALL 2 #1 
+    0x1b4: LOCAL_VCALL 2 #2 
     0x1b7: GOTO16 0x185 
     0x1ba: POP 
     0x1bb: LOAD_CONST #4 
     0x1bd: LOAD_CONST #29 
     0x1bf: LOAD_CONST #30 
     0x1c1: LOAD_CONST #31 
-    0x1c3: LOCAL_VCALL 4 #5 
-    0x1c6: RETURN_NONE 
+    0x1c3: LOCAL_VCALL 4 #6 
+    0x1c6: LOAD_CONST #13 
+    0x1c8: LOAD_CONST #32 
+    0x1ca: LOCAL_CALL 2 #1 
+    0x1cd: LOAD_CONST #4 
+    0x1cf: LOCAL_VCALL 2 #2 
+    0x1d2: RETURN_NONE 
 #1: 
+    stack_len: 2
+    vars_len: 2
+    return_type: any
+    code:
+    0x3: ARG_TO_VAR #0 #0 
+    0x6: CAST_INT 
+    0x7: ARG_TO_VAR #1 #1 
+    0xa: CAST_INT 
+    0xb: DIV 
+    0xc: RETURN 
+#2: 
     stack_len: 3
     vars_len: 2
     return_type: any
@@ -294,7 +311,7 @@
     0x17: CONCAT 
     0x18: LIBE_VCALL 1 #0 
     0x1b: RETURN_NONE 
-#2: 
+#3: 
     stack_len: 3
     vars_len: 1
     return_type: any
@@ -306,16 +323,16 @@
     0xb: ADD 
     0xc: REF_SET 
     0xd: RETURN_NONE 
-#3: 
+#4: 
     stack_len: 2
     vars_len: 1
     return_type: any
     code:
     0x3: ARG_TO_VAR #0 #0 
-    0x6: LOAD_CONST #32 
+    0x6: LOAD_CONST #33 
     0x8: VCALL 1 
     0xa: RETURN_NONE 
-#4: 
+#5: 
     stack_len: 2
     vars_len: 2
     return_type: any
@@ -324,7 +341,7 @@
     0x6: ARG_TO_VAR #1 #1 
     0x9: ADD 
     0xa: RETURN 
-#5: 
+#6: 
     stack_len: 2
     vars_len: 2
     return_type: any
@@ -332,18 +349,18 @@
     0x3: ARGS_TO_ARRAY #0 1 
     0x6: LOAD_VAR #0 
     0x8: ARG_TO_VAR #1 #0 
-    0xb: LOCAL_VCALL 2 #1 
+    0xb: LOCAL_VCALL 2 #2 
     0xe: RETURN_NONE 
-#6: 
+#7: 
     stack_len: 2
     vars_len: 1
     return_type: any
     code:
     0x3: ARG_TO_VAR #0 #0 
     0x6: LOAD_CONST #4 
-    0x8: LOCAL_VCALL 2 #1 
+    0x8: LOCAL_VCALL 2 #2 
     0xb: RETURN_NONE 
-#7: 
+#8: 
     stack_len: 2
     vars_len: 3
     return_type: any
@@ -355,7 +372,7 @@
     0xd: ARG_TO_VAR #2 #1 
     0x10: OBJ_PSET #2 
     0x12: RETURN_NONE 
-#8: 
+#9: 
     stack_len: 2
     vars_len: 0
     return_type: any

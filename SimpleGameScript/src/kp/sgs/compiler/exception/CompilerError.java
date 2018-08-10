@@ -12,4 +12,5 @@ package kp.sgs.compiler.exception;
 public class CompilerError extends Exception
 {
     public CompilerError(String errorMessage) { super(errorMessage); }
+    public CompilerError(String errorMessage, Throwable cause) { super(errorMessage, cause); }
 }

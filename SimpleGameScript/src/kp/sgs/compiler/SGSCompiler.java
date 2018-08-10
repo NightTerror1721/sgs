@@ -56,6 +56,14 @@ public final class SGSCompiler
     {
         ScriptBuilder builder = new ScriptBuilder(props);
         ErrorList errors = new ErrorList();
+        
+        compile(source, builder, errors);
+        
+        return builder.buildScript(globals);
+    }
+    
+    private static void compile(CodeReader source, ScriptBuilder builder, ErrorList errors) throws CompilerException
+    {
         List<Instruction> insts = InstructionParser.parse(source, errors, false);
         if(errors.hasErrors())
             throw new CompilerException(errors);
@@ -72,8 +80,21 @@ public final class SGSCompiler
         catch(CompilerError ex) { throw CompilerException.single(ex); }
         catch(NullPointerException ex) { ex.printStackTrace(System.err); throw CompilerException.single(new CompilerError("NULL POINTER EXCEPTION")); }
         catch(RuntimeException ex) { throw CompilerException.single((CompilerError) ex.getCause()); }
-        
-        return builder.buildScript(globals);
+    }
+    
+    static final void includeScript(File file, ScriptBuilder builder) throws CompilerError
+    {
+        try(FileInputStream fis = new FileInputStream(file))
+        {
+            CodeReader source = new CodeReader(fis);
+            ErrorList errors = new ErrorList();
+            compile(source, builder, errors);
+        }
+        catch(IOException ex) { throw new CompilerError("Error in file: " + file, ex); }
+        catch(CompilerException ex)
+        {
+            throw new CompilerError("Errors in file " + file + ": " + ex.getMessage());
+        }
     }
     
     private static final class StaticFunction

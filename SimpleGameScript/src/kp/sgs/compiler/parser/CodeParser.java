@@ -60,13 +60,14 @@ public final class CodeParser
                         builder.flush();
                         CodeReader scopeSource = extractScope(source, '(', ')');
                         CodeFragmentList list = parseSubStatement(scopeSource, errors);
-                        if(!accumulated.hasLast() || (!accumulated.last().isValidOperand() && !accumulated.last().isCommand())) //Parenthesis
+                        if(!accumulated.hasLast() || accumulated.last() == Command.RETURN ||
+                                (!accumulated.last().isValidOperand() && !accumulated.last().isCommand())) //Parenthesis
                         {
                             if(list.length() == 1 && list.get(0).isDataType())
                                 return accumulated.enqret(list.<DataType>get(0).getCastOperator());
                             return accumulated.enqret(StatementParser.parse(list));
                         }
-                        else if(accumulated.last().isCommand() && accumulated.last() != Command.DEF) //Command arguments
+                        else if(accumulated.last().isCommand() && accumulated.last() != Command.DEF && accumulated.last() != Command.RETURN) //Command arguments
                             return accumulated.enqret(CommandArguments.valueOf(list));
                         else //Arguments
                         {
