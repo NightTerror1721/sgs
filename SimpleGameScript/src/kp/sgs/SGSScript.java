@@ -307,6 +307,30 @@ public final class SGSScript
                 } break;
                 case LIBE_VCALL_NA: libelements[code[inst++] & 0xff].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
                 case LIBE_VCALL_NA16: libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].operatorCall(globals, SGSConstants.EMPTY_ARGS); break;
+                case LIBE_NEW: {
+                    SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff)];
+                    System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
+                    stack[sit++] = libelements[code[inst++] & 0xff].constructor(fargs);
+                } break;
+                case LIBE_NEW16: {
+                    SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff)];
+                    System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
+                    stack[sit++] = libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].constructor(fargs);
+                } break;
+                case LIBE_NEW_NA: stack[sit++] = libelements[code[inst++] & 0xff].constructor(SGSConstants.EMPTY_ARGS); break;
+                case LIBE_NEW_NA16: stack[sit++] = libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].constructor(SGSConstants.EMPTY_ARGS); break;
+                case LIBE_VNEW: {
+                    SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff)];
+                    System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
+                    libelements[code[inst++] & 0xff].constructor(fargs);
+                } break;
+                case LIBE_VNEW16: {
+                    SGSValue[] fargs = new SGSValue[(code[inst++] & 0xff)];
+                    System.arraycopy(stack, sit -= fargs.length, fargs, 0, fargs.length);
+                    libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].constructor(fargs);
+                } break;
+                case LIBE_VNEW_NA: libelements[code[inst++] & 0xff].constructor(SGSConstants.EMPTY_ARGS); break;
+                case LIBE_VNEW_NA16: libelements[(code[inst++] & 0xff) | ((code[inst++] & 0xff) << 8)].constructor(SGSConstants.EMPTY_ARGS); break;
                 
                 case ARGS_TO_ARRAY: stack[code[inst++] & 0xff] = new Varargs(args, code[inst++] & 0xff); break;
                 case ARG_TO_VAR: stack[sit++] = stack[code[inst++] & 0xff] = (code[inst++] & 0xff) >= args.length ? SGSValue.UNDEFINED : args[code[inst - 1] & 0xff]; break;

@@ -30,7 +30,7 @@ public final class Main
         props.setLibraryRepository(rep);
         props.addDirectories(System.getProperty("user.dir"));
         
-        SGSScript script = SGSCompiler.compile(new File("test.sgs"), new SGSMutableObject(), props);
+        SGSScript script = SGSCompiler.compile(new File("libtests.sgs"), new SGSMutableObject(), props);
         OpcodeParser.parseTo(script, new File("opcodes.txt"));
         
         script.execute();

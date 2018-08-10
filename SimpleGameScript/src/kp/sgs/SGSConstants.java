@@ -185,15 +185,23 @@ public interface SGSConstants
         int LIBE_VCALL16    = 0x85; // <args_len> <libelement_idx|0-7> <libelement_idx|8-15>
         int LIBE_VCALL_NA   = 0x86; // <libelement_idx>
         int LIBE_VCALL_NA16 = 0x87; // <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_NEW        = 0x88; // <args_len> <libelement_idx>
+        int LIBE_NEW16      = 0x89; // <args_len> <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_NEW_NA     = 0x8A; // <libelement_idx>
+        int LIBE_NEW_NA16   = 0x8B; // <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_VNEW       = 0x8C; // <args_len> <libelement_idx>
+        int LIBE_VNEW16     = 0x8D; // <args_len> <libelement_idx|0-7> <libelement_idx|8-15>
+        int LIBE_VNEW_NA    = 0x8E; // <libelement_idx>
+        int LIBE_VNEW_NA16  = 0x8F; // <libelement_idx|0-7> <libelement_idx|8-15>
         
-        int ARGS_TO_ARRAY   = 0x88; // <var_idx> <offset_idx>
-        int ARG_TO_VAR      = 0x89; // <var_idx> <arg_idx>
+        int ARGS_TO_ARRAY   = 0x90; // <var_idx> <offset_idx>
+        int ARG_TO_VAR      = 0x91; // <var_idx> <arg_idx>
         
-        int NEW             = 0x8A; // <args_len>
-        int NEW_NA          = 0x8B; // 
-        int VNEW            = 0x8C; // <args_len>
-        int VNEW_NA         = 0x8D; // 
-        int BASE            = 0x8E; // 
+        int NEW             = 0x92; // <args_len>
+        int NEW_NA          = 0x93; // 
+        int VNEW            = 0x94; // <args_len>
+        int VNEW_NA         = 0x95; // 
+        int BASE            = 0x96; // 
         
     }
 }

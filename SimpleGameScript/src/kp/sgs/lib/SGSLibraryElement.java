@@ -9,6 +9,7 @@ import kp.sgs.SGSConstants;
 import kp.sgs.SGSGlobals;
 import kp.sgs.compiler.parser.DataType;
 import kp.sgs.data.SGSInteger;
+import kp.sgs.data.SGSMutableObject;
 import kp.sgs.data.SGSValue;
 
 /**
@@ -46,4 +47,6 @@ public abstract class SGSLibraryElement
     public          SGSValue operatorCall(SGSGlobals globals) { return operatorCall(globals, SGSConstants.EMPTY_ARGS); }
     
     public abstract SGSValue operatorReferenceGet();
+    
+    public abstract SGSMutableObject constructor(SGSValue[] args);
 }

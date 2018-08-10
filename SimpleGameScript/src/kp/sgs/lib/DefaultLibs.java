@@ -6,6 +6,7 @@
 package kp.sgs.lib;
 
 import kp.sgs.lib.core.IOLibrary;
+import kp.sgs.lib.core.StringLibrary;
 
 /**
  *
@@ -14,4 +15,5 @@ import kp.sgs.lib.core.IOLibrary;
 public final class DefaultLibs
 {
     public static final SGSLibrary IO = IOLibrary.LIB;
+    public static final SGSLibrary STRINGS = StringLibrary.LIB;
 }

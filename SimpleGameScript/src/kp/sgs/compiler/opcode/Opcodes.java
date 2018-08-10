@@ -380,6 +380,26 @@ public final class Opcodes
         }
     }
     
+    public static final Opcode libeNew(int index, int argumentCount, boolean popReturn) throws CompilerError
+    {
+        if(index > 0xffff)
+            throw new CompilerError("identifier index overflow");
+        if(argumentCount > 0xff)
+            throw new CompilerError("argument count overflow");
+        switch((index > 0xff ? 0x1 : 0x0) | (argumentCount > 0 ? 0x2 : 0x0) | (!popReturn ? 0x4 : 0x0))
+        {
+            default: throw new IllegalStateException();
+            case 0x0: return opcode(Instruction.LIBE_VNEW_NA, 0, 0, (byte) (index & 0xff));
+            case 0x1: return opcode(Instruction.LIBE_VNEW_NA16, 0, 0, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+            case 0x2: return opcode(Instruction.LIBE_VNEW, 0, argumentCount, (byte) argumentCount, (byte) (index & 0xff));
+            case 0x4: return opcode(Instruction.LIBE_NEW_NA, 1, 0, (byte) (index & 0xff));
+            case 0x1 | 0x2: return opcode(Instruction.LIBE_VNEW16, 0, argumentCount, (byte) argumentCount, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+            case 0x1 | 0x4: return opcode(Instruction.LIBE_NEW_NA16, 1, 0, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+            case 0x2 | 0x4: return opcode(Instruction.LIBE_NEW, 1, argumentCount, (byte) argumentCount, (byte) (index & 0xff));
+            case 0x1 | 0x2 | 0x4: return opcode(Instruction.LIBE_NEW16, 1, argumentCount, (byte) argumentCount, (byte) (index & 0xff), (byte) ((index >>> 8) & 0xff));
+        }
+    }
+    
     public static final Opcode argsToArray(int varIndex, int offsetIndex) throws CompilerError
     {
         if(varIndex > 0xff)

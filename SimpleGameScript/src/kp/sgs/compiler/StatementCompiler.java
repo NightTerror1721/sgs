@@ -456,6 +456,16 @@ public final class StatementCompiler
     
     private static DataType compileNew(NamespaceScope scope, OpcodeList opcodes, Statement base, Arguments args, boolean popReturn) throws CompilerError
     {
+        if(base.isIdentifier())
+        {
+            NamespaceIdentifier id = scope.getIdentifier(base.toString());
+            if(id.isLibraryElement())
+            {
+                int count = compileArguments(scope, opcodes, args);
+                opcodes.append(Opcodes.libeNew(id.getIndex(), count, popReturn));
+                return DataType.OBJECT;
+            }
+        }
         compile(scope, opcodes, base, false);
         int count = compileArguments(scope, opcodes, args);
         opcodes.append(Opcodes.New(count, popReturn));

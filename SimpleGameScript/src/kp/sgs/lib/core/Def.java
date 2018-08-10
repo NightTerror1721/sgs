@@ -8,6 +8,7 @@ package kp.sgs.lib.core;
 import java.util.Objects;
 import kp.sgs.SGSGlobals;
 import kp.sgs.compiler.parser.DataType;
+import kp.sgs.data.SGSMutableObject;
 import kp.sgs.data.SGSUserdata;
 import kp.sgs.data.SGSValue;
 import kp.sgs.lib.SGSLibraryElement;
@@ -123,6 +124,9 @@ public final class Def
 
         @Override
         public SGSValue operatorReferenceGet() { throw new UnsupportedOperationException(); }
+        
+        @Override
+        public final SGSMutableObject constructor(SGSValue[] args) { return new SGSMutableObject(); }
     }
     
     private static final class LibraryElementWrapper extends SGSUserdata
