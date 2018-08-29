@@ -1,33 +1,20 @@
-#CONSTANTS: 2
-#0: int: 50
-#1: int: 30
+#CONSTANTS: 0
 
 
 #IDENTIFIERS: 0
 
 
-#LIBRARY IMPORTS: 0
+#LIBRARY IMPORTS: 1
+#0: from list import List
 
 
-#FUNCTIONS: 2
+#FUNCTIONS: 1
 #0: 
-    stack_len: 2
+    stack_len: 1
     vars_len: 1
     return_type: any
     code:
-    0x3: LOAD_CONST #0 
+    0x3: <<UNKNOWN_OPCODE>>
+    0x4: NOP 
     0x5: STORE_VAR #0 
-    0x7: LOAD_VAR #0 
-    0x9: LOAD_CONST #1 
-    0xb: LOCAL_CALL 2 #1 
-    0xe: STORE_VAR #0 
-    0x10: RETURN_NONE 
-#1: 
-    stack_len: 2
-    vars_len: 2
-    return_type: any
-    code:
-    0x3: ARG_TO_VAR #0 #0 
-    0x6: ARG_TO_VAR #1 #1 
-    0x9: ADD 
-    0xa: RETURN 
+    0x7: RETURN_NONE 

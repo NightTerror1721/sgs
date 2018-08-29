@@ -46,5 +46,7 @@ public interface SpecialProperty
     
     String OP_ITERATOR          = "iterator";
     
+    String OP_LENGTH            = "length";
+    
     String CONSTRUCTOR          = "new";
 }

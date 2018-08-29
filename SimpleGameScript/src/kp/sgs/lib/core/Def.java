@@ -5,9 +5,13 @@
  */
 package kp.sgs.lib.core;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 import kp.sgs.SGSGlobals;
 import kp.sgs.compiler.parser.DataType;
+import kp.sgs.data.SGSFunction;
+import kp.sgs.data.SGSImmutableObject;
 import kp.sgs.data.SGSMutableObject;
 import kp.sgs.data.SGSUserdata;
 import kp.sgs.data.SGSValue;
@@ -36,6 +40,44 @@ public final class Def
     public static final SGSLibraryElement function(String name, VoidFunctionClosure function)
     {
         return new VoidLibraryFunction(name, DataType.ANY, function);
+    }
+    
+    public static final SGSValue method(MethodClosure method)
+    {
+        return new Method(method);
+    }
+    public static final SGSValue method(VoidMethodClosure method)
+    {
+        return new VoidMethod(method);
+    }
+    
+    
+    public static final SGSLibraryElement objectClass(String name, SGSValue clazz)
+    {
+        return new LibraryClass(name, clazz);
+    }
+    
+    public static final SGSLibraryElement objectClass(String name, Map<String, SGSValue> classElements)
+    {
+        return new LibraryClass(name, new SGSImmutableObject(classElements));
+    }
+    
+    public static final SGSLibraryElement objectClass(String name, final InnerLibraryClass classElements)
+    {
+        return new LibraryClass(name, new SGSUserdata()
+        {
+            @Override
+            public final SGSValue operatorGetProperty(String name)
+            {
+                SGSValue value;
+                return (value = classElements.getProperty(name)) == null ? SGSValue.UNDEFINED : value;
+            }
+        });
+    }
+    
+    public static final SGSLibraryElement objectClass(String name, Supplier<SGSMutableObject> customObjectCreator)
+    {
+        return new CustomLibraryClass(name, customObjectCreator);
     }
     
     
@@ -100,6 +142,34 @@ public final class Def
     @FunctionalInterface
     public static interface VoidFunctionClosure { void execute(SGSGlobals globals, SGSValue[] args); }
     
+    @FunctionalInterface
+    public static interface InnerLibraryClass { SGSValue getProperty(String name); }
+    
+    private static final class LibraryClass extends AbstractLibraryElement
+    {
+        private final SGSValue base;
+        public LibraryClass(String name, SGSValue base)
+        {
+            super(name);
+            this.base = Objects.requireNonNull(base);
+        }
+        
+        @Override
+        public final SGSMutableObject constructor(SGSValue[] args) { return new SGSMutableObject(base); }
+    }
+    private static final class CustomLibraryClass extends AbstractLibraryElement
+    {
+        private final Supplier<SGSMutableObject> creator;
+        public CustomLibraryClass(String name, Supplier<SGSMutableObject> creator)
+        {
+            super(name);
+            this.creator = Objects.requireNonNull(creator);
+        }
+        
+        @Override
+        public final SGSMutableObject constructor(SGSValue[] args) { return creator.get(); }
+    }
+    
     private static abstract class AbstractLibraryElement extends SGSLibraryElement
     {
         private AbstractLibraryElement(String name) { super(name); }
@@ -126,7 +196,7 @@ public final class Def
         public SGSValue operatorReferenceGet() { throw new UnsupportedOperationException(); }
         
         @Override
-        public final SGSMutableObject constructor(SGSValue[] args) { return new SGSMutableObject(); }
+        public SGSMutableObject constructor(SGSValue[] args) { return new SGSMutableObject(); }
     }
     
     private static final class LibraryElementWrapper extends SGSUserdata
@@ -148,4 +218,44 @@ public final class Def
         @Override
         public final SGSValue operatorCall(SGSValue[] args) { return element.operatorCall(globals, args); }
     }
+    
+    private static final class Method extends SGSFunction
+    {
+        private final MethodClosure function;
+        
+        private Method(MethodClosure function)
+        {
+            if(function == null)
+                throw new NullPointerException();
+            this.function = function;
+        }
+        
+        @Override
+        public SGSValue operatorCall(SGSValue[] args) { return function.execute(args); }
+    }
+    
+    private static final class VoidMethod extends SGSFunction
+    {
+        private final VoidMethodClosure function;
+        
+        private VoidMethod(VoidMethodClosure function)
+        {
+            if(function == null)
+                throw new NullPointerException();
+            this.function = function;
+        }
+        
+        @Override
+        public SGSValue operatorCall(SGSValue[] args)
+        {
+            function.execute(args);
+            return SGSValue.UNDEFINED;
+        }
+    }
+    
+    @FunctionalInterface
+    public static interface MethodClosure { SGSValue execute(SGSValue[] args); }
+    
+    @FunctionalInterface
+    public static interface VoidMethodClosure { void execute(SGSValue[] args); }
 }

@@ -154,7 +154,13 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
         return properties.isEmpty() ? TRUE : FALSE;
     }
     @Override public final SGSValue operatorConcat(SGSValue value) { return new SGSString(toString().concat(value.toString())); }
-    @Override public final int      operatorLength() { return properties.size(); }
+    @Override public final int      operatorLength()
+    {
+        SGSValue prop;
+        if((prop = properties.getOrDefault(SpecialProperty.OP_LENGTH, UNDEFINED)) != UNDEFINED)
+            return prop.operatorCall(new SGSValue[] { this }).toInt();
+        return properties.size();
+    }
     
     
     /* Math operators */

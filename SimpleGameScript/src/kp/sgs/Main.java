@@ -27,6 +27,8 @@ public final class Main
         CompilerProperties props = new CompilerProperties();
         SGSLibraryRepository rep = new SGSLibraryRepository();
         rep.registerLibrary(DefaultLibs.IO);
+        rep.registerLibrary(DefaultLibs.STRINGS);
+        rep.registerLibrary(DefaultLibs.LIST);
         props.setLibraryRepository(rep);
         props.addDirectories(System.getProperty("user.dir"));
         
@@ -42,5 +44,8 @@ public final class Main
         script.execute();
         t2 = System.nanoTime();
         System.out.println("Executed in " + ((t2 - t1) / 1000000) + " ms.");
+        
+        //script = SGSCompiler.compileInline("print(\"hello inline world\");", new SGSMutableObject(), props);
+        
     }
 }

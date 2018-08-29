@@ -1,11 +1,7 @@
 
+import list;
 
-def main() {
-	def var = 5 * 10;
-	var = sum(var, 30);
-}
-
-def sum(x, y)
+def main()
 {
-	return x + y;
+	def var = new List();
 }
