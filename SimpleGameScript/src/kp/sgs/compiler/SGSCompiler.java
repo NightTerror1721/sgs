@@ -64,6 +64,7 @@ public final class SGSCompiler
     
     private static void compile(CodeReader source, ScriptBuilder builder, ErrorList errors) throws CompilerException
     {
+        source = CommentDeleter.removeComments(source);
         List<Instruction> insts = InstructionParser.parse(source, errors, false);
         if(errors.hasErrors())
             throw new CompilerException(errors);

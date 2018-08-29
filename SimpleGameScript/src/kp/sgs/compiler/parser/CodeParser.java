@@ -506,7 +506,7 @@ public final class CodeParser
                         {
                             default: {
                                 if(accumulated.hasLast() && accumulated.last().isValidOperand())
-                                    accumulated.enqret(Operator.MULTIPLICATION);
+                                    accumulated.enqueue(Operator.MULTIPLICATION);
                                 else accumulated.enqueue(Operator.INDIRECTION);
                                 source.move(-1);
                             } break;

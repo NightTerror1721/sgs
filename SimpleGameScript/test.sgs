@@ -12,7 +12,7 @@ def props = {
 
 def write(text, endline) {
 	endline = endline ? "\n" : "";
-	print(text..endline);
+	//print(text..endline);
 }
 
 def main() {

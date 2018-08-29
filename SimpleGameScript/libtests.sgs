@@ -1,0 +1,11 @@
+
+
+def main() {
+	def var = 5 * 10;
+	var = sum(var, 30);
+}
+
+def sum(x, y)
+{
+	return x + y;
+}

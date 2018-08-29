@@ -33,6 +33,14 @@ public final class Main
         SGSScript script = SGSCompiler.compile(new File("libtests.sgs"), new SGSMutableObject(), props);
         OpcodeParser.parseTo(script, new File("opcodes.txt"));
         
+        double t1 = System.nanoTime();
         script.execute();
+        double t2 = System.nanoTime();
+        System.out.println("Executed in " + ((t2 - t1) / 1000000) + " ms.");
+        
+        t1 = System.nanoTime();
+        script.execute();
+        t2 = System.nanoTime();
+        System.out.println("Executed in " + ((t2 - t1) / 1000000) + " ms.");
     }
 }
