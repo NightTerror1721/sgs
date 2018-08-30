@@ -14,7 +14,6 @@
     vars_len: 1
     return_type: any
     code:
-    0x3: <<UNKNOWN_OPCODE>>
-    0x4: NOP 
+    0x3: LIBE_NEW_NA #0 
     0x5: STORE_VAR #0 
     0x7: RETURN_NONE 

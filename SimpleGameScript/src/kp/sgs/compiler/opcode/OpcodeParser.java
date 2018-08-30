@@ -243,12 +243,20 @@ public final class OpcodeParser
             case LIBE_REF_GET16: output.appendOpname("LIBE_REF_GET16").appendWordRef(code[offset + 1], code[offset + 2]); return 2;
             case LIBE_CALL: output.appendOpname("LIBE_CALL").appendByte(code[offset + 1]).appendByteRef(code[offset + 2]); return 2;
             case LIBE_CALL16: output.appendOpname("LIBE_CALL16").appendByte(code[offset + 1]).appendWordRef(code[offset + 2], code[offset + 3]); return 3;
-            case LIBE_CALL_NA: output.appendOpname("LIBE_CALL_NA").appendByteRef(code[offset + 2]); return 1;
-            case LIBE_CALL_NA16: output.appendOpname("LIBE_CALL_NA16").appendWordRef(code[offset + 2], code[offset + 3]); return 2;
+            case LIBE_CALL_NA: output.appendOpname("LIBE_CALL_NA").appendByteRef(code[offset + 1]); return 1;
+            case LIBE_CALL_NA16: output.appendOpname("LIBE_CALL_NA16").appendWordRef(code[offset + 1], code[offset + 3]); return 2;
             case LIBE_VCALL: output.appendOpname("LIBE_VCALL").appendByte(code[offset + 1]).appendByteRef(code[offset + 2]); return 2;
             case LIBE_VCALL16: output.appendOpname("LIBE_VCALL16").appendByte(code[offset + 1]).appendWordRef(code[offset + 2], code[offset + 3]); return 3;
-            case LIBE_VCALL_NA: output.appendOpname("LIBE_VCALL_NA").appendByteRef(code[offset + 2]); return 1;
-            case LIBE_VCALL_NA16: output.appendOpname("LIBE_VCALL_NA16").appendWordRef(code[offset + 2], code[offset + 3]); return 2;
+            case LIBE_VCALL_NA: output.appendOpname("LIBE_VCALL_NA").appendByteRef(code[offset + 1]); return 1;
+            case LIBE_VCALL_NA16: output.appendOpname("LIBE_VCALL_NA16").appendWordRef(code[offset + 1], code[offset + 3]); return 2;
+            case LIBE_NEW: output.appendOpname("LIBE_NEW").appendByte(code[offset + 1]).appendByteRef(code[offset + 2]); return 2;
+            case LIBE_NEW16: output.appendOpname("LIBE_NEW16").appendByte(code[offset + 1]).appendWordRef(code[offset + 2], code[offset + 3]); return 3;
+            case LIBE_NEW_NA: output.appendOpname("LIBE_NEW_NA").appendByteRef(code[offset + 1]); return 1;
+            case LIBE_NEW_NA16: output.appendOpname("LIBE_NEW_NA16").appendWordRef(code[offset + 1], code[offset + 3]); return 2;
+            case LIBE_VNEW: output.appendOpname("LIBE_VNEW").appendByte(code[offset + 1]).appendByteRef(code[offset + 2]); return 2;
+            case LIBE_VNEW16: output.appendOpname("LIBE_VNEW16").appendByte(code[offset + 1]).appendWordRef(code[offset + 2], code[offset + 3]); return 3;
+            case LIBE_VNEW_NA: output.appendOpname("LIBE_VNEW_NA").appendByteRef(code[offset + 1]); return 1;
+            case LIBE_VNEW_NA16: output.appendOpname("LIBE_VNEW_NA16").appendWordRef(code[offset + 1], code[offset + 3]); return 2;
             
             case ARGS_TO_ARRAY: output.appendOpname("ARGS_TO_ARRAY").appendByteRef(code[offset + 1]).appendByte(code[offset + 2]); return 2;
             case ARG_TO_VAR: output.appendOpname("ARG_TO_VAR").appendByteRef(code[offset + 1]).appendByteRef(code[offset + 2]); return 2;
