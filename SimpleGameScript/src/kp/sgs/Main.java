@@ -26,9 +26,7 @@ public final class Main
     {
         CompilerProperties props = new CompilerProperties();
         SGSLibraryRepository rep = new SGSLibraryRepository();
-        rep.registerLibrary(DefaultLibs.IO);
-        rep.registerLibrary(DefaultLibs.STRINGS);
-        rep.registerLibrary(DefaultLibs.LIST);
+        DefaultLibs.registerAllDefaultLibs(rep);
         props.setLibraryRepository(rep);
         props.addDirectories(System.getProperty("user.dir"));
         

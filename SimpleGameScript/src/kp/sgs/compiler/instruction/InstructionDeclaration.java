@@ -29,19 +29,19 @@ public class InstructionDeclaration extends Instruction
 {
     private final DeclarationEntry[] assignments;
     private final DataType type;
-    private final boolean global;
+    private final DeclarationType decType;
     
-    private InstructionDeclaration(DeclarationEntry[] assignments, DataType type, boolean global)
+    private InstructionDeclaration(DeclarationEntry[] assignments, DataType type, DeclarationType decType)
     {
         this.assignments = Objects.requireNonNull(assignments);
         this.type = Objects.requireNonNull(type);
-        this.global = global;
+        this.decType = Objects.requireNonNull(decType);
     }
     
     @Override
     public final InstructionId getInstructionId() { return InstructionId.DECLARATION; }
     
-    public static final InstructionDeclaration create(CodeFragmentList list, DataType type, boolean global) throws CompilerError
+    public static final InstructionDeclaration create(CodeFragmentList list, DataType type, DeclarationType decType) throws CompilerError
     {
         CodeFragmentList[] parts = list.split(Stopchar.COMMA);
         if(parts == null || (parts.length == 1 && parts[0].isEmpty()))
@@ -70,7 +70,7 @@ public class InstructionDeclaration extends Instruction
             }
         }
         
-        return new InstructionDeclaration(assignments, type, global);
+        return new InstructionDeclaration(assignments, type, decType);
     }
 
     @Override
@@ -80,32 +80,19 @@ public class InstructionDeclaration extends Instruction
         {
             if(entry.isIdentifier())
             {
-                if(!global)
+                if(decType != DeclarationType.GLOBAL)
                     throw new CompilerError("Cannot declare uninitiated constants");
                 Identifier identifier = entry.getIdentifier();
                 scope.createGlobalVariable(identifier.toString());
             }
             else
             {
-                if(global)
+                if(decType == DeclarationType.GLOBAL)
                     throw new CompilerError("Cannot assign any value to global variable in constant time");
                 Operation assignment = entry.getOperation();
                 if(assignment.isAssignment())
                 {
-                    Statement left = assignment.getOperand(0);
-                    if(!left.isIdentifier())
-                        throw new CompilerError("Invalid left part of assignation operator in declaration. Required valid identifier, but found: " + left);
-                    Statement right = assignment.getOperand(1);
-                    if(right.isLiteral())
-                        scope.createConstant(left.toString(), (Literal) right);
-                    else if(right.isMutable())
-                    {
-                        Mutable m = (Mutable) right;
-                        if(!m.isMutableLiteral())
-                            throw new CompilerError("Invalid right part of assignation operator in constant declaration. Required valid literal, but found: " + right);
-                        scope.createConstant(left.toString(), m.generateLiteral());
-                    }
-                    else throw new CompilerError("Invalid right part of assignation operator in constant declaration. Required valid literal, but found: " + right);
+                    compileConstantDeclaration(scope, assignment);
                 }
                 else if(assignment.isNewFunction())
                 {
@@ -114,6 +101,24 @@ public class InstructionDeclaration extends Instruction
                 else throw new IllegalStateException();
             }
         }
+    }
+    
+    private static void compileConstantDeclaration(NamespaceScope scope, Operation assignment) throws CompilerError
+    {
+        Statement left = assignment.getOperand(0);
+        if(!left.isIdentifier())
+            throw new CompilerError("Invalid left part of assignation operator in declaration. Required valid identifier, but found: " + left);
+        Statement right = assignment.getOperand(1);
+        if(right.isLiteral())
+            scope.createConstant(left.toString(), (Literal) right);
+        else if(right.isMutable())
+        {
+            Mutable m = (Mutable) right;
+            if(!m.isMutableLiteral())
+                throw new CompilerError("Invalid right part of assignation operator in constant declaration. Required valid literal, but found: " + right);
+            scope.createConstant(left.toString(), m.generateLiteral());
+        }
+        else throw new CompilerError("Invalid right part of assignation operator in constant declaration. Required valid literal, but found: " + right);
     }
 
     @Override
@@ -124,27 +129,36 @@ public class InstructionDeclaration extends Instruction
             if(entry.isIdentifier())
             {
                 Identifier identifier = entry.getIdentifier();
-                if(global)
-                    scope.createGlobalVariable(identifier.toString());
-                else scope.createLocalVariable(identifier.toString(), type);
+                switch(decType)
+                {
+                    default: throw new IllegalStateException();
+                    case NORMAL: scope.createLocalVariable(identifier.toString(), type); break;
+                    case GLOBAL: scope.createGlobalVariable(identifier.toString()); break;
+                    case CONSTANT: throw new CompilerError("Cannot declare uninitiated constants");
+                }
             }
             else
             {
                 Operation assignment = entry.getOperation();
                 if(assignment.isAssignment())
                 {
-                    Statement left = assignment.getOperand(0);
-                    if(!left.isIdentifier())
-                        throw new CompilerError("Invalid left part of assignation operator in declaration. Required valid identifier, but found: " + left);
-                    if(global)
-                        scope.createGlobalVariable(left.toString());
-                    else scope.createLocalVariable(left.toString(), type);
-                    StatementCompiler.compile(scope, opcodes, assignment, false);
+                    if(decType == DeclarationType.CONSTANT)
+                        compileConstantDeclaration(scope, assignment);
+                    else
+                    {
+                        Statement left = assignment.getOperand(0);
+                        if(!left.isIdentifier())
+                            throw new CompilerError("Invalid left part of assignation operator in declaration. Required valid identifier, but found: " + left);
+                        if(decType == DeclarationType.GLOBAL)
+                            scope.createGlobalVariable(left.toString());
+                        else scope.createLocalVariable(left.toString(), type);
+                        StatementCompiler.compile(scope, opcodes, assignment, false);
+                    }
                 }
                 else if(assignment.isNewFunction())
                 {
-                    if(global)
-                        throw new CompilerError("Cannot declarate functions in global statement");
+                    if(decType != DeclarationType.NORMAL)
+                        throw new CompilerError("Cannot declarate functions in global or constant statement");
                     StatementCompiler.compile(scope, opcodes, assignment, false);
                 }
                 else throw new IllegalStateException();
@@ -181,4 +195,6 @@ public class InstructionDeclaration extends Instruction
         
         @Override public final Operation getOperation() { return op; }
     }
+    
+    public enum DeclarationType { NORMAL, GLOBAL, CONSTANT }
 }

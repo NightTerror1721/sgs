@@ -16,7 +16,7 @@ import kp.sgs.data.SGSValue;
  *
  * @author Asus
  */
-public class StringLibrary extends DefaultCoreLibrary
+public final class StringLibrary extends DefaultCoreLibrary
 {
     public static final StringLibrary LIB = new StringLibrary();
     

@@ -7,7 +7,7 @@ package kp.sgs.lib.core;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import kp.sgs.SGSGlobals;
 import kp.sgs.compiler.parser.DataType;
 import kp.sgs.data.SGSFunction;
@@ -75,7 +75,7 @@ public final class Def
         });
     }
     
-    public static final SGSLibraryElement objectClass(String name, Supplier<SGSMutableObject> customObjectCreator)
+    public static final SGSLibraryElement customObjectClass(String name, Function<SGSValue[], SGSMutableObject> customObjectCreator)
     {
         return new CustomLibraryClass(name, customObjectCreator);
     }
@@ -159,15 +159,15 @@ public final class Def
     }
     private static final class CustomLibraryClass extends AbstractLibraryElement
     {
-        private final Supplier<SGSMutableObject> creator;
-        public CustomLibraryClass(String name, Supplier<SGSMutableObject> creator)
+        private final Function<SGSValue[], SGSMutableObject> creator;
+        public CustomLibraryClass(String name, Function<SGSValue[], SGSMutableObject> creator)
         {
             super(name);
             this.creator = Objects.requireNonNull(creator);
         }
         
         @Override
-        public final SGSMutableObject constructor(SGSValue[] args) { return creator.get(); }
+        public final SGSMutableObject constructor(SGSValue[] args) { return creator.apply(args); }
     }
     
     private static abstract class AbstractLibraryElement extends SGSLibraryElement

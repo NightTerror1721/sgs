@@ -1,7 +1,51 @@
-
+import system;
+import io;
 import list;
+import arrays;
+import strings;
+import map;
 
 def main()
 {
 	def var = new List();
+	
+	var->add("ola k ase");
+	var->add(0, "second");
+	
+	log(var);
+	
+	def str = "string test";
+	str = strcat(str, " last");
+	log(str);
+	
+	log(strjoin(", ", ["ola", "k", "ase", str]));
+	
+	//print(var);
+	
+	def map = new Map();
+	map[0] = "first";
+	map["second"] = 67;
+	
+	log(map);
+	
+	log(new List([40, 35, 60, "last"]));
+	
+	log(arraynew(10));
+	log(arrayconcat(["first", false], [64, "last"]));
+	
+	const klaw = [3, 5];
+	log(klaw);
+	
+	log(CurrentTimeMillis());
+	log(CurrentUserDir());
+	
+	SetGlobal("main_test_g", map);
+	
+	global main_test_g;
+	log(main_test_g);
+	
+	
+	//def x = const [30, 5];
 }
+
+def log(text) { print(text.."\n"); }

@@ -34,6 +34,7 @@ public final class Command extends CodeFragment
             GLOBAL = new Command(CommandId.GLOBAL),
             INCLUDE = new Command(CommandId.INCLUDE),
             IMPORT = new Command(CommandId.IMPORT),
+            CONST = new Command(CommandId.CONST),
             IF = new Command(CommandId.IF),
             ELSE = new Command(CommandId.ELSE),
             FOR = new Command(CommandId.FOR),

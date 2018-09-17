@@ -15,6 +15,7 @@ public interface SpecialProperty
     String CAST_FLOAT           = "(float)";
     String CAST_STRING          = "(string)";
     String CAST_ARRAY           = "(array)";
+    String CAST_OBJECT          = "(object)";
     
     String OP_EQUALS            = "==";
     String OP_NOT_EQUALS        = "!=";

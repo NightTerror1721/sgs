@@ -1,19 +1,155 @@
-#CONSTANTS: 0
+#CONSTANTS: 22
+#0: string: ola k ase
+#1: int: 0
+#2: string: second
+#3: string: string test
+#4: string:  last
+#5: string: , 
+#6: int: 4
+#7: string: ola
+#8: string: k
+#9: string: ase
+#10: string: first
+#11: int: 67
+#12: int: 40
+#13: int: 35
+#14: int: 60
+#15: string: last
+#16: int: 10
+#17: int: 2
+#18: int: 64
+#19: const array: [3, 5]
+#20: string: main_test_g
+#21: string: \n
 
 
-#IDENTIFIERS: 0
+#IDENTIFIERS: 2
+#0: add
+#1: main_test_g
 
 
-#LIBRARY IMPORTS: 1
+#LIBRARY IMPORTS: 10
 #0: from list import List
+#1: from strings import strcat
+#2: from strings import strjoin
+#3: from map import Map
+#4: from arrays import arraynew
+#5: from arrays import arrayconcat
+#6: from system import CurrentTimeMillis
+#7: from system import CurrentUserDir
+#8: from system import SetGlobal
+#9: from io import print
 
 
-#FUNCTIONS: 1
+#FUNCTIONS: 2
 #0: 
-    stack_len: 1
-    vars_len: 1
+    stack_len: 4
+    vars_len: 3
     return_type: any
     code:
     0x3: LIBE_NEW_NA #0 
     0x5: STORE_VAR #0 
-    0x7: RETURN_NONE 
+    0x7: LOAD_VAR #0 
+    0x9: LOAD_CONST #0 
+    0xb: VINVOKE 1 #0 
+    0xe: LOAD_VAR #0 
+    0x10: LOAD_CONST #1 
+    0x12: LOAD_CONST #2 
+    0x14: VINVOKE 2 #0 
+    0x17: LOAD_VAR #0 
+    0x19: LOCAL_VCALL 1 #1 
+    0x1c: LOAD_CONST #3 
+    0x1e: STORE_VAR #1 
+    0x20: LOAD_VAR #1 
+    0x22: LOAD_CONST #4 
+    0x24: LIBE_CALL 2 #1 
+    0x27: STORE_VAR #1 
+    0x29: LOAD_VAR #1 
+    0x2b: LOCAL_VCALL 1 #1 
+    0x2e: LOAD_CONST #5 
+    0x30: LOAD_CONST #6 
+    0x32: ARRAY_NEW 
+    0x33: DUP 
+    0x34: LOAD_CONST #7 
+    0x36: ARRAY_INT_SET 0 
+    0x38: DUP 
+    0x39: LOAD_CONST #8 
+    0x3b: ARRAY_INT_SET 1 
+    0x3d: DUP 
+    0x3e: LOAD_CONST #9 
+    0x40: ARRAY_INT_SET 2 
+    0x42: DUP 
+    0x43: LOAD_VAR #1 
+    0x45: ARRAY_INT_SET 3 
+    0x47: LIBE_CALL 2 #2 
+    0x4a: LOCAL_VCALL 1 #1 
+    0x4d: LIBE_NEW_NA #3 
+    0x4f: STORE_VAR #2 
+    0x51: LOAD_VAR #2 
+    0x53: LOAD_CONST #10 
+    0x55: ARRAY_INT_SET 0 
+    0x57: LOAD_VAR #2 
+    0x59: LOAD_CONST #2 
+    0x5b: LOAD_CONST #11 
+    0x5d: ARRAY_SET 
+    0x5e: LOAD_VAR #2 
+    0x60: LOCAL_VCALL 1 #1 
+    0x63: LOAD_CONST #6 
+    0x65: ARRAY_NEW 
+    0x66: DUP 
+    0x67: LOAD_CONST #12 
+    0x69: ARRAY_INT_SET 0 
+    0x6b: DUP 
+    0x6c: LOAD_CONST #13 
+    0x6e: ARRAY_INT_SET 1 
+    0x70: DUP 
+    0x71: LOAD_CONST #14 
+    0x73: ARRAY_INT_SET 2 
+    0x75: DUP 
+    0x76: LOAD_CONST #15 
+    0x78: ARRAY_INT_SET 3 
+    0x7a: LIBE_NEW 1 #0 
+    0x7d: LOCAL_VCALL 1 #1 
+    0x80: LOAD_CONST #16 
+    0x82: LIBE_CALL 1 #4 
+    0x85: LOCAL_VCALL 1 #1 
+    0x88: LOAD_CONST #17 
+    0x8a: ARRAY_NEW 
+    0x8b: DUP 
+    0x8c: LOAD_CONST #10 
+    0x8e: ARRAY_INT_SET 0 
+    0x90: DUP 
+    0x91: LOAD_CONST #1 
+    0x93: ARRAY_INT_SET 1 
+    0x95: LOAD_CONST #17 
+    0x97: ARRAY_NEW 
+    0x98: DUP 
+    0x99: LOAD_CONST #18 
+    0x9b: ARRAY_INT_SET 0 
+    0x9d: DUP 
+    0x9e: LOAD_CONST #15 
+    0xa0: ARRAY_INT_SET 1 
+    0xa2: LIBE_CALL 2 #5 
+    0xa5: LOCAL_VCALL 1 #1 
+    0xa8: LOAD_CONST #19 
+    0xaa: LOCAL_VCALL 1 #1 
+    0xad: LIBE_CALL_NA #6 
+    0xaf: LOCAL_VCALL 1 #1 
+    0xb2: LIBE_CALL_NA #7 
+    0xb4: LOCAL_VCALL 1 #1 
+    0xb7: LOAD_CONST #20 
+    0xb9: LOAD_VAR #2 
+    0xbb: LIBE_VCALL 2 #8 
+    0xbe: LOAD_GLOBAL #1 
+    0xc0: LOCAL_VCALL 1 #1 
+    0xc3: RETURN_NONE 
+#1: 
+    stack_len: 2
+    vars_len: 1
+    return_type: any
+    code:
+    0x3: ARG_TO_VAR #0 #0 
+    0x6: LOAD_CONST #21 
+    0x8: CONCAT 
+    0x9: LIBE_VCALL 1 #9 
+    0xc: RETURN_NONE 

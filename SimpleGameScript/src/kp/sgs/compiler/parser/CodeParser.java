@@ -422,6 +422,11 @@ public final class CodeParser
                                     throw new CompilerError("Unexpected character: -");
                                 accumulated.enqueue(Operator.ASSIGNMENT_SUBTRACTION);
                             } break;
+                            case '>': {
+                                if(!source.canPeek(0))
+                                    throw new CompilerError("Unexpected character: >");
+                                accumulated.enqueue(Operator.INVOKE);
+                            } break;
                         }
                         return accumulated.dequeue();
                     }
@@ -821,6 +826,8 @@ public final class CodeParser
                 case "new": return Operator.NEW;
                 case "base": return Operator.BASE;
                 case "def": return Command.DEF;
+                case "global": return Command.GLOBAL;
+                case "const": return Command.CONST;
                 case "include": return Command.INCLUDE;
                 case "import": return Command.IMPORT;
                 case "if": return Command.IF;

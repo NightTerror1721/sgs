@@ -15,6 +15,7 @@ public enum CommandId
     GLOBAL,
     INCLUDE,
     IMPORT,
+    CONST,
     IF,
     ELSE,
     FOR,

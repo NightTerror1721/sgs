@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import kp.sgs.compiler.parser.DataType;
 import kp.sgs.data.SGSInteger;
 import kp.sgs.data.SGSString;
 import kp.sgs.data.SGSUserdata;
@@ -28,7 +29,9 @@ public final class ListLibrary extends DefaultCoreLibrary
     public static final ListLibrary LIB = new ListLibrary();
     
     public ListLibrary() {
-        super("list", Def.objectClass("List", () -> LibUtils.createLibraryClassInstance(BASE, new SGSList(new LinkedList<>()))));
+        super("list",
+                Def.customObjectClass("List", (args) -> LibUtils.createLibraryClassInstance(BASE, new SGSList(args))),
+                Def.function("list2array", DataType.ARRAY, (g, args) -> {  }));
     }
     
     private static final SGSValue BASE = new SGSUserdata()
@@ -43,6 +46,7 @@ public final class ListLibrary extends DefaultCoreLibrary
                 case "addAll": return ADD_ALL;
                 case "clear": return CLEAR;
                 case "contains": return CONTAINS;
+                case SpecialProperty.OP_GET:
                 case "get": return GET;
                 case "indexOf": return INDEX_OF;
                 case "isEmpty": return IS_EMPTY;
@@ -58,6 +62,7 @@ public final class ListLibrary extends DefaultCoreLibrary
                 case SpecialProperty.CAST_STRING: return OP_TO_STRING;
                 case "remove": return REMOVE;
                 case "removeIdx": return REMOVE_IDX;
+                case SpecialProperty.OP_SET:
                 case "set": return SET;
                 case "sort": return SORT;
                 case "subList": return SUB_LIST;
@@ -69,6 +74,18 @@ public final class ListLibrary extends DefaultCoreLibrary
     {
         public final List<SGSValue> list;
         
+        private SGSList(SGSValue[] args)
+        {
+            if(args.length < 1)
+                list = new LinkedList<>();
+            else
+            {
+                SGSValue arg = args[0];
+                if(arg instanceof SGSList)
+                    list = new LinkedList<>(((SGSList) arg).list);
+                else list = new LinkedList<>(Arrays.asList(arg.toArray().array()));
+            }
+        }
         private SGSList(List<SGSValue> list) { this.list = list; }
         
         @Override
@@ -137,6 +154,6 @@ public final class ListLibrary extends DefaultCoreLibrary
                 return LibUtils.createLibraryClassInstance(BASE, new SGSList(LibUtils.<SGSList>self(args).list.subList(0, args[1].toInt())));
             }),
             OP_TO_ARRAY = Def.method((args) -> { return SGSValue.valueOf(false, LibUtils.<SGSList>self(args).list); }),
-            OP_TO_STRING = Def.method((args) -> { new SGSString(LibUtils.<SGSList>self(args).list.toString()); });
+            OP_TO_STRING = Def.method((args) -> { return new SGSString(LibUtils.<SGSList>self(args).list.toString()); });
     
 }

@@ -449,8 +449,9 @@ public final class StatementCompiler
     {
         compile(scope, opcodes, objOp, false);
         int count = compileArguments(scope, opcodes, args);
-        NamespaceIdentifier id = scope.getIdentifier(property.toString());
-        opcodes.append(Opcodes.invoke(id.getIndex(), count, popReturn));
+        //NamespaceIdentifier id = scope.getIdentifier(property.toString());
+        int identifierIndex = scope.registerIdentifier(property.toString());
+        opcodes.append(Opcodes.invoke(identifierIndex, count, popReturn));
         return DataType.ANY;
     }
     

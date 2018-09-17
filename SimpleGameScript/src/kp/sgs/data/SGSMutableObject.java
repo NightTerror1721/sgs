@@ -40,7 +40,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     public final int toInt()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.CAST_INT, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.CAST_INT)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this }).toInt();
         throw new UnsupportedOperationException("operator cast int not implemented");
     }
@@ -49,7 +49,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     public final long toLong()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.CAST_INT, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.CAST_INT)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this }).toLong();
         throw new UnsupportedOperationException("operator cast int not implemented");
     }
@@ -58,7 +58,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     public final float toFloat()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.CAST_FLOAT, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.CAST_FLOAT)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this }).toFloat();
         throw new UnsupportedOperationException("operator cast float not implemented");
     }
@@ -67,7 +67,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     public final double toDouble()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.CAST_FLOAT, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.CAST_FLOAT)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this }).toDouble();
         throw new UnsupportedOperationException("operator cast float not implemented");
     }
@@ -76,7 +76,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     public final boolean toBoolean()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.CAST_INT, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.CAST_INT)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this }).toBoolean();
         throw new UnsupportedOperationException("operator cast int not implemented");
     }
@@ -85,7 +85,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     public final String toString()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.CAST_STRING, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.CAST_STRING)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this }).toString();
         return objectToString(this);
     }
@@ -94,62 +94,68 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     public final SGSArray toArray()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.CAST_ARRAY, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.CAST_ARRAY)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this }).toArray();
         return SGSArray.of(true, this);
     }
     
     @Override
-    public final SGSObject toObject() { return this; }
+    public final SGSObject toObject()
+    {
+        SGSValue prop;
+        if((prop = operatorGetProperty(SpecialProperty.CAST_OBJECT)) != UNDEFINED)
+            return prop.operatorCall(new SGSValue[] { this }).toObject();
+        return this;
+    }
     
     
     /* Comparison operators */
     @Override public final SGSValue operatorEquals(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_EQUALS, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_EQUALS)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         return properties.equals(value.toObject().map()) ? TRUE : FALSE;
     }
     @Override public final SGSValue operatorNotEquals(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_NOT_EQUALS, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_NOT_EQUALS)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         return properties.equals(value.toObject().map()) ? FALSE : TRUE;
     }
     @Override public final SGSValue operatorGreater(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_GREATER, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_GREATER)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("> operator not implemented");
     }
     @Override public final SGSValue operatorSmaller(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_SMALLER, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_SMALLER)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("< operator not implemented");
     }
     @Override public final SGSValue operatorGreaterEquals(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_GREATER_EQUALS, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_GREATER_EQUALS)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException(">= operator not implemented");
     }
     @Override public final SGSValue operatorSmallerEquals(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_SMALLER_EQUALS, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_SMALLER_EQUALS)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("<= operator not implemented");
     }
     @Override public final SGSValue operatorNegate()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_NEGATE, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_NEGATE)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this });
         return properties.isEmpty() ? TRUE : FALSE;
     }
@@ -157,7 +163,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     @Override public final int      operatorLength()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_LENGTH, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_LENGTH)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this }).toInt();
         return properties.size();
     }
@@ -167,49 +173,49 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     @Override public final SGSValue operatorPlus(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_PLUS, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_PLUS)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("+ operator not implemented");
     }
     @Override public final SGSValue operatorMinus(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_MINUS, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_MINUS)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("- operator not implemented");
     }
     @Override public final SGSValue operatorMultiply(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_MULTIPLY, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_MULTIPLY)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("* operator not implemented");
     }
     @Override public final SGSValue operatorDivide(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_DIVIDE, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_DIVIDE)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("/ operator not implemented");
     }
     @Override public final SGSValue operatorRemainder(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_REMAINDER, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_REMAINDER)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("% operator not implemented");
     }
     @Override public final SGSValue operatorIncrease()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_INCREASE, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_INCREASE)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this });
         throw new UnsupportedOperationException("++ operator not implemented");
     }
     @Override public final SGSValue operatorDecrease()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_DECREASE, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_DECREASE)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this });
         throw new UnsupportedOperationException("-- operator not implemented");
     }
@@ -220,42 +226,42 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     @Override public final SGSValue operatorBitwiseShiftLeft(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_BTW_SLEFT, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_BTW_SLEFT)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("<< operator not implemented");
     }
     @Override public final SGSValue operatorBitwiseShiftRight(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_BTW_SRIGHT, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_BTW_SRIGHT)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException(">> operator not implemented");
     }
     @Override public final SGSValue operatorBitwiseAnd(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_BTW_AND, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_BTW_AND)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("& operator not implemented");
     }
     @Override public final SGSValue operatorBitwiseOr(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_BTW_OR, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_BTW_OR)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("| operator not implemented");
     }
     @Override public final SGSValue operatorBitwiseXor(SGSValue value)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_BTW_XOR, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_BTW_XOR)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, value });
         throw new UnsupportedOperationException("^ operator not implemented");
     }
     @Override public final SGSValue operatorBitwiseNot()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_BTW_NOT, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_BTW_NOT)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this });
         throw new UnsupportedOperationException("~ operator not implemented");
     }
@@ -265,7 +271,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     @Override public SGSValue operatorGet(SGSValue index)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_GET, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_GET)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this, index });
         return properties.getOrDefault(index, UNDEFINED);
     }
@@ -274,14 +280,34 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
         if(value == null)
             throw new NullPointerException();
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_SET, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_SET)) != UNDEFINED)
             prop.operatorCall(new SGSValue[] { this, index, value });
         properties.put(index.toString(), value);
+    }
+    @Override public SGSValue operatorGet(int index)
+    {
+        SGSValue prop;
+        if((prop = operatorGetProperty(SpecialProperty.OP_GET)) != UNDEFINED)
+            return prop.operatorCall(new SGSValue[] { this, new SGSInteger(index) });
+        return properties.getOrDefault(index, UNDEFINED);
+    }
+    @Override public void     operatorSet(int index, SGSValue value)
+    {
+        if(value == null)
+            throw new NullPointerException();
+        SGSValue prop;
+        if((prop = operatorGetProperty(SpecialProperty.OP_SET)) != UNDEFINED)
+            prop.operatorCall(new SGSValue[] { this, new SGSInteger(index), value });
+        properties.put(Integer.toString(index), value);
     }
     
     
     /* Object operators */
-    @Override public SGSValue operatorGetProperty(String name) { return properties.getOrDefault(name, UNDEFINED); }
+    @Override public SGSValue operatorGetProperty(String name)
+    {
+        SGSValue prop = properties.getOrDefault(name, UNDEFINED);
+        return prop == UNDEFINED ? base == null ? UNDEFINED : base.operatorGetProperty(name) : prop;
+    }
     @Override public void     operatorSetProperty(String name, SGSValue value)
     {
         if(value == null)
@@ -291,7 +317,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     @Override public SGSValue operatorCall(SGSValue[] args)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_CALL, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_CALL)) != UNDEFINED)
         {
             SGSValue[] fargs = new SGSValue[args.length + 1];
             System.arraycopy(args, 0, fargs, 1, args.length);
@@ -311,7 +337,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     @Override public final SGSValue operatorIterator()
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.OP_ITERATOR, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.OP_ITERATOR)) != UNDEFINED)
             return prop.operatorCall(new SGSValue[] { this });
         return new SGSIterator(properties.values());
     }
@@ -320,7 +346,7 @@ public final class SGSMutableObject extends SGSValue implements SGSObject
     public final void constructor(SGSValue object, SGSValue[] args)
     {
         SGSValue prop;
-        if((prop = properties.getOrDefault(SpecialProperty.CONSTRUCTOR, UNDEFINED)) != UNDEFINED)
+        if((prop = operatorGetProperty(SpecialProperty.CONSTRUCTOR)) != UNDEFINED)
         {
             SGSValue[] fargs = new SGSValue[args.length + 1];
             System.arraycopy(args, 0, fargs, 1, args.length);

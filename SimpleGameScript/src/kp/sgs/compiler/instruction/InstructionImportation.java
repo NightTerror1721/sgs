@@ -44,7 +44,8 @@ public final class InstructionImportation extends Instruction
     @Override
     public void compileFunctionPart(NamespaceScope scope, OpcodeList opcodes) throws CompilerError
     {
-        throw new CompilerError("Cannot compile \"import\" command in function source code");
+        scope.importLibrary(libname);
+        //throw new CompilerError("Cannot compile \"import\" command in function source code");
     }
     
 }

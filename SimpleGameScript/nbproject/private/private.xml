@@ -2,6 +2,21 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/parser/CodeParser.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/SGSScript.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/core/ListLibrary.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/data/SGSMutableObject.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/core/DefaultCoreLibrary.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/core/StringLibrary.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/DefaultLibs.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/core/LibUtils.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/core/ArrayLibrary.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/ScriptBuilder.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/opcode/Opcodes.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/compiler/StatementCompiler.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/lib/core/MapLibrary.java</file>
+            <file>file:/D:/SGS/SimpleGameScript/src/kp/sgs/Main.java</file>
+        </group>
     </open-files>
 </project-private>
